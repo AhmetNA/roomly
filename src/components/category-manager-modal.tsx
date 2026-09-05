@@ -165,13 +165,19 @@ export function CategoryManagerModal({
               </View>
               <PrimaryButton
                 label={t('common.add')}
+                icon={{ ios: 'plus', android: 'add' }}
                 disabled={!newName.trim()}
                 onPress={handleAdd}
               />
             </ThemedView>
           </ThemedView>
           <ThemedView style={styles.closeRow}>
-            <PrimaryButton label={t('common.close')} variant="secondary" onPress={onClose} />
+            <PrimaryButton
+              label={t('common.close')}
+              variant="secondary"
+              icon={{ ios: 'xmark', android: 'close' }}
+              onPress={onClose}
+            />
           </ThemedView>
         </SafeAreaView>
       </ThemedView>

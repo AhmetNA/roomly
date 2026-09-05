@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Modal, ScrollView, StyleSheet } from 'react-native';
+import { Modal, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
@@ -98,12 +98,24 @@ export function ExpenseDetailModal({
                 </>
               )}
 
-              <PrimaryButton
-                label={t('common.delete')}
-                variant="secondary"
-                onPress={() => onDelete(expense)}
-              />
-              <PrimaryButton label={t('common.close')} variant="secondary" onPress={onClose} />
+              <View style={styles.buttonRow}>
+                <View style={styles.buttonFlex}>
+                  <PrimaryButton
+                    label={t('common.delete')}
+                    variant="danger"
+                    icon={{ ios: 'trash', android: 'delete' }}
+                    onPress={() => onDelete(expense)}
+                  />
+                </View>
+                <View style={styles.buttonFlex}>
+                  <PrimaryButton
+                    label={t('common.close')}
+                    variant="secondary"
+                    icon={{ ios: 'xmark', android: 'close' }}
+                    onPress={onClose}
+                  />
+                </View>
+              </View>
             </ScrollView>
           </SafeAreaView>
         </ThemedView>
@@ -133,5 +145,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: Spacing.three,
     borderRadius: Spacing.three,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+    marginTop: Spacing.two,
+  },
+  buttonFlex: {
+    flex: 1,
   },
 });

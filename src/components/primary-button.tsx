@@ -1,5 +1,8 @@
+import type { AndroidSymbol, SymbolViewProps } from 'expo-symbols';
+import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import type { SFSymbol } from 'sf-symbols-typescript';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -10,7 +13,8 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 type PrimaryButtonProps = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'danger';
+  icon?: { ios: SFSymbol; android: AndroidSymbol };
   disabled?: boolean;
 };
 
@@ -18,6 +22,7 @@ export function PrimaryButton({
   label,
   onPress,
   variant = 'primary',
+  icon,
   disabled,
 }: PrimaryButtonProps) {
   const theme = useTheme();
@@ -27,8 +32,15 @@ export function PrimaryButton({
     transform: [{ scale: scale.value }],
   }));
 
-  const backgroundColor = variant === 'primary' ? theme.accent : theme.backgroundElement;
-  const textColor = variant === 'primary' ? theme.onAccent : theme.text;
+  // Solid theme tones only (accent/danger/neutral) — no gradients or off-palette
+  // colors, so these read as part of the same system as everything else.
+  const backgroundColor =
+    variant === 'primary'
+      ? theme.accent
+      : variant === 'danger'
+        ? theme.danger
+        : theme.backgroundElement;
+  const textColor = variant === 'secondary' ? theme.text : theme.onAccent;
 
   return (
     <AnimatedPressable
@@ -47,6 +59,14 @@ export function PrimaryButton({
       }}
       style={[styles.button, { backgroundColor, opacity: disabled ? 0.5 : 1 }, animatedStyle]}
     >
+      {icon && (
+        <SymbolView
+          name={icon as SymbolViewProps['name']}
+          size={16}
+          tintColor={textColor}
+          weight="semibold"
+        />
+      )}
       <ThemedText type="default" style={[styles.label, { color: textColor }]}>
         {label}
       </ThemedText>
@@ -56,10 +76,12 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: Spacing.three,
-    borderRadius: Spacing.three,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.two,
+    paddingVertical: Spacing.three,
+    borderRadius: Spacing.three,
   },
   label: {
     fontWeight: '600',

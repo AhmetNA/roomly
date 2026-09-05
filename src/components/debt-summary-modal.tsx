@@ -74,7 +74,12 @@ export function DebtSummaryModal({
             />
           )}
           <ThemedView style={styles.closeRow}>
-            <PrimaryButton label={t('common.close')} variant="secondary" onPress={onClose} />
+            <PrimaryButton
+              label={t('common.close')}
+              variant="secondary"
+              icon={{ ios: 'xmark', android: 'close' }}
+              onPress={onClose}
+            />
           </ThemedView>
         </SafeAreaView>
       </ThemedView>
@@ -154,8 +159,23 @@ function SettleConfirmModal({
               </ThemedText>
             )}
 
-            <PrimaryButton label={t('expenses.settleButton')} onPress={handleConfirm} />
-            <PrimaryButton label={t('common.cancel')} variant="secondary" onPress={onClose} />
+            <View style={styles.actionRow}>
+              <View style={styles.actionFlex}>
+                <PrimaryButton
+                  label={t('expenses.settleButton')}
+                  icon={{ ios: 'checkmark', android: 'check' }}
+                  onPress={handleConfirm}
+                />
+              </View>
+              <View style={styles.actionFlex}>
+                <PrimaryButton
+                  label={t('common.cancel')}
+                  variant="secondary"
+                  icon={{ ios: 'xmark', android: 'close' }}
+                  onPress={onClose}
+                />
+              </View>
+            </View>
           </ThemedView>
         )}
       </View>
@@ -165,6 +185,13 @@ function SettleConfirmModal({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  actionFlex: {
     flex: 1,
   },
   empty: {

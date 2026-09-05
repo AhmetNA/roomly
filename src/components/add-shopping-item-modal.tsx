@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, StyleSheet } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CategoryManagerModal } from '@/components/category-manager-modal';
@@ -80,8 +80,24 @@ export function AddShoppingItemModal({
               </ThemedText>
             </Pressable>
 
-            <PrimaryButton label={t('common.add')} disabled={!name.trim()} onPress={handleSubmit} />
-            <PrimaryButton label={t('common.cancel')} variant="secondary" onPress={handleClose} />
+            <View style={styles.actionRow}>
+              <View style={styles.actionFlex}>
+                <PrimaryButton
+                  label={t('common.add')}
+                  icon={{ ios: 'plus', android: 'add' }}
+                  disabled={!name.trim()}
+                  onPress={handleSubmit}
+                />
+              </View>
+              <View style={styles.actionFlex}>
+                <PrimaryButton
+                  label={t('common.cancel')}
+                  variant="secondary"
+                  icon={{ ios: 'xmark', android: 'close' }}
+                  onPress={handleClose}
+                />
+              </View>
+            </View>
           </ThemedView>
         </SafeAreaView>
       </ThemedView>
@@ -97,6 +113,13 @@ export function AddShoppingItemModal({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  actionFlex: {
     flex: 1,
   },
   form: {

@@ -334,12 +334,24 @@ export function AddExpenseModal({
               </ThemedView>
             )}
 
-            <PrimaryButton
-              label={t('common.add')}
-              disabled={!canSubmit || createExpense.isPending}
-              onPress={handleSubmit}
-            />
-            <PrimaryButton label={t('common.cancel')} variant="secondary" onPress={resetAndClose} />
+            <View style={styles.actionRow}>
+              <View style={styles.actionFlex}>
+                <PrimaryButton
+                  label={t('common.add')}
+                  icon={{ ios: 'plus', android: 'add' }}
+                  disabled={!canSubmit || createExpense.isPending}
+                  onPress={handleSubmit}
+                />
+              </View>
+              <View style={styles.actionFlex}>
+                <PrimaryButton
+                  label={t('common.cancel')}
+                  variant="secondary"
+                  icon={{ ios: 'xmark', android: 'close' }}
+                  onPress={resetAndClose}
+                />
+              </View>
+            </View>
           </ScrollView>
         </SafeAreaView>
       </ThemedView>
@@ -398,6 +410,13 @@ function MemberChipRow({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  actionFlex: {
     flex: 1,
   },
   form: {

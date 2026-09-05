@@ -239,12 +239,24 @@ function EditMemberModal({
                 {t('people.ibanInvalid')}
               </ThemedText>
             )}
-            <PrimaryButton
-              label={t('common.save')}
-              disabled={name.trim().length === 0 || ibanError}
-              onPress={handleSave}
-            />
-            <PrimaryButton label={t('common.cancel')} variant="secondary" onPress={onClose} />
+            <View style={styles.buttonRow}>
+              <View style={styles.buttonFlex}>
+                <PrimaryButton
+                  label={t('common.save')}
+                  icon={{ ios: 'checkmark', android: 'check' }}
+                  disabled={name.trim().length === 0 || ibanError}
+                  onPress={handleSave}
+                />
+              </View>
+              <View style={styles.buttonFlex}>
+                <PrimaryButton
+                  label={t('common.cancel')}
+                  variant="secondary"
+                  icon={{ ios: 'xmark', android: 'close' }}
+                  onPress={onClose}
+                />
+              </View>
+            </View>
           </ThemedView>
         </SafeAreaView>
       </ThemedView>
@@ -304,5 +316,12 @@ const styles = StyleSheet.create({
   modalForm: {
     paddingHorizontal: Spacing.four,
     gap: Spacing.three,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  buttonFlex: {
+    flex: 1,
   },
 });

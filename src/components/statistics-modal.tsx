@@ -112,7 +112,12 @@ export function StatisticsModal({
               </>
             )}
 
-            <PrimaryButton label={t('common.close')} variant="secondary" onPress={onClose} />
+            <PrimaryButton
+              label={t('common.close')}
+              variant="secondary"
+              icon={{ ios: 'xmark', android: 'close' }}
+              onPress={onClose}
+            />
           </ScrollView>
         </SafeAreaView>
       </ThemedView>
