@@ -122,8 +122,12 @@ export default function ExpensesScreen() {
                         {item.title}
                       </ThemedText>
                       <ThemedText type="small" themeColor="textSecondary">
-                        {item.paid_by ? nameById.get(item.paid_by) : '—'} ·{' '}
-                        {new Date(item.created_at).toLocaleDateString()}
+                        {item.expense_payments.length > 0
+                          ? item.expense_payments
+                              .map((payment) => nameById.get(payment.member_id) ?? '—')
+                              .join(', ')
+                          : '—'}{' '}
+                        · {new Date(item.created_at).toLocaleDateString()}
                       </ThemedText>
                     </View>
                     <ThemedText

@@ -55,9 +55,12 @@ export function ExpenseDetailModal({
               <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
                 {t('expenses.paidBySection').toUpperCase()}
               </ThemedText>
-              <ThemedText type="default">
-                {expense.paid_by ? (nameById.get(expense.paid_by) ?? '—') : '—'}
-              </ThemedText>
+              {expense.expense_payments.map((payment) => (
+                <ThemedView key={payment.id} type="backgroundElement" style={styles.splitRow}>
+                  <ThemedText type="default">{nameById.get(payment.member_id) ?? '—'}</ThemedText>
+                  <ThemedText type="smallBold">{payment.amount_paid.toFixed(2)}</ThemedText>
+                </ThemedView>
+              ))}
 
               <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
                 {t('expenses.splitDetailTitle').toUpperCase()}
@@ -65,11 +68,35 @@ export function ExpenseDetailModal({
               {expense.expense_splits.map((split) => (
                 <ThemedView key={split.id} type="backgroundElement" style={styles.splitRow}>
                   <ThemedText type="default">{nameById.get(split.member_id) ?? '—'}</ThemedText>
-                  <ThemedText type="smallBold" themeColor={split.is_settled ? 'success' : 'danger'}>
-                    {split.amount_owed.toFixed(2)}
-                  </ThemedText>
+                  <ThemedText type="smallBold">{split.amount_owed.toFixed(2)}</ThemedText>
                 </ThemedView>
               ))}
+
+              {expense.expense_debts.length > 0 && (
+                <>
+                  <ThemedText
+                    type="smallBold"
+                    themeColor="textSecondary"
+                    style={styles.sectionTitle}
+                  >
+                    {t('expenses.debtsSection').toUpperCase()}
+                  </ThemedText>
+                  {expense.expense_debts.map((debt) => (
+                    <ThemedView key={debt.id} type="backgroundElement" style={styles.splitRow}>
+                      <ThemedText type="default">
+                        {nameById.get(debt.from_member_id) ?? '—'} {t('expenses.owesArrow')}{' '}
+                        {nameById.get(debt.to_member_id) ?? '—'}
+                      </ThemedText>
+                      <ThemedText
+                        type="smallBold"
+                        themeColor={debt.is_settled ? 'success' : 'danger'}
+                      >
+                        {debt.amount.toFixed(2)}
+                      </ThemedText>
+                    </ThemedView>
+                  ))}
+                </>
+              )}
 
               <PrimaryButton
                 label={t('common.delete')}

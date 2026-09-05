@@ -19,8 +19,11 @@ export function computeStatistics(expenses: ExpenseWithSplits[], period: Statist
 
   for (const expense of inPeriod) {
     totalAmount += expense.total_amount;
-    if (expense.paid_by) {
-      byMember.set(expense.paid_by, (byMember.get(expense.paid_by) ?? 0) + expense.total_amount);
+    // "Paid" is per-payment now that an expense can have multiple payers —
+    // each payer's own contribution counts toward their total, not the
+    // expense's full amount.
+    for (const payment of expense.expense_payments) {
+      byMember.set(payment.member_id, (byMember.get(payment.member_id) ?? 0) + payment.amount_paid);
     }
     byCategory.set(
       expense.category_id,

@@ -7,19 +7,18 @@ export type DebtBalance = {
 };
 
 // Net, pairwise balances only (no multi-hop simplification — that's explicitly
-// post-MVP per CLAUDE.md). Settled splits don't count: once a debt is marked
-// paid it should disappear from the summary, not just change color.
+// post-MVP per CLAUDE.md). expense_debts is already a materialized ledger
+// (computed at expense-creation time, proportional across multiple payers —
+// see create_expense), so this just nets it out per pair and drops settled
+// debts, which shouldn't count anymore.
 export function computeDebtBalances(expenses: ExpenseWithSplits[]): DebtBalance[] {
   const owed = new Map<string, number>(); // key: `${fromMemberId}>${toMemberId}` -> cents
 
   for (const expense of expenses) {
-    for (const split of expense.expense_splits) {
-      if (split.is_settled) continue;
-      if (!expense.paid_by) continue;
-      if (split.member_id === expense.paid_by) continue;
-
-      const key = `${split.member_id}>${expense.paid_by}`;
-      const cents = Math.round(split.amount_owed * 100);
+    for (const debt of expense.expense_debts) {
+      if (debt.is_settled) continue;
+      const key = `${debt.from_member_id}>${debt.to_member_id}`;
+      const cents = Math.round(debt.amount * 100);
       owed.set(key, (owed.get(key) ?? 0) + cents);
     }
   }
@@ -48,9 +47,8 @@ export function computeDebtBalances(expenses: ExpenseWithSplits[]): DebtBalance[
 }
 
 // An expense with no one still owing anyone else for it reads as "settled" in
-// the list — every split that isn't the payer's own has been marked paid.
+// the list — every debt it generated has been marked paid (or it never
+// generated any, e.g. a single person paying only for themselves).
 export function isExpenseFullySettled(expense: ExpenseWithSplits) {
-  return expense.expense_splits.every(
-    (split) => split.member_id === expense.paid_by || split.is_settled,
-  );
+  return expense.expense_debts.every((debt) => debt.is_settled);
 }

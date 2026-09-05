@@ -29,29 +29,31 @@ Supabase MCP ile canlı proje `roomly` (`vigmiiiwyliqslbwuzet`) üzerinde kuruld
 ```
 households (id, name, invite_code, created_at)
 household_members (id, household_id, user_id, name, iban, created_at)
-categories (id, household_id, name, created_at)
-expenses (id, household_id, category_id, paid_by, title, total_amount, split_type, receipt_photo_url, created_at)
+categories (id, household_id, name, icon, sort_order, created_at)
+expenses (id, household_id, category_id, title, total_amount, split_type, receipt_photo_url, created_at)
 expense_line_items (id, expense_id, name, amount)
-expense_splits (id, expense_id, member_id, shares, amount_owed, is_settled)
+expense_splits (id, expense_id, member_id, shares, amount_owed)
+expense_payments (id, expense_id, member_id, amount_paid)
+expense_debts (id, expense_id, from_member_id, to_member_id, amount, is_settled)
 shopping_items (id, household_id, category_id, name, added_by, is_purchased, created_at)
 ```
 
 Her tabloda RLS açık, `get_my_household_id()` (security definer) helper'ı ile `household_id = get_my_household_id()` şeklinde kapsanıyor. Client-side RLS'in tek başına çözemediği (chicken-and-egg / atomiklik gereken) akışlar **security-definer RPC** olarak yazıldı:
 
-- `create_household(household_name, my_name)` — ev + ilk üye + varsayılan 4 kategori atomik oluşturur.
+- `create_household(household_name, my_name)` — ev + ilk üye + varsayılan 8 kategori atomik oluşturur.
 - `join_household(code, my_name)` — davet koduyla eve katılır.
 - `leave_household()` — üyeliği siler; son üyeyse evi de siler (boş/erişilemez ev kalmasın diye).
-- `create_expense(...)` — harcama + `expense_splits` satırlarını atomik ekler, `sum(amount_owed) = total_amount` doğrulaması yapar.
-- `settle_debt(from_member_id, to_member_id)` — iki kişi arasındaki tüm ödenmemiş `expense_splits` satırlarını tek seferde `is_settled = true` yapar.
+- `create_expense(...)` — harcama + `expense_splits` + `expense_payments` satırlarını atomik ekler (`sum(amount_owed) = sum(amount_paid) = total_amount` doğrulaması yapar), ve her ower'ın borcunu ödedikleri kişilere **orantılı olarak** dağıtıp `expense_debts`'e materialize eder (bkz. "Çoklu ödeyici" notu).
+- `settle_debt(from_member_id, to_member_id)` — iki kişi arasındaki tüm ödenmemiş `expense_debts` satırlarını tek seferde `is_settled = true` yapar.
 
 Notlar:
 
-- `household_members.iban`: kullanıcı yalnızca kendi satırındaki `iban`'ı düzenleyebilir (RLS: `user_id = auth.uid()`), diğerlerinin IBAN'ını sadece okuyabilir.
-- `categories`: dinamik, kullanıcı tanımlı; hem `expenses.category_id` hem `shopping_items.category_id` aynı havuzdan referans alır. Kategori silinince bağlı kayıtlar kategorisiz kalır (varsayılan kategoriye taşınmaz — karar verildi).
+- `household_members.iban`: kullanıcı yalnızca kendi satırındaki `iban`'ı düzenleyebilir (RLS: `user_id = auth.uid()`), diğerlerinin IBAN'ını sadece okuyabilir. `src/lib/iban.ts`'de ISO 13616 mod-97 checksum (her ülke için geçerli) + TR'ye özel sabit uzunluk (26) kontrolü var; geçersiz IBAN kaydedilemez.
+- `categories`: dinamik, kullanıcı tanımlı; hem `expenses.category_id` hem `shopping_items.category_id` aynı havuzdan referans alır. Kategori silinince bağlı kayıtlar kategorisiz kalır (varsayılan kategoriye taşınmaz — karar verildi). `icon` bir anahtar (`src/constants/category-icons.ts`'de SF Symbol/Material Symbol çiftine çözülür), `sort_order` manuel görüntülenme sırası (varsayılan set: Market, Temizlik, Su, Elektrik, Doğalgaz, İnternet, Yemek, Diğer).
 - `expenses.receipt_photo_url`: henüz kullanılmıyor — Supabase Storage bucket'ı kurulmadı (bkz. "Henüz Karara Bağlanmamış").
 - `expense_line_items`: şema hazır ama UI'da henüz kullanılmıyor (post-MVP).
-- `expense_splits.split_type`/hesaplama mantığı client'ta `src/lib/expense-split.ts`'de: `equal` | `shares` | `fixed`, küsurat her zaman ödeyen kişiye yuvarlanır.
-- Borç özeti (`src/lib/debt.ts`) ayrı bir tablo tutmuyor; `expenses` + `expense_splits`'ten runtime'da hesaplanıyor (basit ikili net bakiye, çoklu-hop sadeleştirme yok — post-MVP).
+- **Çoklu ödeyici**: bir harcamayı birden fazla kişi ödeyebilir (`expense_payments`, `sum(amount_paid) = total_amount`). `expense_splits` hâlâ "kim toplamın ne kadarını borçlu" bilgisini tutar (bölüşüm tipinden bağımsız); `create_expense` RPC'si her ower'ın borcunu, ödeyenlerin katkı oranına göre kuruş hassasiyetinde dağıtıp `expense_debts` (from → to → amount, is_settled) tablosuna yazar — kendi payını kendine borçlanma satırı oluşturulmaz. Bölüşüm hesaplama mantığı (`equal`/`shares`/`fixed`) client'ta `src/lib/expense-split.ts`'de değişmedi; küsurat ilk seçilen ödeyene yuvarlanır.
+- Borç özeti (`src/lib/debt.ts`) ayrı bir tablo tutmuyor; `expense_debts`'ten runtime'da ikili net bakiye hesaplanıyor (çoklu-hop sadeleştirme yok — post-MVP).
 - Harcama düzenleme/silme yetkisi: **herkes** (tek ev/güven bazlı roommate modeliyle tutarlı) — karar verildi, SCREENS.md güncellenmeli.
 
 ## Klasör Yapısı

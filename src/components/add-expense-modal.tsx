@@ -40,7 +40,8 @@ export function AddExpenseModal({
 
   const [title, setTitle] = useState('');
   const [amountText, setAmountText] = useState('');
-  const [paidBy, setPaidBy] = useState<string | undefined>(currentMemberId);
+  const [payerIds, setPayerIds] = useState<string[]>(currentMemberId ? [currentMemberId] : []);
+  const [paidText, setPaidText] = useState<Record<string, string>>({});
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [splitType, setSplitType] = useState<SplitType>('equal');
   const [participantIds, setParticipantIds] = useState<string[]>(members.map((m) => m.id));
@@ -49,6 +50,13 @@ export function AddExpenseModal({
 
   const amount = Number(amountText.replace(',', '.'));
   const isAmountValid = Number.isFinite(amount) && amount > 0;
+
+  const paidTotal = useMemo(
+    () =>
+      payerIds.reduce((sum, id) => sum + (Number((paidText[id] ?? '').replace(',', '.')) || 0), 0),
+    [payerIds, paidText],
+  );
+  const paidMismatch = payerIds.length > 1 && isAmountValid && Math.abs(paidTotal - amount) > 0.01;
 
   const fixedTotal = useMemo(
     () =>
@@ -64,7 +72,8 @@ export function AddExpenseModal({
   const canSubmit =
     title.trim().length > 0 &&
     isAmountValid &&
-    !!paidBy &&
+    payerIds.length > 0 &&
+    !paidMismatch &&
     !fixedMismatch &&
     (splitType !== 'equal' || participantIds.length > 0) &&
     (splitType !== 'shares' || Object.values(sharesText).some((value) => Number(value) > 0));
@@ -76,15 +85,20 @@ export function AddExpenseModal({
     setSplitType('equal');
     setSharesText({});
     setFixedText({});
+    setPaidText({});
     onClose();
   }
 
   async function handleSubmit() {
-    if (!householdId || !paidBy) return;
+    if (!householdId || payerIds.length === 0) return;
+
+    // The remainder from an uneven split lands on the first selected payer —
+    // arbitrary among multiple payers, but it has to land somewhere exact.
+    const remainderMemberId = payerIds[0];
 
     const splits =
       splitType === 'equal'
-        ? computeEqualSplit(amount, participantIds, paidBy)
+        ? computeEqualSplit(amount, participantIds, remainderMemberId)
         : splitType === 'shares'
           ? computeSharesSplit(
               amount,
@@ -93,7 +107,7 @@ export function AddExpenseModal({
                   .map((m): [string, number] => [m.id, Number(sharesText[m.id]) || 0])
                   .filter(([, shares]) => shares > 0),
               ),
-              paidBy,
+              remainderMemberId,
             )
           : members.map((m) => ({
               memberId: m.id,
@@ -106,15 +120,23 @@ export function AddExpenseModal({
       return;
     }
 
+    const payments =
+      payerIds.length === 1
+        ? [{ memberId: payerIds[0], amountPaid: amount }]
+        : payerIds.map((id) => ({
+            memberId: id,
+            amountPaid: Number((paidText[id] ?? '0').replace(',', '.')) || 0,
+          }));
+
     try {
       await createExpense.mutateAsync({
         householdId,
         categoryId,
-        paidBy,
         title: title.trim(),
         totalAmount: Math.round(amount * 100) / 100,
         splitType,
         splits,
+        payments,
       });
       resetAndClose();
     } catch (error) {
@@ -131,7 +153,7 @@ export function AddExpenseModal({
       onShow={() => {
         // Re-sync defaults each time the modal opens (household membership can
         // change between opens) rather than only once on mount.
-        setPaidBy(currentMemberId);
+        setPayerIds(currentMemberId ? [currentMemberId] : []);
         setParticipantIds(members.map((m) => m.id));
       }}
     >
@@ -159,9 +181,43 @@ export function AddExpenseModal({
             </ThemedText>
             <MemberChipRow
               members={members}
-              selectedIds={[paidBy ?? '']}
-              onToggle={(id) => setPaidBy(id)}
+              selectedIds={payerIds}
+              onToggle={(id) =>
+                setPayerIds((current) =>
+                  current.includes(id) ? current.filter((m) => m !== id) : [...current, id],
+                )
+              }
+              multiSelect
             />
+            {payerIds.length > 1 && (
+              <ThemedView style={styles.memberInputList}>
+                {payerIds.map((id) => (
+                  <ThemedView key={id} type="backgroundElement" style={styles.memberInputRow}>
+                    <ThemedText type="default" style={styles.memberInputName}>
+                      {members.find((m) => m.id === id)?.name}
+                    </ThemedText>
+                    <TextInput
+                      value={paidText[id] ?? ''}
+                      onChangeText={(value) =>
+                        setPaidText((current) => ({ ...current, [id]: value }))
+                      }
+                      keyboardType="decimal-pad"
+                      placeholder="0.00"
+                      placeholderTextColor={theme.textSecondary}
+                      style={[
+                        styles.memberInputField,
+                        { color: theme.text, borderColor: theme.border },
+                      ]}
+                    />
+                  </ThemedView>
+                ))}
+                {paidMismatch && (
+                  <ThemedText type="small" themeColor="danger">
+                    {t('expenses.paymentMismatch')}
+                  </ThemedText>
+                )}
+              </ThemedView>
+            )}
 
             <ThemedText type="small" themeColor="textSecondary">
               {t('expenses.categoryLabel')}

@@ -44,6 +44,55 @@ export type Database = {
           },
         ];
       };
+      expense_debts: {
+        Row: {
+          amount: number;
+          expense_id: string;
+          from_member_id: string;
+          id: string;
+          is_settled: boolean;
+          to_member_id: string;
+        };
+        Insert: {
+          amount: number;
+          expense_id: string;
+          from_member_id: string;
+          id?: string;
+          is_settled?: boolean;
+          to_member_id: string;
+        };
+        Update: {
+          amount?: number;
+          expense_id?: string;
+          from_member_id?: string;
+          id?: string;
+          is_settled?: boolean;
+          to_member_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'expense_debts_expense_id_fkey';
+            columns: ['expense_id'];
+            isOneToOne: false;
+            referencedRelation: 'expenses';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'expense_debts_from_member_id_fkey';
+            columns: ['from_member_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'expense_debts_to_member_id_fkey';
+            columns: ['to_member_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       expense_line_items: {
         Row: {
           amount: number;
@@ -73,12 +122,47 @@ export type Database = {
           },
         ];
       };
+      expense_payments: {
+        Row: {
+          amount_paid: number;
+          expense_id: string;
+          id: string;
+          member_id: string;
+        };
+        Insert: {
+          amount_paid: number;
+          expense_id: string;
+          id?: string;
+          member_id: string;
+        };
+        Update: {
+          amount_paid?: number;
+          expense_id?: string;
+          id?: string;
+          member_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'expense_payments_expense_id_fkey';
+            columns: ['expense_id'];
+            isOneToOne: false;
+            referencedRelation: 'expenses';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'expense_payments_member_id_fkey';
+            columns: ['member_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       expense_splits: {
         Row: {
           amount_owed: number;
           expense_id: string;
           id: string;
-          is_settled: boolean;
           member_id: string;
           shares: number | null;
         };
@@ -86,7 +170,6 @@ export type Database = {
           amount_owed: number;
           expense_id: string;
           id?: string;
-          is_settled?: boolean;
           member_id: string;
           shares?: number | null;
         };
@@ -94,7 +177,6 @@ export type Database = {
           amount_owed?: number;
           expense_id?: string;
           id?: string;
-          is_settled?: boolean;
           member_id?: string;
           shares?: number | null;
         };
@@ -121,7 +203,6 @@ export type Database = {
           created_at: string;
           household_id: string;
           id: string;
-          paid_by: string | null;
           receipt_photo_url: string | null;
           split_type: string;
           title: string;
@@ -132,7 +213,6 @@ export type Database = {
           created_at?: string;
           household_id: string;
           id?: string;
-          paid_by?: string | null;
           receipt_photo_url?: string | null;
           split_type: string;
           title: string;
@@ -143,7 +223,6 @@ export type Database = {
           created_at?: string;
           household_id?: string;
           id?: string;
-          paid_by?: string | null;
           receipt_photo_url?: string | null;
           split_type?: string;
           title?: string;
@@ -162,13 +241,6 @@ export type Database = {
             columns: ['household_id'];
             isOneToOne: false;
             referencedRelation: 'households';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'expenses_paid_by_fkey';
-            columns: ['paid_by'];
-            isOneToOne: false;
-            referencedRelation: 'household_members';
             referencedColumns: ['id'];
           },
         ];
@@ -310,11 +382,11 @@ export type Database = {
         Args: {
           p_household_id: string;
           p_category_id: string | null;
-          p_paid_by: string;
           p_title: string;
           p_total_amount: number;
           p_split_type: string;
           p_splits: Json;
+          p_payments: Json;
         };
         Returns: Database['public']['Tables']['expenses']['Row'];
       };
