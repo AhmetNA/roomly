@@ -1,0 +1,34 @@
+{
+  "tabs": {
+    "expenses": "Expenses",
+    "list": "List",
+    "people": "People"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "empty": "No expenses yet",
+    "emptyHint": "Tap the plus button to add the first one",
+    "addButton": "Add Expense"
+  },
+  "list": {
+    "title": "Shopping List",
+    "empty": "The list is empty",
+    "emptyHint": "Tap the plus button to add something the household needs",
+    "addButton": "Add"
+  },
+  "people": {
+    "title": "People",
+    "empty": "No roommates found",
+    "emptyHint": "Roommates you invite with the invite code will show up here",
+    "iban": "IBAN",
+    "ibanMissing": "No IBAN added",
+    "ibanCopied": "IBAN copied",
+    "edit": "Edit"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "comingSoon": "Coming soon"
+  }
+}

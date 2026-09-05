@@ -8,17 +8,19 @@ Roomly, ev arkadaşları için iki modüllü bir mobil uygulama: ortak harcama/b
 
 ## Teknoloji Seçimleri
 
-| Katman | Seçim | Gerekçe |
-|---|---|---|
-| Mobil framework | React Native + Expo | Tek kod tabanından iOS + Android, hızlı iterasyon, EAS ile kolay build/dağıtım |
-| Backend / DB | Supabase (Postgres + Auth + Realtime) | Kendi backend'imizi yazmadan auth, veritabanı ve realtime senkronizasyon; ev arkadaşları arasında anlık güncelleme gerektiği için Realtime önemli |
-| State management | React Query (TanStack Query) + Zustand (gerekirse) | Sunucu verisi için React Query, basit local UI state için Zustand |
-| Navigasyon | Expo Router | Dosya tabanlı routing, Expo ile native entegrasyon |
-| Stil | NativeWind (Tailwind for RN) veya sade StyleSheet | Henüz kesinleşmedi |
-| Tema | React Native `useColorScheme` + özel `theme.ts` paleti | Ek ücretli/harici servis gerektirmeden sistem temasını takip eden light/dark destek |
-| Yerelleştirme | i18next + react-i18next | Ücretsiz, Expo ile uyumlu, yaygın kullanılan i18n çözümü |
+| Katman           | Seçim                                                  | Gerekçe                                                                                                                                           |
+| ---------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mobil framework  | React Native + Expo                                    | Tek kod tabanından iOS + Android, hızlı iterasyon, EAS ile kolay build/dağıtım                                                                    |
+| Backend / DB     | Supabase (Postgres + Auth + Realtime)                  | Kendi backend'imizi yazmadan auth, veritabanı ve realtime senkronizasyon; ev arkadaşları arasında anlık güncelleme gerektiği için Realtime önemli |
+| State management | React Query (TanStack Query) + Zustand (gerekirse)     | Sunucu verisi için React Query, basit local UI state için Zustand                                                                                 |
+| Navigasyon       | Expo Router                                            | Dosya tabanlı routing, Expo ile native entegrasyon                                                                                                |
+| Stil             | NativeWind (Tailwind for RN) veya sade StyleSheet      | Henüz kesinleşmedi                                                                                                                                |
+| Tema             | React Native `useColorScheme` + özel `theme.ts` paleti | Ek ücretli/harici servis gerektirmeden sistem temasını takip eden light/dark destek                                                               |
+| Yerelleştirme    | i18next + react-i18next                                | Ücretsiz, Expo ile uyumlu, yaygın kullanılan i18n çözümü                                                                                          |
 
 Bu seçimler ilk kuruluşta değiştirilebilir; büyük bir teknoloji değişikliği yapılacaksa önce kullanıcıyla teyitleşin.
+
+> **Not:** Proje Expo SDK 57 üzerine kuruldu — bu sürüm önceki SDK'lara göre önemli API değişiklikleri içeriyor (ör. `expo-router/unstable-native-tabs` ile native SF Symbol/Material Symbol destekli tab bar, `expo-glass-effect`). Kod yazmadan önce https://docs.expo.dev/versions/v57.0.0/ adresindeki versiyonlu dokümantasyona bakılmalı, genel bilgiye güvenilmemeli.
 
 ## Veri Modeli (taslak)
 
@@ -44,26 +46,47 @@ shopping_items (id, household_id, name, category_id, added_by, is_purchased, cre
   - `fixed`: `amount_owed` doğrudan girilen sabit tutar, `shares` kullanılmaz.
 - `expense_splits.is_settled`: borcun ödendi olarak işaretlenip işaretlenmediği (kolay borç kapatma, tek dokunuş).
 
-## Klasör Yapısı (öneri, iskelet oluşturulunca netleşecek)
+## Klasör Yapısı
+
+İskelet `create-expo-app` default (SDK 57) şablonuyla kuruldu; tüm kaynak kod `src/` altında, `@/*` path alias'ı `src/*`'e işaret ediyor.
 
 ```
 roomly/
-  app/                 # Expo Router sayfaları
-  components/
-  lib/
-    supabase.ts        # Supabase client
-    api/                # veritabanı sorguları
-    theme.ts            # light/dark renk paletleri
-  hooks/
-  locales/
-    tr.json
-    en.json
-  types/
+  src/
+    app/                     # Expo Router sayfaları (dosya bazlı routing)
+      _layout.tsx            # Tema provider + tab layout kurulumu
+      index.tsx              # Harcamalar (başlangıç ekranı)
+      list.tsx                # İhtiyaç Listesi
+      people.tsx              # Kişiler
+    components/
+      app-tabs.tsx           # Native tab bar (iOS/Android), app-tabs.web.tsx web varyantı
+      themed-text.tsx         # Tema-farkında Text
+      themed-view.tsx         # Tema-farkında View
+      empty-state.tsx         # Boş ekran durumu (ikon + başlık + ipucu)
+      floating-action-button.tsx
+      screen-header.tsx
+    constants/
+      theme.ts               # Colors (light/dark), Fonts, Spacing
+    hooks/
+      use-theme.ts
+      use-color-scheme.ts
+    lib/
+      i18n.ts                # i18next kurulumu
+      api/                   # (henüz yok) Supabase sorguları burada toplanacak
+      supabase.ts            # (henüz yok)
+    locales/
+      tr.json
+      en.json
+    types/                   # (henüz yok)
+  assets/
   README.md
   AGENTS.md
   CLAUDE.md
   FEATURES.md
+  SCREENS.md
 ```
+
+`lib/api/`, `lib/supabase.ts` ve `types/` Supabase entegrasyonu başlayınca eklenecek; şu an sadece iskelet (tema + i18n + boş ekranlar) mevcut.
 
 ## Çalışma Kuralları
 

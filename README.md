@@ -9,19 +9,20 @@ iOS ve Android'de aynı anda çalışacak şekilde (cross-platform) geliştirile
 
 ## Durum
 
-Proje henüz planlama aşamasında. Detaylar için:
+İskelet kuruldu: Expo Router tabanlı 3 sekme (Harcamalar / Liste / Kişiler), açık-koyu tema desteği, Türkçe/İngilizce yerelleştirme altyapısı hazır; ekranların içeriği henüz boş durumlarla (empty state) yer tutuyor. Detaylar için:
 
 - [FEATURES.md](FEATURES.md) — özellik listesi ve kapsam
 - [SCREENS.md](SCREENS.md) — ekran ekran hangi özelliklerin nerede olacağı
 - [CLAUDE.md](CLAUDE.md) — bu repo üzerinde Claude Code ile çalışırken uyulacak kurallar
 - [AGENTS.md](AGENTS.md) — proje yapısı, teknoloji seçimleri ve ajan/geliştirici notları
 
-## Teknoloji (öneri)
+## Teknoloji
 
-- **React Native + Expo** — tek kod tabanından iOS ve Android
-- **Supabase** — auth, Postgres veritabanı, realtime senkronizasyon (evdeki herkes anlık görsün diye)
+- **React Native + Expo (SDK 57)** — tek kod tabanından iOS ve Android
+- **Supabase** — auth, Postgres veritabanı, realtime senkronizasyon (evdeki herkes anlık görsün diye) — henüz entegre edilmedi
+- **i18next** — Türkçe/İngilizce yerelleştirme
 
-Bu seçim henüz kesinleşmedi; alternatifler ve gerekçe için AGENTS.md'ye bakın.
+Detay ve gerekçe için [AGENTS.md](AGENTS.md)'ye bakın.
 
 ## Geliştirme
 
@@ -30,4 +31,7 @@ npm install
 npx expo start
 ```
 
-(Proje iskeleti henüz oluşturulmadı.)
+- `npm run ios` / `npm run android` / `npm run web` — belirli platformda başlatır
+- `npm run lint` — ESLint
+- `npm run typecheck` — TypeScript
+- `npm run format` — Prettier

@@ -1,0 +1,34 @@
+{
+  "tabs": {
+    "expenses": "Harcamalar",
+    "list": "Liste",
+    "people": "Kişiler"
+  },
+  "expenses": {
+    "title": "Harcamalar",
+    "empty": "Henüz harcama eklenmedi",
+    "emptyHint": "Sağ üstteki artıya dokunarak ilk harcamayı ekle",
+    "addButton": "Harcama Ekle"
+  },
+  "list": {
+    "title": "İhtiyaç Listesi",
+    "empty": "Liste şu an boş",
+    "emptyHint": "Eve gereken bir şeyi eklemek için artıya dokun",
+    "addButton": "Ekle"
+  },
+  "people": {
+    "title": "Kişiler",
+    "empty": "Ev arkadaşı bulunamadı",
+    "emptyHint": "Davet koduyla ev arkadaşlarını ekledikçe burada listelenecekler",
+    "iban": "IBAN",
+    "ibanMissing": "IBAN eklenmedi",
+    "ibanCopied": "IBAN kopyalandı",
+    "edit": "Düzenle"
+  },
+  "common": {
+    "cancel": "Vazgeç",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "comingSoon": "Yakında"
+  }
+}

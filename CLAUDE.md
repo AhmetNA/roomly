@@ -16,18 +16,18 @@ Bu dosya, Claude Code'un bu repoda nasıl çalışması gerektiğini tanımlar. 
 - Yorum satırı yalnızca WHY açıklaması gerektiğinde (ör. bir Supabase/Expo kısıtlaması yüzünden alışılmadık bir çözüm).
 - Fonksiyon bileşenleri + hook'lar; class component yok.
 - Dosya/klasör adları: `kebab-case` (örn. `expense-list.tsx`), bileşen adları `PascalCase`, fonksiyon/değişken `camelCase`, sabitler `UPPER_SNAKE_CASE`.
-- Her ekran AGENTS.md'deki klasör yapısına göre `app/` altında Expo Router konvansiyonuyla yer alır; ekrana özel olmayan paylaşılan bileşenler `components/`'a çıkarılır.
+- Her ekran AGENTS.md'deki klasör yapısına göre `src/app/` altında Expo Router konvansiyonuyla yer alır; ekrana özel olmayan paylaşılan bileşenler `src/components/`'a çıkarılır.
 - Supabase sorguları doğrudan bileşen içine yazılmaz; `lib/api/` altında fonksiyon olarak tanımlanıp React Query hook'larıyla (`hooks/`) sarmalanır.
 - Formatlama ve lint: Prettier + ESLint (Expo/React Native default config) — commit öncesi `npm run lint` temiz olmalı.
 - Import sırası: 1) harici paketler, 2) `lib`/`hooks`/`types` gibi proje içi mutlak importlar, 3) göreli importlar; aralarında boş satır.
-- Renk, spacing gibi tekrar eden değerler dosyaya gömülmez, `lib/theme.ts` gibi tek bir yerden paylaşılır (tasarım sistemi netleşince genişletilecek).
+- Renk, spacing gibi tekrar eden değerler dosyaya gömülmez, `src/constants/theme.ts` gibi tek bir yerden paylaşılır.
 - **Hardcoded renk YOK**: bileşen içine doğrudan hex/rgb yazılmaz, her zaman tema token'ı üzerinden kullanılır (bkz. "Tema" bölümü).
 - **Hardcoded kullanıcıya görünen metin YOK**: bileşen içine doğrudan Türkçe/İngilizce string yazılmaz, her zaman çeviri anahtarı üzerinden kullanılır (bkz. "Yerelleştirme" bölümü). Kod içi log/yorum bu kurala tabi değil.
 
 ## Tema (Dark / Light Mode)
 
 - Uygulama hem açık hem koyu temayı destekler; cihazın sistem temasını (`useColorScheme`) takip eder, MVP'de manuel tema seçici gerekmez (ileride Kişiler/Ayarlar'a eklenebilir).
-- Renkler `lib/theme.ts` (veya `theme/` klasörü) altında `light` ve `dark` iki palet olarak tanımlanır; bileşenler `useTheme()` gibi bir hook üzerinden erişir.
+- Renkler `src/constants/theme.ts` altında `light` ve `dark` iki palet (`Colors`) olarak tanımlanır; bileşenler `useTheme()` hook'u üzerinden erişir (bkz. `src/hooks/use-theme.ts`).
 - Yeni bir bileşen/ekran yazarken her iki temada da simulator'da görsel doğrulama yapılır (bkz. "Test / Doğrulama").
 - Statik ikon/görsel eklerken de iki temada okunabilirliği kontrol et (gerekirse tema bazlı varyant).
 
@@ -35,7 +35,7 @@ Bu dosya, Claude Code'un bu repoda nasıl çalışması gerektiğini tanımlar. 
 
 - Kullanıcıya görünen tüm metinler çeviri dosyalarından gelir, kod içine gömülmez (`t('expenses.addButton')` gibi).
 - `i18next` + `react-i18next` (Expo ile uyumlu, ücretsiz) kullanılması öneriliyor; alternatif çıkarsa önce kullanıcıyla teyitleşin.
-- Çeviri dosyaları dile göre ayrılır (örn. `locales/tr.json`, `locales/en.json`); MVP'de varsayılan dil Türkçe, İngilizce altyapısı en baştan kurulur ama tüm metinlerin çevrilmesi MVP'yi bloklamaz.
+- Çeviri dosyaları dile göre ayrılır (`src/locales/tr.json`, `src/locales/en.json`), kurulum `src/lib/i18n.ts`'de; MVP'de varsayılan dil Türkçe, İngilizce altyapısı en baştan kurulur ama tüm metinlerin çevrilmesi MVP'yi bloklamaz.
 - Yeni bir metin eklerken önce ilgili çeviri dosyasına anahtar eklenir, sonra kodda o anahtar kullanılır — asla önce hardcoded yazıp sonra çevirmeyi "sonra yaparız" deme.
 - Tarih/sayı/para birimi formatlama da dile duyarlı olmalı (örn. `Intl` API veya kütüphanenin formatlama yardımcıları), elle string birleştirme yapılmaz.
 
