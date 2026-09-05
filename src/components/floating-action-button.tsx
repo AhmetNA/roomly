@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   button: {
     position: 'absolute',
     right: Spacing.four,
-    bottom: BottomTabInset + Spacing.three,
+    bottom: BottomTabInset + Spacing.one,
     width: 56,
     height: 56,
     borderRadius: 28,
