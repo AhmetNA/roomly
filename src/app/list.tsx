@@ -26,7 +26,7 @@ import { useTheme } from '@/hooks/use-theme';
 import type { ShoppingItemRow } from '@/lib/api/shopping-items';
 
 export default function ShoppingListScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const session = useSession();
 
@@ -44,11 +44,24 @@ export default function ShoppingListScreen() {
 
   const [modalVisible, setModalVisible] = useState(false);
 
+  const currentMemberId = members.find((member) => member.user_id === session?.user.id)?.id;
+
   const categoryById = useMemo(() => {
     const map = new Map<string, (typeof categories)[number]>();
     for (const category of categories) map.set(category.id, category);
     return map;
   }, [categories]);
+
+  const memberNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const member of members) map.set(member.id, member.name);
+    return map;
+  }, [members]);
+
+  const dateFormatter = useMemo(
+    () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }),
+    [i18n.language],
+  );
 
   const sections = useMemo(() => {
     const toBuy = items.filter((item) => !item.is_purchased);
@@ -104,7 +117,11 @@ export default function ShoppingListScreen() {
                 <Pressable
                   onLongPress={() => handleDelete(item)}
                   onPress={() =>
-                    toggleItem.mutate({ id: item.id, isPurchased: !item.is_purchased })
+                    toggleItem.mutate({
+                      id: item.id,
+                      isPurchased: !item.is_purchased,
+                      purchasedBy: currentMemberId ?? null,
+                    })
                   }
                 >
                   <ThemedView type="backgroundElement" style={styles.itemRow}>
@@ -136,6 +153,12 @@ export default function ShoppingListScreen() {
                             {category.name}
                           </ThemedText>
                         </View>
+                      )}
+                      {item.is_purchased && item.purchased_at && (
+                        <ThemedText type="small" themeColor="textSecondary">
+                          {item.purchased_by ? memberNameById.get(item.purchased_by) : '—'} ·{' '}
+                          {dateFormatter.format(new Date(item.purchased_at))}
+                        </ThemedText>
                       )}
                     </View>
                   </ThemedView>

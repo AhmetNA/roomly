@@ -24,10 +24,20 @@ export async function addShoppingItemRemote(
   if (error) throw error;
 }
 
-export async function toggleShoppingItemPurchasedRemote(id: string, isPurchased: boolean) {
+// Marking purchased records who did it and when; un-marking clears both —
+// re-checking the item should start a fresh record, not keep a stale one.
+export async function toggleShoppingItemPurchasedRemote(
+  id: string,
+  isPurchased: boolean,
+  purchasedBy: string | null,
+) {
   const { error } = await supabase
     .from('shopping_items')
-    .update({ is_purchased: isPurchased })
+    .update({
+      is_purchased: isPurchased,
+      purchased_by: isPurchased ? purchasedBy : null,
+      purchased_at: isPurchased ? new Date().toISOString() : null,
+    })
     .eq('id', id);
   if (error) throw error;
 }

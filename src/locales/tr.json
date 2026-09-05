@@ -131,6 +131,8 @@
     "delete": "Sil",
     "add": "Ekle",
     "close": "Kapat",
-    "comingSoon": "Yakında"
+    "comingSoon": "Yakında",
+    "today": "Bugün",
+    "yesterday": "Dün"
   }
 }

@@ -310,6 +310,8 @@ export type Database = {
           id: string;
           is_purchased: boolean;
           name: string;
+          purchased_at: string | null;
+          purchased_by: string | null;
         };
         Insert: {
           added_by?: string | null;
@@ -319,6 +321,8 @@ export type Database = {
           id?: string;
           is_purchased?: boolean;
           name: string;
+          purchased_at?: string | null;
+          purchased_by?: string | null;
         };
         Update: {
           added_by?: string | null;
@@ -328,11 +332,20 @@ export type Database = {
           id?: string;
           is_purchased?: boolean;
           name?: string;
+          purchased_at?: string | null;
+          purchased_by?: string | null;
         };
         Relationships: [
           {
             foreignKeyName: 'shopping_items_added_by_fkey';
             columns: ['added_by'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'shopping_items_purchased_by_fkey';
+            columns: ['purchased_by'];
             isOneToOne: false;
             referencedRelation: 'household_members';
             referencedColumns: ['id'];

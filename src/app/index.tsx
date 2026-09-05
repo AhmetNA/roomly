@@ -1,7 +1,7 @@
 import { SymbolView } from 'expo-symbols';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AddExpenseModal } from '@/components/add-expense-modal';
@@ -23,10 +23,11 @@ import {
 import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
+import { groupByDateSection } from '@/lib/date-sections';
 import { isExpenseFullySettled } from '@/lib/debt';
 
 export default function ExpensesScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const session = useSession();
 
@@ -40,6 +41,15 @@ export default function ExpensesScreen() {
 
   const currentMemberId = members.find((m) => m.user_id === session?.user.id)?.id;
   const nameById = new Map(members.map((m) => [m.id, m.name]));
+
+  const sections = useMemo(
+    () =>
+      groupByDateSection(expenses, (expense) => expense.created_at, i18n.language, {
+        today: t('common.today'),
+        yesterday: t('common.yesterday'),
+      }),
+    [expenses, i18n.language, t],
+  );
 
   const [addVisible, setAddVisible] = useState(false);
   const [debtVisible, setDebtVisible] = useState(false);
@@ -104,12 +114,20 @@ export default function ExpensesScreen() {
             hint={t('expenses.emptyHint')}
           />
         ) : (
-          <FlatList
-            data={expenses}
+          <SectionList
+            sections={sections}
             keyExtractor={(expense) => expense.id}
             contentContainerStyle={styles.listContent}
+            renderSectionHeader={({ section }) => (
+              <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionHeader}>
+                {section.title.toUpperCase()}
+              </ThemedText>
+            )}
             renderItem={({ item }) => {
               const isSettled = isExpenseFullySettled(item);
+              const time = new Intl.DateTimeFormat(i18n.language, { timeStyle: 'short' }).format(
+                new Date(item.created_at),
+              );
               return (
                 <Pressable onPress={() => setSelectedExpense(item)}>
                   <ThemedView type="backgroundElement" style={styles.row}>
@@ -127,7 +145,7 @@ export default function ExpensesScreen() {
                               .map((payment) => nameById.get(payment.member_id) ?? '—')
                               .join(', ')
                           : '—'}{' '}
-                        · {new Date(item.created_at).toLocaleDateString()}
+                        · {time}
                       </ThemedText>
                     </View>
                     <ThemedText
@@ -210,6 +228,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.six,
     gap: Spacing.two,
+  },
+  sectionHeader: {
+    marginTop: Spacing.three,
+    marginBottom: Spacing.one,
   },
   row: {
     flexDirection: 'row',

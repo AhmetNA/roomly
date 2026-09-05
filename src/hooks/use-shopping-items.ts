@@ -59,8 +59,15 @@ export function useAddShoppingItemMutation(householdId: string | undefined) {
 export function useToggleShoppingItemMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, isPurchased }: { id: string; isPurchased: boolean }) =>
-      shoppingApi.toggleShoppingItemPurchasedRemote(id, isPurchased),
+    mutationFn: ({
+      id,
+      isPurchased,
+      purchasedBy,
+    }: {
+      id: string;
+      isPurchased: boolean;
+      purchasedBy: string | null;
+    }) => shoppingApi.toggleShoppingItemPurchasedRemote(id, isPurchased, purchasedBy),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.shoppingItems(householdId) }),
   });
