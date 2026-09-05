@@ -37,14 +37,14 @@ npx expo run:android    # USB bağlı cihaz/emulator'da derleyip çalıştırır
 
 `.env` gitignore'da; Supabase proje URL'i ve publishable key'i [Supabase Dashboard](https://supabase.com/dashboard) → Project Settings → API'den alabilirsin. EAS build'lerde bu değerler `eas.json`'daki ilgili profilin `env` alanına da eklenmeli (aksi halde derlenen uygulama Supabase'e bağlanamaz).
 
-### Google ile giriş (henüz kapalı)
+### Google ile giriş
 
-Kod tarafı hazır (`src/lib/api/auth.ts`, PKCE + `expo-web-browser`), ama `src/components/auth-screen.tsx`'teki `GOOGLE_AUTH_ENABLED` sabiti `false` — şu adımlar tamamlanmadan açmayın:
+Aktif (`src/components/auth-screen.tsx`'te `GOOGLE_AUTH_ENABLED = true`). Kurulum: `src/lib/api/auth.ts` (PKCE + `expo-web-browser`), Google Cloud'da "Roomly" adlı bir OAuth 2.0 Web application istemcisi (yetkili yönlendirme URI: Supabase'in callback URL'i), Supabase Dashboard → Authentication → Providers → Google'da istemci ID/secret girilip etkinleştirildi, ve Authentication → URL Configuration → Redirect URLs'e `roomly://auth-callback` eklendi. Yeni bir Supabase projesine taşınırsa bu adımların hepsi tekrarlanmalı:
 
 1. [Google Cloud Console](https://console.cloud.google.com/)'da bir OAuth 2.0 istemcisi oluştur (Web application), yetkili yönlendirme URI'sine Supabase'in verdiği callback URL'ini ekle.
 2. Supabase Dashboard → Authentication → Providers → Google: istemci ID/secret'ı gir, provider'ı etkinleştir.
 3. Supabase Dashboard → Authentication → URL Configuration → Redirect URLs'e `roomly://auth-callback` ekle.
-4. `GOOGLE_AUTH_ENABLED`'ı `true` yap.
+4. `GOOGLE_AUTH_ENABLED`'ı `true` yap (zaten yapıldı).
 
 ### E-posta doğrulama
 

@@ -120,7 +120,7 @@ Not: `CLAUDE.md` migration dosyası tutulmasını istiyor; şu an migration'lar 
 
 ## Karara Bağlandı
 
-- **Kimlik doğrulama**: Email + şifre (Supabase Auth). Google OAuth kodu yazıldı (`src/lib/api/auth.ts`) ama `src/components/auth-screen.tsx`'te `GOOGLE_AUTH_ENABLED = false` ile kapalı — Google Cloud OAuth istemcisi oluşturulup Supabase dashboard'da Google provider'ı açılana ve `roomly://auth-callback` redirect URL'i eklenene kadar (bkz. README "Google ile giriş").
+- **Kimlik doğrulama**: Email + şifre + Google OAuth (ikisi de aktif, Supabase Auth). Google Cloud OAuth istemcisi ayrı bir proje (`Roomly`) altında, `src/components/auth-screen.tsx`'te `GOOGLE_AUTH_ENABLED = true` (bkz. README "Google ile giriş" kurulum adımları — yeni bir Supabase projesine taşınırsa tekrarlanmalı).
 - **Harcama düzenleme/silme yetkisi**: herkes düzenleyebilir/silebilir (tek ev, güven bazlı roommate modeli).
 - **Kategori silme davranışı**: bağlı kayıtlar kategorisiz kalır, otomatik başka kategoriye taşınmaz.
 - **E-posta doğrulama (Supabase Auth "Confirm email")**: bu ayar dashboard'dan kontrol edilmeli — MCP araçlarıyla okunamıyor/değiştirilemiyor. Açıksa kayıt olan kullanıcı session almadan önce e-postasını onaylamalı; MVP test hızını artırmak isteniyorsa dashboard'dan kapatılabilir.

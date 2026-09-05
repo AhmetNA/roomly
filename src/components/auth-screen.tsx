@@ -15,11 +15,10 @@ import {
   signUpWithEmail,
 } from '@/lib/api/auth';
 
-// Google sign-in needs a Google Cloud OAuth client + the provider enabled in the
-// Supabase dashboard (neither reachable from code) — see README's "Google ile
-// giriş" section. Flip this on once that's done instead of shipping a button
-// that always errors.
-const GOOGLE_AUTH_ENABLED = false;
+// Google Cloud OAuth client + Supabase provider + redirect URL allowlist are
+// all configured now (see README's "Google ile giriş" section for the setup
+// steps, kept for reference/re-setup).
+const GOOGLE_AUTH_ENABLED = true;
 
 type Mode = 'signIn' | 'signUp';
 
