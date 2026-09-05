@@ -46,6 +46,8 @@ Aktif (`src/components/auth-screen.tsx`'te `GOOGLE_AUTH_ENABLED = true`). Kurulu
 3. Supabase Dashboard → Authentication → URL Configuration → Redirect URLs'e `roomly://auth-callback` ekle.
 4. `GOOGLE_AUTH_ENABLED`'ı `true` yap (zaten yapıldı).
 
+**Önemli kısıt**: Google Cloud OAuth consent screen henüz "Testing" modunda (uygulama Google tarafından doğrulanmadı). Bu haldeyken **sadece Google Cloud Console → Audience → Test users listesine eklenen hesaplar** Google ile giriş yapabilir — başka biri denerse "access blocked" hatası alır. Ev arkadaşların da Google ile girmek isterse e-postalarını o listeye eklemen gerekiyor (en fazla 100 kullanıcı). Herkese açmak için uygulamayı "Publish" edip Google'ın doğrulama sürecinden geçirmek gerekir (post-MVP).
+
 ### E-posta doğrulama
 
 Supabase varsayılan olarak yeni kayıtlarda e-posta onayı istiyor ("Confirm email"). MVP'de hızlı test için Dashboard → Authentication → Providers → Email'den bu ayarı kapatabilirsin; açık kalırsa kullanıcı, e-postasındaki linke tıklamadan giriş yapamaz.
