@@ -116,6 +116,7 @@
     "nameLabel": "Adın",
     "ibanLabel": "IBAN",
     "ibanPlaceholder": "TR.. .... .... .... .... .... ..",
+    "ibanInvalid": "Geçersiz IBAN — kontrol edip tekrar deneyin",
     "householdSection": "Ev",
     "inviteCode": "Davet kodu",
     "inviteCodeCopied": "Davet kodu kopyalandı",

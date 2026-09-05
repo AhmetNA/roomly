@@ -59,7 +59,8 @@ export function CategoryManagerModal({
   function handleAdd() {
     const name = newName.trim();
     if (!name) return;
-    addCategory.mutate({ name, icon: newIcon });
+    const sortOrder = categories.reduce((max, c) => Math.max(max, c.sort_order), -1) + 1;
+    addCategory.mutate({ name, icon: newIcon, sortOrder });
     setNewName('');
     setNewIcon(DEFAULT_CATEGORY_ICON_KEY);
   }

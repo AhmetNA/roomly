@@ -30,6 +30,7 @@ import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import { getAuthErrorMessageKey, signOut } from '@/lib/api/auth';
 import type { MemberRow } from '@/lib/api/household';
+import { isValidIban } from '@/lib/iban';
 
 export default function PeopleScreen() {
   const { t } = useTranslation();
@@ -194,6 +195,17 @@ function EditMemberModal({
   const [name, setName] = useState(member?.name ?? '');
   const [iban, setIban] = useState(member?.iban ?? '');
 
+  const trimmedIban = iban.trim();
+  const ibanError = trimmedIban.length > 0 && !isValidIban(trimmedIban);
+
+  function handleSave() {
+    if (ibanError) {
+      Alert.alert(t('people.ibanInvalid'));
+      return;
+    }
+    onSave({ name: name.trim(), iban: trimmedIban || null });
+  }
+
   return (
     <Modal
       visible={member !== null}
@@ -222,10 +234,15 @@ function EditMemberModal({
               placeholder={t('people.ibanPlaceholder')}
               autoCapitalize="characters"
             />
+            {ibanError && (
+              <ThemedText type="small" themeColor="danger">
+                {t('people.ibanInvalid')}
+              </ThemedText>
+            )}
             <PrimaryButton
               label={t('common.save')}
-              disabled={name.trim().length === 0}
-              onPress={() => onSave({ name: name.trim(), iban: iban.trim() || null })}
+              disabled={name.trim().length === 0 || ibanError}
+              onPress={handleSave}
             />
             <PrimaryButton label={t('common.cancel')} variant="secondary" onPress={onClose} />
           </ThemedView>

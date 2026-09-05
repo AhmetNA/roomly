@@ -5,15 +5,30 @@ import type { Tables } from '@/types/database';
 export type CategoryRow = Tables<'categories'>;
 
 export async function fetchCategories(): Promise<CategoryRow[]> {
-  const { data, error } = await supabase.from('categories').select('*').order('created_at');
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .order('sort_order')
+    .order('created_at');
   if (error) throw error;
   return data;
 }
 
-export async function addCategoryRemote(householdId: string, name: string, icon: string) {
-  const { error } = await supabase
-    .from('categories')
-    .insert({ household_id: householdId, name, icon: icon || DEFAULT_CATEGORY_ICON_KEY });
+// New categories sort after every existing one — `sort_order` is a manual
+// display order (see the "Market"/utility split migration), not a timestamp,
+// so there's no ambiguity-free default beyond "append to the end".
+export async function addCategoryRemote(
+  householdId: string,
+  name: string,
+  icon: string,
+  sortOrder: number,
+) {
+  const { error } = await supabase.from('categories').insert({
+    household_id: householdId,
+    name,
+    icon: icon || DEFAULT_CATEGORY_ICON_KEY,
+    sort_order: sortOrder,
+  });
   if (error) throw error;
 }
 

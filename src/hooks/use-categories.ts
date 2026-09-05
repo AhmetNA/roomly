@@ -42,8 +42,8 @@ export function useCategoriesRealtime(householdId: string | undefined) {
 export function useAddCategoryMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ name, icon }: { name: string; icon: string }) =>
-      categoriesApi.addCategoryRemote(householdId ?? '', name, icon),
+    mutationFn: ({ name, icon, sortOrder }: { name: string; icon: string; sortOrder: number }) =>
+      categoriesApi.addCategoryRemote(householdId ?? '', name, icon, sortOrder),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.categories(householdId) }),
   });
 }

@@ -116,6 +116,7 @@
     "nameLabel": "Your name",
     "ibanLabel": "IBAN",
     "ibanPlaceholder": "TR.. .... .... .... .... .... ..",
+    "ibanInvalid": "Invalid IBAN — please check it and try again",
     "householdSection": "Household",
     "inviteCode": "Invite code",
     "inviteCodeCopied": "Invite code copied",
