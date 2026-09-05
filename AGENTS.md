@@ -20,15 +20,27 @@ Bu seçimler ilk kuruluşta değiştirilebilir; büyük bir teknoloji değişikl
 
 ## Veri Modeli (taslak)
 
+Not: Tek ev yönetiliyor varsayımıyla tasarlandı — çoklu ev/kullanıcı-ev ilişkisi yok (bkz. FEATURES.md "Ev / Grup Yönetimi"). Yine de `household_id` alanları RLS ve gelecekte olası genişleme için tutuluyor.
+
 ```
 households (id, name, invite_code, created_at)
-household_members (household_id, user_id, joined_at)
-expenses (id, household_id, paid_by, description, amount, created_at)
-expense_splits (expense_id, user_id, amount_owed)
-shopping_items (id, household_id, name, added_by, is_purchased, created_at, purchased_at)
+household_members (household_id, user_id, iban, joined_at)
+categories (id, household_id, name, created_by, created_at)
+expenses (id, household_id, paid_by, description, amount, category_id, split_type, receipt_photo_url, created_at)
+expense_line_items (id, expense_id, name, amount)
+expense_splits (expense_id, user_id, shares, amount_owed, is_settled)
+shopping_items (id, household_id, name, category_id, added_by, is_purchased, created_at, purchased_at)
 ```
 
-`expense_splits` her harcamanın kimin arasında nasıl bölüştüğünü tutar (eşit ya da özel oran).
+- `household_members.iban`: kullanıcı yalnızca kendi satırındaki `iban`'ı düzenleyebilir (RLS: `user_id = auth.uid()`), diğerlerinin IBAN'ını sadece okuyabilir.
+- `categories`: dinamik, kullanıcı tanımlı; hem `expenses.category_id` hem `shopping_items.category_id` aynı havuzdan referans alır.
+- `expenses.receipt_photo_url`: Supabase Storage'a yüklenen fiş fotoğrafının yolu (opsiyonel).
+- `expense_line_items`: bir harcamanın altındaki kalem kalem liste (opsiyonel; girilmezse harcama tek kalem gibi davranır).
+- `expense_splits.split_type` harcama seviyesinde: `equal` | `shares` | `fixed`.
+  - `equal`: `shares` kullanılmaz, tutar kişi sayısına bölünür.
+  - `shares`: `shares` alanına pay sayısı yazılır (örn. 4, 3, 2), `amount_owed` bu paylara göre hesaplanıp saklanır. Yüzdelik giriş yok.
+  - `fixed`: `amount_owed` doğrudan girilen sabit tutar, `shares` kullanılmaz.
+- `expense_splits.is_settled`: borcun ödendi olarak işaretlenip işaretlenmediği (kolay borç kapatma, tek dokunuş).
 
 ## Klasör Yapısı (öneri, iskelet oluşturulunca netleşecek)
 
@@ -59,3 +71,4 @@ roomly/
 - Kimlik doğrulama yöntemi: telefon numarası mı, email mi, davet kodu ile şifresiz giriş mi?
 - Push notification servisi: Expo Notifications yeterli mi, yoksa ayrı bir servis mi?
 - Web versiyonu olacak mı (Expo web ile aynı kod tabanından)?
+- Fiş fotoğrafı depolama: Supabase Storage bucket yapısı ve boyut/format kısıtı ne olacak?
