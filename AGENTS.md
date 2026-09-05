@@ -15,6 +15,8 @@ Roomly, ev arkadaşları için iki modüllü bir mobil uygulama: ortak harcama/b
 | State management | React Query (TanStack Query) + Zustand (gerekirse) | Sunucu verisi için React Query, basit local UI state için Zustand |
 | Navigasyon | Expo Router | Dosya tabanlı routing, Expo ile native entegrasyon |
 | Stil | NativeWind (Tailwind for RN) veya sade StyleSheet | Henüz kesinleşmedi |
+| Tema | React Native `useColorScheme` + özel `theme.ts` paleti | Ek ücretli/harici servis gerektirmeden sistem temasını takip eden light/dark destek |
+| Yerelleştirme | i18next + react-i18next | Ücretsiz, Expo ile uyumlu, yaygın kullanılan i18n çözümü |
 
 Bu seçimler ilk kuruluşta değiştirilebilir; büyük bir teknoloji değişikliği yapılacaksa önce kullanıcıyla teyitleşin.
 
@@ -51,7 +53,11 @@ roomly/
   lib/
     supabase.ts        # Supabase client
     api/                # veritabanı sorguları
+    theme.ts            # light/dark renk paletleri
   hooks/
+  locales/
+    tr.json
+    en.json
   types/
   README.md
   AGENTS.md
