@@ -76,21 +76,29 @@ export default function ExpensesScreen() {
           <ThemedText type="subtitle">{t('expenses.title')}</ThemedText>
           <View style={styles.headerActions}>
             <Pressable onPress={() => setDebtVisible(true)} hitSlop={8} style={styles.headerButton}>
-              <SymbolView name="arrow.left.arrow.right.circle" size={22} tintColor={theme.accent} />
+              <SymbolView
+                name={{ ios: 'arrow.left.arrow.right.circle', android: 'swap_horizontal_circle' }}
+                size={22}
+                tintColor={theme.accent}
+              />
             </Pressable>
             <Pressable
               onPress={() => setStatsVisible(true)}
               hitSlop={8}
               style={styles.headerButton}
             >
-              <SymbolView name="chart.bar" size={22} tintColor={theme.accent} />
+              <SymbolView
+                name={{ ios: 'chart.bar', android: 'bar_chart' }}
+                size={22}
+                tintColor={theme.accent}
+              />
             </Pressable>
           </View>
         </ThemedView>
 
         {expenses.length === 0 ? (
           <EmptyState
-            icon="creditcard"
+            icon={{ ios: 'creditcard', android: 'credit_card' }}
             title={t('expenses.empty')}
             hint={t('expenses.emptyHint')}
           />

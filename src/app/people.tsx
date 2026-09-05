@@ -102,7 +102,11 @@ export default function PeopleScreen() {
                       <ThemedText type="small" themeColor="textSecondary">
                         {item.iban}
                       </ThemedText>
-                      <SymbolView name="doc.on.doc" size={13} tintColor={theme.textSecondary} />
+                      <SymbolView
+                        name={{ ios: 'doc.on.doc', android: 'content_copy' }}
+                        size={13}
+                        tintColor={theme.textSecondary}
+                      />
                     </Pressable>
                   ) : (
                     <ThemedText type="small" themeColor="textSecondary">
@@ -138,7 +142,11 @@ export default function PeopleScreen() {
                   <ThemedText type="small" themeColor="textSecondary">
                     {t('people.inviteCode')}: {household.invite_code}
                   </ThemedText>
-                  <SymbolView name="doc.on.doc" size={13} tintColor={theme.textSecondary} />
+                  <SymbolView
+                    name={{ ios: 'doc.on.doc', android: 'content_copy' }}
+                    size={13}
+                    tintColor={theme.textSecondary}
+                  />
                 </Pressable>
                 <Pressable onPress={handleLeaveHousehold} style={styles.leaveButton}>
                   <ThemedText type="small" themeColor="danger">

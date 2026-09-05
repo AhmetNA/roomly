@@ -103,7 +103,11 @@ export function CategoryManagerModal({
                   </Pressable>
                 )}
                 <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
-                  <SymbolView name="trash" size={18} tintColor={theme.danger} />
+                  <SymbolView
+                    name={{ ios: 'trash', android: 'delete' }}
+                    size={18}
+                    tintColor={theme.danger}
+                  />
                 </Pressable>
               </ThemedView>
             )}

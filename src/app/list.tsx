@@ -80,7 +80,11 @@ export default function ShoppingListScreen() {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScreenHeader title={t('list.title')} />
         {items.length === 0 ? (
-          <EmptyState icon="cart" title={t('list.empty')} hint={t('list.emptyHint')} />
+          <EmptyState
+            icon={{ ios: 'cart', android: 'shopping_cart' }}
+            title={t('list.empty')}
+            hint={t('list.emptyHint')}
+          />
         ) : (
           <SectionList
             sections={sections}
@@ -98,7 +102,11 @@ export default function ShoppingListScreen() {
               >
                 <ThemedView type="backgroundElement" style={styles.itemRow}>
                   <SymbolView
-                    name={item.is_purchased ? 'checkmark.circle.fill' : 'circle'}
+                    name={
+                      item.is_purchased
+                        ? { ios: 'checkmark.circle.fill', android: 'check_circle' }
+                        : { ios: 'circle', android: 'circle' }
+                    }
                     size={22}
                     tintColor={item.is_purchased ? theme.success : theme.textSecondary}
                   />

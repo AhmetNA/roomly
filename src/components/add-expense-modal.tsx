@@ -321,7 +321,11 @@ function MemberChipRow({
           >
             {multiSelect && (
               <SymbolView
-                name={selected ? 'checkmark.circle.fill' : 'circle'}
+                name={
+                  selected
+                    ? { ios: 'checkmark.circle.fill', android: 'check_circle' }
+                    : { ios: 'circle', android: 'circle' }
+                }
                 size={14}
                 tintColor={selected ? theme.onAccent : theme.textSecondary}
               />

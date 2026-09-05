@@ -42,7 +42,12 @@ export function FloatingActionButton({
         animatedStyle,
       ]}
     >
-      <SymbolView name="plus" size={24} tintColor={theme.onAccent} weight="semibold" />
+      <SymbolView
+        name={{ ios: 'plus', android: 'add' }}
+        size={24}
+        tintColor={theme.onAccent}
+        weight="semibold"
+      />
     </AnimatedPressable>
   );
 }
