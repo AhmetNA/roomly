@@ -1,6 +1,27 @@
 {
-  "onboarding": {
+  "auth": {
     "title": "Roomly'e Hoş Geldin",
+    "subtitle": "Devam etmek için giriş yap veya hesap oluştur",
+    "signIn": "Giriş Yap",
+    "signUp": "Kayıt Ol",
+    "emailLabel": "E-posta",
+    "emailPlaceholder": "ornek@eposta.com",
+    "passwordLabel": "Şifre",
+    "passwordPlaceholder": "En az 6 karakter",
+    "orDivider": "veya",
+    "continueWithGoogle": "Google ile devam et",
+    "checkEmailTitle": "E-postanı kontrol et",
+    "checkEmailBody": "Hesabını onaylamak için sana bir e-posta gönderdik.",
+    "errors": {
+      "invalidCredentials": "E-posta veya şifre hatalı",
+      "emailInUse": "Bu e-posta zaten kayıtlı",
+      "weakPassword": "Şifre en az 6 karakter olmalı",
+      "alreadyInHousehold": "Zaten bir eve bağlısın",
+      "generic": "Bir şeyler ters gitti, tekrar dene"
+    }
+  },
+  "onboarding": {
+    "title": "Ev Kur",
     "subtitle": "Ev arkadaşlarınla harcamaları ve ihtiyaç listesini paylaş",
     "createHousehold": "Ev Oluştur",
     "joinHousehold": "Ev'e Katıl",
@@ -12,8 +33,10 @@
     "joinCodePlaceholder": "Örn. AB12CD",
     "createButton": "Oluştur",
     "joinButton": "Katıl",
-    "joinComingSoon": "Ev'e katılma, backend bağlandığında aktif olacak",
-    "back": "Geri"
+    "back": "Geri",
+    "errors": {
+      "inviteCodeNotFound": "Bu davet koduyla bir ev bulunamadı"
+    }
   },
   "tabs": {
     "expenses": "Harcamalar",
@@ -46,7 +69,8 @@
     "householdSection": "Ev",
     "inviteCode": "Davet kodu",
     "inviteCodeCopied": "Davet kodu kopyalandı",
-    "logout": "Ev'den çık"
+    "leaveHousehold": "Ev'den çık",
+    "signOut": "Çıkış yap"
   },
   "common": {
     "cancel": "Vazgeç",

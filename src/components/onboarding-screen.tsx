@@ -8,28 +8,38 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { useHouseholdStore } from '@/lib/store';
+import { useCreateHouseholdMutation, useJoinHouseholdMutation } from '@/hooks/use-household';
+import { getAuthErrorMessageKey } from '@/lib/api/auth';
 
 type Mode = 'create' | 'join';
 
 export function OnboardingScreen() {
   const { t } = useTranslation();
-  const createHousehold = useHouseholdStore((state) => state.createHousehold);
+  const createHousehold = useCreateHouseholdMutation();
+  const joinHousehold = useJoinHouseholdMutation();
 
   const [mode, setMode] = useState<Mode>('create');
   const [yourName, setYourName] = useState('');
   const [householdName, setHouseholdName] = useState('');
   const [joinCode, setJoinCode] = useState('');
 
+  const submitting = createHousehold.isPending || joinHousehold.isPending;
   const canSubmitCreate = yourName.trim().length > 0 && householdName.trim().length > 0;
   const canSubmitJoin = yourName.trim().length > 0 && joinCode.trim().length > 0;
 
-  function handleSubmit() {
-    if (mode === 'create') {
-      createHousehold(householdName.trim(), yourName.trim());
-      return;
+  async function handleSubmit() {
+    try {
+      if (mode === 'create') {
+        await createHousehold.mutateAsync({
+          householdName: householdName.trim(),
+          myName: yourName.trim(),
+        });
+      } else {
+        await joinHousehold.mutateAsync({ code: joinCode.trim(), myName: yourName.trim() });
+      }
+    } catch (error) {
+      Alert.alert(t(getAuthErrorMessageKey(error)));
     }
-    Alert.alert(t('onboarding.joinComingSoon'));
   }
 
   return (
@@ -94,7 +104,7 @@ export function OnboardingScreen() {
 
             <PrimaryButton
               label={mode === 'create' ? t('onboarding.createButton') : t('onboarding.joinButton')}
-              disabled={mode === 'create' ? !canSubmitCreate : !canSubmitJoin}
+              disabled={submitting || (mode === 'create' ? !canSubmitCreate : !canSubmitJoin)}
               onPress={handleSubmit}
             />
           </ThemedView>

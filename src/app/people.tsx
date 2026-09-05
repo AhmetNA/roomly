@@ -2,7 +2,7 @@ import * as Clipboard from 'expo-clipboard';
 import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
@@ -11,31 +11,65 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import {
+  useHouseholdQuery,
+  useHouseholdRealtime,
+  useLeaveHouseholdMutation,
+  useMembersQuery,
+  useUpdateMemberMutation,
+} from '@/hooks/use-household';
+import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
-import { useHouseholdStore } from '@/lib/store';
-import type { Member } from '@/types/household';
+import { getAuthErrorMessageKey, signOut } from '@/lib/api/auth';
+import type { MemberRow } from '@/lib/api/household';
 
 export default function PeopleScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const household = useHouseholdStore((state) => state.household);
-  const members = useHouseholdStore((state) => state.members);
-  const currentMemberId = useHouseholdStore((state) => state.currentMemberId);
-  const updateMember = useHouseholdStore((state) => state.updateMember);
-  const leaveHousehold = useHouseholdStore((state) => state.leaveHousehold);
+  const session = useSession();
 
-  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const { data: household } = useHouseholdQuery();
+  const { data: members = [], isLoading } = useMembersQuery();
+  const updateMember = useUpdateMemberMutation();
+  const leaveHousehold = useLeaveHouseholdMutation();
+  useHouseholdRealtime(household?.id);
+
+  const currentUserId = session?.user.id;
+  const [editingMember, setEditingMember] = useState<MemberRow | null>(null);
 
   async function copyToClipboard(value: string, message: string) {
     await Clipboard.setStringAsync(value);
     Alert.alert(message);
   }
 
-  function handleLeave() {
-    Alert.alert(t('people.logout'), undefined, [
+  function handleLeaveHousehold() {
+    const myMember = members.find((member) => member.user_id === currentUserId);
+    if (!myMember) return;
+    Alert.alert(t('people.leaveHousehold'), undefined, [
       { text: t('common.cancel'), style: 'cancel' },
-      { text: t('people.logout'), style: 'destructive', onPress: leaveHousehold },
+      {
+        text: t('people.leaveHousehold'),
+        style: 'destructive',
+        onPress: () => leaveHousehold.mutate(myMember.id),
+      },
     ]);
+  }
+
+  function handleSignOut() {
+    Alert.alert(t('people.signOut'), undefined, [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('people.signOut'), style: 'destructive', onPress: () => signOut() },
+    ]);
+  }
+
+  if (isLoading) {
+    return (
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={[styles.safeArea, styles.centered]} edges={['top']}>
+          <ActivityIndicator color={theme.accent} />
+        </SafeAreaView>
+      </ThemedView>
+    );
   }
 
   return (
@@ -47,7 +81,7 @@ export default function PeopleScreen() {
           keyExtractor={(member) => member.id}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => {
-            const isSelf = item.id === currentMemberId;
+            const isSelf = item.user_id === currentUserId;
             return (
               <ThemedView type="backgroundElement" style={styles.memberRow}>
                 <View style={styles.memberInfo}>
@@ -91,18 +125,23 @@ export default function PeopleScreen() {
                 </ThemedText>
                 <Pressable
                   onPress={() =>
-                    copyToClipboard(household.inviteCode, t('people.inviteCodeCopied'))
+                    copyToClipboard(household.invite_code, t('people.inviteCodeCopied'))
                   }
                   style={styles.ibanRow}
                 >
                   <ThemedText type="small" themeColor="textSecondary">
-                    {t('people.inviteCode')}: {household.inviteCode}
+                    {t('people.inviteCode')}: {household.invite_code}
                   </ThemedText>
                   <SymbolView name="doc.on.doc" size={13} tintColor={theme.textSecondary} />
                 </Pressable>
-                <Pressable onPress={handleLeave} style={styles.leaveButton}>
+                <Pressable onPress={handleLeaveHousehold} style={styles.leaveButton}>
                   <ThemedText type="small" themeColor="danger">
-                    {t('people.logout')}
+                    {t('people.leaveHousehold')}
+                  </ThemedText>
+                </Pressable>
+                <Pressable onPress={handleSignOut} style={styles.leaveButton}>
+                  <ThemedText type="small" themeColor="danger">
+                    {t('people.signOut')}
                   </ThemedText>
                 </Pressable>
               </ThemedView>
@@ -114,9 +153,14 @@ export default function PeopleScreen() {
       <EditMemberModal
         member={editingMember}
         onClose={() => setEditingMember(null)}
-        onSave={(updates) => {
-          if (editingMember) updateMember(editingMember.id, updates);
-          setEditingMember(null);
+        onSave={async (updates) => {
+          if (!editingMember) return;
+          try {
+            await updateMember.mutateAsync({ memberId: editingMember.id, updates });
+            setEditingMember(null);
+          } catch (error) {
+            Alert.alert(t(getAuthErrorMessageKey(error)));
+          }
         }}
       />
     </ThemedView>
@@ -128,7 +172,7 @@ function EditMemberModal({
   onClose,
   onSave,
 }: {
-  member: Member | null;
+  member: MemberRow | null;
   onClose: () => void;
   onSave: (updates: { name: string; iban: string | null }) => void;
 }) {
@@ -183,6 +227,10 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   listContent: {
     paddingHorizontal: Spacing.four,

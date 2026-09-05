@@ -1,6 +1,27 @@
 {
-  "onboarding": {
+  "auth": {
     "title": "Welcome to Roomly",
+    "subtitle": "Sign in or create an account to continue",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "orDivider": "or",
+    "continueWithGoogle": "Continue with Google",
+    "checkEmailTitle": "Check your email",
+    "checkEmailBody": "We sent you an email to confirm your account.",
+    "errors": {
+      "invalidCredentials": "Email or password is incorrect",
+      "emailInUse": "This email is already registered",
+      "weakPassword": "Password must be at least 6 characters",
+      "alreadyInHousehold": "You're already in a household",
+      "generic": "Something went wrong, please try again"
+    }
+  },
+  "onboarding": {
+    "title": "Set Up Household",
     "subtitle": "Share expenses and a shopping list with your roommates",
     "createHousehold": "Create a Household",
     "joinHousehold": "Join a Household",
@@ -12,8 +33,10 @@
     "joinCodePlaceholder": "e.g. AB12CD",
     "createButton": "Create",
     "joinButton": "Join",
-    "joinComingSoon": "Joining a household will work once the backend is connected",
-    "back": "Back"
+    "back": "Back",
+    "errors": {
+      "inviteCodeNotFound": "No household found with that invite code"
+    }
   },
   "tabs": {
     "expenses": "Expenses",
@@ -46,7 +69,8 @@
     "householdSection": "Household",
     "inviteCode": "Invite code",
     "inviteCodeCopied": "Invite code copied",
-    "logout": "Leave household"
+    "leaveHousehold": "Leave household",
+    "signOut": "Sign out"
   },
   "common": {
     "cancel": "Cancel",
