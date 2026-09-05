@@ -21,6 +21,9 @@ export const Colors = {
     success: '#34C759',
     danger: '#FF3B30',
     border: '#E3E3E8',
+    // Scrim behind a centered popup/sheet — same dim value in both themes,
+    // since it sits on top of whatever content is already themed underneath.
+    overlay: '#00000088',
   },
   dark: {
     text: '#ffffff',
@@ -33,6 +36,7 @@ export const Colors = {
     success: '#30D158',
     danger: '#FF453A',
     border: '#2C2C2E',
+    overlay: '#00000088',
   },
 } as const;
 

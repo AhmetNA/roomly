@@ -131,6 +131,15 @@ export default function ExpensesScreen() {
               return (
                 <Pressable onPress={() => setSelectedExpense(item)}>
                   <ThemedView type="backgroundElement" style={styles.row}>
+                    <SymbolView
+                      name={
+                        isSettled
+                          ? { ios: 'checkmark.seal.fill', android: 'verified' }
+                          : { ios: 'circle', android: 'circle' }
+                      }
+                      size={20}
+                      tintColor={isSettled ? theme.success : theme.textSecondary}
+                    />
                     <View style={styles.rowInfo}>
                       <ThemedText
                         type="default"
@@ -237,10 +246,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: Spacing.three,
     padding: Spacing.three,
     borderRadius: Spacing.three,
   },
   rowInfo: {
+    flex: 1,
     gap: Spacing.half,
   },
   rowTitle: {
