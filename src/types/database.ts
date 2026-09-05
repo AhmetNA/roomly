@@ -290,6 +290,7 @@ export type Database = {
         };
       };
       get_my_household_id: { Args: never; Returns: string };
+      leave_household: { Args: never; Returns: undefined };
       join_household: {
         Args: { code: string; my_name: string };
         Returns: {
@@ -298,6 +299,22 @@ export type Database = {
           invite_code: string;
           name: string;
         };
+      };
+      create_expense: {
+        Args: {
+          p_household_id: string;
+          p_category_id: string | null;
+          p_paid_by: string;
+          p_title: string;
+          p_total_amount: number;
+          p_split_type: string;
+          p_splits: Json;
+        };
+        Returns: Database['public']['Tables']['expenses']['Row'];
+      };
+      settle_debt: {
+        Args: { p_from_member_id: string; p_to_member_id: string };
+        Returns: undefined;
       };
     };
     Enums: {

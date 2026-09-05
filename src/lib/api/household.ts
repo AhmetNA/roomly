@@ -42,7 +42,7 @@ export async function updateMemberRemote(
   if (error) throw error;
 }
 
-export async function leaveHouseholdRemote(memberId: string) {
-  const { error } = await supabase.from('household_members').delete().eq('id', memberId);
+export async function leaveHouseholdRemote() {
+  const { error } = await supabase.rpc('leave_household');
   if (error) throw error;
 }

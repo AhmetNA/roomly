@@ -9,7 +9,7 @@ iOS ve Android'de aynı anda çalışacak şekilde (cross-platform) geliştirile
 
 ## Durum
 
-İskelet kuruldu: Expo Router tabanlı 3 sekme (Harcamalar / Liste / Kişiler), açık-koyu tema desteği, Türkçe/İngilizce yerelleştirme altyapısı hazır; ekranların içeriği henüz boş durumlarla (empty state) yer tutuyor. Detaylar için:
+Uygulama uçtan uca çalışır durumda: Supabase backend (auth, veritabanı, RLS, realtime) bağlı; email/şifre ile giriş-kayıt, ev oluşturma/katılma, kişiler, kategori yönetimi, ihtiyaç listesi, harcama ekleme (eşit/hisse/sabit bölüşüm), borç özeti (tek dokunuşla ödeme işaretleme) ve istatistikler (ay/yıl/tüm zamanlar) çalışıyor. Açık-koyu tema ve Türkçe/İngilizce yerelleştirme her ekranda aktif. Detaylar için:
 
 - [FEATURES.md](FEATURES.md) — özellik listesi ve kapsam
 - [SCREENS.md](SCREENS.md) — ekran ekran hangi özelliklerin nerede olacağı
@@ -19,7 +19,7 @@ iOS ve Android'de aynı anda çalışacak şekilde (cross-platform) geliştirile
 ## Teknoloji
 
 - **React Native + Expo (SDK 57)** — tek kod tabanından iOS ve Android
-- **Supabase** — auth, Postgres veritabanı, realtime senkronizasyon (evdeki herkes anlık görsün diye) — henüz entegre edilmedi
+- **Supabase** — auth (email/şifre), Postgres veritabanı + RLS, realtime senkronizasyon (evdeki herkes anlık görsün diye) — bağlı, proje: `roomly` (`vigmiiiwyliqslbwuzet`)
 - **i18next** — Türkçe/İngilizce yerelleştirme
 
 Detay ve gerekçe için [AGENTS.md](AGENTS.md)'ye bakın.
@@ -30,9 +30,25 @@ Proje native modüller kullanıyor (native tab bar, glass effect vb.), bu yüzde
 
 ```bash
 npm install
-npx expo run:ios       # simulator/cihazda derleyip çalıştırır
-npx expo run:android   # USB bağlı cihaz/emulator'da derleyip çalıştırır
+cp .env.example .env    # EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY doldur
+npx expo run:ios        # simulator/cihazda derleyip çalıştırır
+npx expo run:android    # USB bağlı cihaz/emulator'da derleyip çalıştırır
 ```
+
+`.env` gitignore'da; Supabase proje URL'i ve publishable key'i [Supabase Dashboard](https://supabase.com/dashboard) → Project Settings → API'den alabilirsin. EAS build'lerde bu değerler `eas.json`'daki ilgili profilin `env` alanına da eklenmeli (aksi halde derlenen uygulama Supabase'e bağlanamaz).
+
+### Google ile giriş (henüz kapalı)
+
+Kod tarafı hazır (`src/lib/api/auth.ts`, PKCE + `expo-web-browser`), ama `src/components/auth-screen.tsx`'teki `GOOGLE_AUTH_ENABLED` sabiti `false` — şu adımlar tamamlanmadan açmayın:
+
+1. [Google Cloud Console](https://console.cloud.google.com/)'da bir OAuth 2.0 istemcisi oluştur (Web application), yetkili yönlendirme URI'sine Supabase'in verdiği callback URL'ini ekle.
+2. Supabase Dashboard → Authentication → Providers → Google: istemci ID/secret'ı gir, provider'ı etkinleştir.
+3. Supabase Dashboard → Authentication → URL Configuration → Redirect URLs'e `roomly://auth-callback` ekle.
+4. `GOOGLE_AUTH_ENABLED`'ı `true` yap.
+
+### E-posta doğrulama
+
+Supabase varsayılan olarak yeni kayıtlarda e-posta onayı istiyor ("Confirm email"). MVP'de hızlı test için Dashboard → Authentication → Providers → Email'den bu ayarı kapatabilirsin; açık kalırsa kullanıcı, e-postasındaki linke tıklamadan giriş yapamaz.
 
 Kod değiştikçe `npx expo start` ile Metro'yu ayrı başlatıp dev client'ı ona bağlı tutabilirsiniz; native bir paket (yeni `expo install` ile eklenen bir modül) eklendiğinde `run:ios`/`run:android`'i tekrar çalıştırmak gerekir.
 

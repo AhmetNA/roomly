@@ -2,17 +2,19 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import * as householdApi from '@/lib/api/household';
+import { queryKeys } from '@/lib/query-keys';
 import { supabase } from '@/lib/supabase';
 
-const HOUSEHOLD_KEY = ['household'];
-const MEMBERS_KEY = ['household_members'];
-
 export function useHouseholdQuery(enabled = true) {
-  return useQuery({ queryKey: HOUSEHOLD_KEY, queryFn: householdApi.fetchHousehold, enabled });
+  return useQuery({ queryKey: queryKeys.household, queryFn: householdApi.fetchHousehold, enabled });
 }
 
-export function useMembersQuery() {
-  return useQuery({ queryKey: MEMBERS_KEY, queryFn: householdApi.fetchHouseholdMembers });
+export function useMembersQuery(householdId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.members(householdId),
+    queryFn: householdApi.fetchHouseholdMembers,
+    enabled: !!householdId,
+  });
 }
 
 // Any roommate adding/editing themselves should update everyone else's screen
@@ -33,7 +35,7 @@ export function useHouseholdRealtime(householdId: string | undefined) {
           table: 'household_members',
           filter: `household_id=eq.${householdId}`,
         },
-        () => queryClient.invalidateQueries({ queryKey: MEMBERS_KEY }),
+        () => queryClient.invalidateQueries({ queryKey: queryKeys.members(householdId) }),
       )
       .subscribe();
 
@@ -49,8 +51,8 @@ export function useCreateHouseholdMutation() {
     mutationFn: ({ householdName, myName }: { householdName: string; myName: string }) =>
       householdApi.createHouseholdRemote(householdName, myName),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: HOUSEHOLD_KEY });
-      queryClient.invalidateQueries({ queryKey: MEMBERS_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.household });
+      queryClient.invalidateQueries({ queryKey: ['household_members'] });
     },
   });
 }
@@ -61,13 +63,13 @@ export function useJoinHouseholdMutation() {
     mutationFn: ({ code, myName }: { code: string; myName: string }) =>
       householdApi.joinHouseholdRemote(code, myName),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: HOUSEHOLD_KEY });
-      queryClient.invalidateQueries({ queryKey: MEMBERS_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.household });
+      queryClient.invalidateQueries({ queryKey: ['household_members'] });
     },
   });
 }
 
-export function useUpdateMemberMutation() {
+export function useUpdateMemberMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -77,17 +79,20 @@ export function useUpdateMemberMutation() {
       memberId: string;
       updates: Partial<Pick<householdApi.MemberRow, 'name' | 'iban'>>;
     }) => householdApi.updateMemberRemote(memberId, updates),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: MEMBERS_KEY }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.members(householdId) }),
   });
 }
 
+// Leaving is a security-definer RPC (not a plain delete): if the caller is the
+// last member, it also deletes the household itself, so an empty, invite-only,
+// permanently-invisible-under-RLS household can never be left behind.
 export function useLeaveHouseholdMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (memberId: string) => householdApi.leaveHouseholdRemote(memberId),
+    mutationFn: () => householdApi.leaveHouseholdRemote(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: HOUSEHOLD_KEY });
-      queryClient.invalidateQueries({ queryKey: MEMBERS_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.household });
+      queryClient.invalidateQueries({ queryKey: ['household_members'] });
     },
   });
 }

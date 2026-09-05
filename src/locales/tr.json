@@ -47,13 +47,63 @@
     "title": "Harcamalar",
     "empty": "Henüz harcama eklenmedi",
     "emptyHint": "Sağ üstteki artıya dokunarak ilk harcamayı ekle",
-    "addButton": "Harcama Ekle"
+    "addButton": "Harcama Ekle",
+    "addTitle": "Harcama Ekle",
+    "titleLabel": "Açıklama",
+    "titlePlaceholder": "Örn. Market",
+    "amountLabel": "Toplam tutar",
+    "amountPlaceholder": "0.00",
+    "paidByLabel": "Kim ödedi",
+    "categoryLabel": "Kategori",
+    "splitTypeLabel": "Bölüşüm tipi",
+    "splitEqual": "Eşit",
+    "splitShares": "Hisse bazlı",
+    "splitFixed": "Sabit tutar",
+    "participantsLabel": "Katılımcılar",
+    "splitMismatch": "Girilen tutarların toplamı, toplam tutara eşit olmalı",
+    "deleteConfirm": "Bu harcamayı silmek istiyor musun?",
+    "detailTitle": "Harcama Detayı",
+    "splitDetailTitle": "Bölüşüm",
+    "paidBySection": "Ödeyen",
+    "debtSummaryButton": "Borç Özeti",
+    "debtSummaryTitle": "Borç Özeti",
+    "noDebts": "Kapanmamış borç yok 🎉",
+    "owesArrow": "→",
+    "settleButton": "Ödendi işaretle",
+    "settleConfirm": "Bu borç ödendi olarak işaretlensin mi?",
+    "statisticsButton": "İstatistikler"
   },
   "list": {
     "title": "İhtiyaç Listesi",
     "empty": "Liste şu an boş",
     "emptyHint": "Eve gereken bir şeyi eklemek için artıya dokun",
-    "addButton": "Ekle"
+    "addButton": "Ekle",
+    "addItemTitle": "Ne alınacak?",
+    "itemNameLabel": "Ne alınacak",
+    "itemNamePlaceholder": "Örn. Süt",
+    "categoryLabel": "Kategori",
+    "noCategory": "Kategorisiz",
+    "manageCategories": "Kategorileri yönet",
+    "toBuySection": "Alınacak",
+    "purchasedSection": "Alındı",
+    "deleteItemConfirm": "Bu öğeyi silmek istiyor musun?"
+  },
+  "statistics": {
+    "title": "İstatistikler",
+    "periodMonth": "Bu Ay",
+    "periodYear": "Bu Yıl",
+    "periodAll": "Tüm Zamanlar",
+    "totalLabel": "Toplam Harcama",
+    "byMemberTitle": "Kişi Bazlı",
+    "byCategoryTitle": "Kategori Bazlı",
+    "uncategorized": "Kategorisiz",
+    "empty": "Bu dönemde harcama yok"
+  },
+  "categories": {
+    "title": "Kategoriler",
+    "namePlaceholder": "Yeni kategori adı",
+    "empty": "Henüz kategori yok",
+    "deleteConfirm": "Bu kategoriyi sil? İçindeki öğeler kategorisiz kalır."
   },
   "people": {
     "title": "Kişiler",
@@ -76,6 +126,8 @@
     "cancel": "Vazgeç",
     "save": "Kaydet",
     "delete": "Sil",
+    "add": "Ekle",
+    "close": "Kapat",
     "comingSoon": "Yakında"
   }
 }

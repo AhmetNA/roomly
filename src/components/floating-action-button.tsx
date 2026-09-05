@@ -42,7 +42,7 @@ export function FloatingActionButton({
         animatedStyle,
       ]}
     >
-      <SymbolView name="plus" size={24} tintColor="#ffffff" weight="semibold" />
+      <SymbolView name="plus" size={24} tintColor={theme.onAccent} weight="semibold" />
     </AnimatedPressable>
   );
 }

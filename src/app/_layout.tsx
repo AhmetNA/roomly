@@ -11,7 +11,7 @@ import { AuthScreen } from '@/components/auth-screen';
 import { OnboardingScreen } from '@/components/onboarding-screen';
 import { ThemedView } from '@/components/themed-view';
 import { useHouseholdQuery } from '@/hooks/use-household';
-import { useSession } from '@/hooks/use-session';
+import { SessionProvider, useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import { queryClient } from '@/lib/query-client';
 
@@ -24,7 +24,9 @@ export default function TabLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AnimatedSplashOverlay />
       <QueryClientProvider client={queryClient}>
-        <RootNavigator />
+        <SessionProvider>
+          <RootNavigator />
+        </SessionProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

@@ -2,7 +2,15 @@ import * as Clipboard from 'expo-clipboard';
 import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
@@ -29,8 +37,8 @@ export default function PeopleScreen() {
   const session = useSession();
 
   const { data: household } = useHouseholdQuery();
-  const { data: members = [], isLoading } = useMembersQuery();
-  const updateMember = useUpdateMemberMutation();
+  const { data: members = [], isLoading } = useMembersQuery(household?.id);
+  const updateMember = useUpdateMemberMutation(household?.id);
   const leaveHousehold = useLeaveHouseholdMutation();
   useHouseholdRealtime(household?.id);
 
@@ -43,14 +51,12 @@ export default function PeopleScreen() {
   }
 
   function handleLeaveHousehold() {
-    const myMember = members.find((member) => member.user_id === currentUserId);
-    if (!myMember) return;
     Alert.alert(t('people.leaveHousehold'), undefined, [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('people.leaveHousehold'),
         style: 'destructive',
-        onPress: () => leaveHousehold.mutate(myMember.id),
+        onPress: () => leaveHousehold.mutate(),
       },
     ]);
   }

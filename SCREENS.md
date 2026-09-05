@@ -114,9 +114,12 @@ Profil ekranı ayrı değil — kullanıcının kendi bilgileri de bu ekranda, k
 
 ---
 
+## Karara Bağlandı (bkz. AGENTS.md "Karara Bağlandı")
+
+- Harcama silme/düzenleme yetkisi: **herkes**.
+- Kategori silindiğinde bağlı kayıtlar: **kategorisiz kalır**, otomatik taşınmaz.
+- Onboarding kimlik doğrulama yöntemi: **email + şifre** (Google girişi kodu hazır, backend tarafı tamamlanınca açılacak).
+
 ## Henüz Netleşmemiş Ekran Kararları
 
-- Harcama silme/düzenleme yetkisi: sadece ekleyen kişi mi, yoksa herkes mi?
-- Kategori silindiğinde bağlı kayıtlara ne olacak (varsayılan kategoriye taşınsın mı)?
-- Onboarding'de kimlik doğrulama yöntemi netleşince bu ekranın akışı kesinleşecek (bkz. AGENTS.md).
-- Ev adını kim düzenleyebilir (herkes mi, sadece eve ilk katılan/kuran mı)?
+- Ev adını kim düzenleyebilir (herkes mi, sadece eve ilk katılan/kuran mı)? Şu an düzenleme UI'ı yok (sadece görüntüleme).

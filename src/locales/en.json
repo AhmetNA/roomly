@@ -47,13 +47,63 @@
     "title": "Expenses",
     "empty": "No expenses yet",
     "emptyHint": "Tap the plus button to add the first one",
-    "addButton": "Add Expense"
+    "addButton": "Add Expense",
+    "addTitle": "Add Expense",
+    "titleLabel": "Description",
+    "titlePlaceholder": "e.g. Groceries",
+    "amountLabel": "Total amount",
+    "amountPlaceholder": "0.00",
+    "paidByLabel": "Paid by",
+    "categoryLabel": "Category",
+    "splitTypeLabel": "Split type",
+    "splitEqual": "Equal",
+    "splitShares": "Shares",
+    "splitFixed": "Fixed amount",
+    "participantsLabel": "Participants",
+    "splitMismatch": "The entered amounts must add up to the total",
+    "deleteConfirm": "Delete this expense?",
+    "detailTitle": "Expense Detail",
+    "splitDetailTitle": "Split",
+    "paidBySection": "Paid by",
+    "debtSummaryButton": "Debt Summary",
+    "debtSummaryTitle": "Debt Summary",
+    "noDebts": "No open debts 🎉",
+    "owesArrow": "→",
+    "settleButton": "Mark as settled",
+    "settleConfirm": "Mark this debt as settled?",
+    "statisticsButton": "Statistics"
   },
   "list": {
     "title": "Shopping List",
     "empty": "The list is empty",
     "emptyHint": "Tap the plus button to add something the household needs",
-    "addButton": "Add"
+    "addButton": "Add",
+    "addItemTitle": "What's needed?",
+    "itemNameLabel": "What's needed",
+    "itemNamePlaceholder": "e.g. Milk",
+    "categoryLabel": "Category",
+    "noCategory": "Uncategorized",
+    "manageCategories": "Manage categories",
+    "toBuySection": "To buy",
+    "purchasedSection": "Purchased",
+    "deleteItemConfirm": "Delete this item?"
+  },
+  "statistics": {
+    "title": "Statistics",
+    "periodMonth": "This Month",
+    "periodYear": "This Year",
+    "periodAll": "All Time",
+    "totalLabel": "Total Spent",
+    "byMemberTitle": "By Person",
+    "byCategoryTitle": "By Category",
+    "uncategorized": "Uncategorized",
+    "empty": "No expenses in this period"
+  },
+  "categories": {
+    "title": "Categories",
+    "namePlaceholder": "New category name",
+    "empty": "No categories yet",
+    "deleteConfirm": "Delete this category? Its items become uncategorized."
   },
   "people": {
     "title": "People",
@@ -76,6 +126,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
+    "add": "Add",
+    "close": "Close",
     "comingSoon": "Coming soon"
   }
 }

@@ -8,7 +8,18 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { getAuthErrorMessageKey, signInWithEmail, signInWithGoogle, signUpWithEmail } from '@/lib/api/auth';
+import {
+  getAuthErrorMessageKey,
+  signInWithEmail,
+  signInWithGoogle,
+  signUpWithEmail,
+} from '@/lib/api/auth';
+
+// Google sign-in needs a Google Cloud OAuth client + the provider enabled in the
+// Supabase dashboard (neither reachable from code) — see README's "Google ile
+// giriş" section. Flip this on once that's done instead of shipping a button
+// that always errors.
+const GOOGLE_AUTH_ENABLED = false;
 
 type Mode = 'signIn' | 'signUp';
 
@@ -108,20 +119,24 @@ export function AuthScreen() {
               onPress={handleSubmit}
             />
 
-            <View style={styles.dividerRow}>
-              <ThemedView type="border" style={styles.dividerLine} />
-              <ThemedText type="small" themeColor="textSecondary">
-                {t('auth.orDivider')}
-              </ThemedText>
-              <ThemedView type="border" style={styles.dividerLine} />
-            </View>
+            {GOOGLE_AUTH_ENABLED && (
+              <>
+                <View style={styles.dividerRow}>
+                  <ThemedView type="border" style={styles.dividerLine} />
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {t('auth.orDivider')}
+                  </ThemedText>
+                  <ThemedView type="border" style={styles.dividerLine} />
+                </View>
 
-            <PrimaryButton
-              label={t('auth.continueWithGoogle')}
-              variant="secondary"
-              disabled={submitting}
-              onPress={handleGoogle}
-            />
+                <PrimaryButton
+                  label={t('auth.continueWithGoogle')}
+                  variant="secondary"
+                  disabled={submitting}
+                  onPress={handleGoogle}
+                />
+              </>
+            )}
           </ThemedView>
         </KeyboardAvoidingView>
       </SafeAreaView>

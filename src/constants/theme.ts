@@ -15,6 +15,9 @@ export const Colors = {
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
     accent: '#007AFF',
+    // Text/icon color for content sitting on top of a solid `accent` background
+    // (buttons, selected chips) — white reads correctly against both themes' accent blue.
+    onAccent: '#ffffff',
     success: '#34C759',
     danger: '#FF3B30',
     border: '#E3E3E8',
@@ -26,6 +29,7 @@ export const Colors = {
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
     accent: '#0A84FF',
+    onAccent: '#ffffff',
     success: '#30D158',
     danger: '#FF453A',
     border: '#2C2C2E',

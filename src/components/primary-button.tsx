@@ -28,7 +28,7 @@ export function PrimaryButton({
   }));
 
   const backgroundColor = variant === 'primary' ? theme.accent : theme.backgroundElement;
-  const textColor = variant === 'primary' ? '#ffffff' : theme.text;
+  const textColor = variant === 'primary' ? theme.onAccent : theme.text;
 
   return (
     <AnimatedPressable
