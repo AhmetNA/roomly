@@ -1,3 +1,4 @@
+import { DEFAULT_CATEGORY_ICON_KEY } from '@/constants/category-icons';
 import { supabase } from '@/lib/supabase';
 import type { Tables } from '@/types/database';
 
@@ -9,13 +10,18 @@ export async function fetchCategories(): Promise<CategoryRow[]> {
   return data;
 }
 
-export async function addCategoryRemote(householdId: string, name: string) {
-  const { error } = await supabase.from('categories').insert({ household_id: householdId, name });
+export async function addCategoryRemote(householdId: string, name: string, icon: string) {
+  const { error } = await supabase
+    .from('categories')
+    .insert({ household_id: householdId, name, icon: icon || DEFAULT_CATEGORY_ICON_KEY });
   if (error) throw error;
 }
 
-export async function renameCategoryRemote(id: string, name: string) {
-  const { error } = await supabase.from('categories').update({ name }).eq('id', id);
+export async function updateCategoryRemote(
+  id: string,
+  updates: Partial<Pick<CategoryRow, 'name' | 'icon'>>,
+) {
+  const { error } = await supabase.from('categories').update(updates).eq('id', id);
   if (error) throw error;
 }
 

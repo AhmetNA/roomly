@@ -42,16 +42,22 @@ export function useCategoriesRealtime(householdId: string | undefined) {
 export function useAddCategoryMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (name: string) => categoriesApi.addCategoryRemote(householdId ?? '', name),
+    mutationFn: ({ name, icon }: { name: string; icon: string }) =>
+      categoriesApi.addCategoryRemote(householdId ?? '', name, icon),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.categories(householdId) }),
   });
 }
 
-export function useRenameCategoryMutation(householdId: string | undefined) {
+export function useUpdateCategoryMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, name }: { id: string; name: string }) =>
-      categoriesApi.renameCategoryRemote(id, name),
+    mutationFn: ({
+      id,
+      updates,
+    }: {
+      id: string;
+      updates: Partial<Pick<categoriesApi.CategoryRow, 'name' | 'icon'>>;
+    }) => categoriesApi.updateCategoryRemote(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.categories(householdId) }),
   });
 }

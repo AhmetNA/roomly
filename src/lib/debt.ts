@@ -46,3 +46,11 @@ export function computeDebtBalances(expenses: ExpenseWithSplits[]): DebtBalance[
 
   return balances;
 }
+
+// An expense with no one still owing anyone else for it reads as "settled" in
+// the list — every split that isn't the payer's own has been marked paid.
+export function isExpenseFullySettled(expense: ExpenseWithSplits) {
+  return expense.expense_splits.every(
+    (split) => split.member_id === expense.paid_by || split.is_settled,
+  );
+}

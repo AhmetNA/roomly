@@ -10,6 +10,7 @@ import { FloatingActionButton } from '@/components/floating-action-button';
 import { ScreenHeader } from '@/components/screen-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { getCategoryIconSymbol } from '@/constants/category-icons';
 import { Spacing } from '@/constants/theme';
 import { useCategoriesQuery, useCategoriesRealtime } from '@/hooks/use-categories';
 import { useHouseholdQuery, useMembersQuery } from '@/hooks/use-household';
@@ -43,9 +44,9 @@ export default function ShoppingListScreen() {
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const categoryNameById = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const category of categories) map.set(category.id, category.name);
+  const categoryById = useMemo(() => {
+    const map = new Map<string, (typeof categories)[number]>();
+    for (const category of categories) map.set(category.id, category);
     return map;
   }, [categories]);
 
@@ -95,38 +96,52 @@ export default function ShoppingListScreen() {
                 {section.title.toUpperCase()}
               </ThemedText>
             )}
-            renderItem={({ item }) => (
-              <Pressable
-                onLongPress={() => handleDelete(item)}
-                onPress={() => toggleItem.mutate({ id: item.id, isPurchased: !item.is_purchased })}
-              >
-                <ThemedView type="backgroundElement" style={styles.itemRow}>
-                  <SymbolView
-                    name={
-                      item.is_purchased
-                        ? { ios: 'checkmark.circle.fill', android: 'check_circle' }
-                        : { ios: 'circle', android: 'circle' }
-                    }
-                    size={22}
-                    tintColor={item.is_purchased ? theme.success : theme.textSecondary}
-                  />
-                  <View style={styles.itemInfo}>
-                    <ThemedText
-                      type="default"
-                      themeColor={item.is_purchased ? 'textSecondary' : 'text'}
-                      style={item.is_purchased ? styles.itemNamePurchased : undefined}
-                    >
-                      {item.name}
-                    </ThemedText>
-                    {item.category_id && categoryNameById.has(item.category_id) && (
-                      <ThemedText type="small" themeColor="textSecondary">
-                        {categoryNameById.get(item.category_id)}
+            renderItem={({ item }) => {
+              const category = item.category_id ? categoryById.get(item.category_id) : undefined;
+              const categoryIcon = category ? getCategoryIconSymbol(category.icon) : null;
+
+              return (
+                <Pressable
+                  onLongPress={() => handleDelete(item)}
+                  onPress={() =>
+                    toggleItem.mutate({ id: item.id, isPurchased: !item.is_purchased })
+                  }
+                >
+                  <ThemedView type="backgroundElement" style={styles.itemRow}>
+                    <SymbolView
+                      name={
+                        item.is_purchased
+                          ? { ios: 'checkmark.circle.fill', android: 'check_circle' }
+                          : { ios: 'circle', android: 'circle' }
+                      }
+                      size={22}
+                      tintColor={item.is_purchased ? theme.success : theme.textSecondary}
+                    />
+                    <View style={styles.itemInfo}>
+                      <ThemedText
+                        type="default"
+                        themeColor={item.is_purchased ? 'textSecondary' : 'text'}
+                        style={item.is_purchased ? styles.itemNamePurchased : undefined}
+                      >
+                        {item.name}
                       </ThemedText>
-                    )}
-                  </View>
-                </ThemedView>
-              </Pressable>
-            )}
+                      {category && categoryIcon && (
+                        <View style={styles.categoryRow}>
+                          <SymbolView
+                            name={{ ios: categoryIcon.ios, android: categoryIcon.android }}
+                            size={12}
+                            tintColor={theme.textSecondary}
+                          />
+                          <ThemedText type="small" themeColor="textSecondary">
+                            {category.name}
+                          </ThemedText>
+                        </View>
+                      )}
+                    </View>
+                  </ThemedView>
+                </Pressable>
+              );
+            }}
           />
         )}
       </SafeAreaView>
@@ -178,6 +193,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.two,
   },
   itemInfo: {
+    gap: Spacing.half,
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.half,
   },
   itemNamePurchased: {

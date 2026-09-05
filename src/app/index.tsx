@@ -23,6 +23,7 @@ import {
 import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
+import { isExpenseFullySettled } from '@/lib/debt';
 
 export default function ExpensesScreen() {
   const { t } = useTranslation();
@@ -107,22 +108,34 @@ export default function ExpensesScreen() {
             data={expenses}
             keyExtractor={(expense) => expense.id}
             contentContainerStyle={styles.listContent}
-            renderItem={({ item }) => (
-              <Pressable onPress={() => setSelectedExpense(item)}>
-                <ThemedView type="backgroundElement" style={styles.row}>
-                  <View style={styles.rowInfo}>
-                    <ThemedText type="default" style={styles.rowTitle}>
-                      {item.title}
+            renderItem={({ item }) => {
+              const isSettled = isExpenseFullySettled(item);
+              return (
+                <Pressable onPress={() => setSelectedExpense(item)}>
+                  <ThemedView type="backgroundElement" style={styles.row}>
+                    <View style={styles.rowInfo}>
+                      <ThemedText
+                        type="default"
+                        themeColor={isSettled ? 'textSecondary' : 'text'}
+                        style={[styles.rowTitle, isSettled && styles.rowTitleSettled]}
+                      >
+                        {item.title}
+                      </ThemedText>
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {item.paid_by ? nameById.get(item.paid_by) : '—'} ·{' '}
+                        {new Date(item.created_at).toLocaleDateString()}
+                      </ThemedText>
+                    </View>
+                    <ThemedText
+                      type="smallBold"
+                      themeColor={isSettled ? 'textSecondary' : undefined}
+                    >
+                      {item.total_amount.toFixed(2)}
                     </ThemedText>
-                    <ThemedText type="small" themeColor="textSecondary">
-                      {item.paid_by ? nameById.get(item.paid_by) : '—'} ·{' '}
-                      {new Date(item.created_at).toLocaleDateString()}
-                    </ThemedText>
-                  </View>
-                  <ThemedText type="smallBold">{item.total_amount.toFixed(2)}</ThemedText>
-                </ThemedView>
-              </Pressable>
-            )}
+                  </ThemedView>
+                </Pressable>
+              );
+            }}
           />
         )}
       </SafeAreaView>
@@ -206,5 +219,8 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontWeight: '600',
+  },
+  rowTitleSettled: {
+    textDecorationLine: 'line-through',
   },
 });

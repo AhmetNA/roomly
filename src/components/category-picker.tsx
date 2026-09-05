@@ -1,6 +1,8 @@
+import { SymbolView } from 'expo-symbols';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { getCategoryIconSymbol } from '@/constants/category-icons';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { CategoryRow } from '@/lib/api/categories';
@@ -20,11 +22,17 @@ export function CategoryPicker({
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-      <Chip label={noneLabel} selected={selectedId === null} onPress={() => onSelect(null)} />
+      <Chip
+        label={noneLabel}
+        icon={null}
+        selected={selectedId === null}
+        onPress={() => onSelect(null)}
+      />
       {categories.map((category) => (
         <Chip
           key={category.id}
           label={category.name}
+          icon={category.icon}
           selected={selectedId === category.id}
           onPress={() => onSelect(category.id)}
         />
@@ -34,13 +42,16 @@ export function CategoryPicker({
 
   function Chip({
     label,
+    icon,
     selected,
     onPress,
   }: {
     label: string;
+    icon: string | null;
     selected: boolean;
     onPress: () => void;
   }) {
+    const symbol = getCategoryIconSymbol(icon);
     return (
       <Pressable
         onPress={onPress}
@@ -52,6 +63,13 @@ export function CategoryPicker({
           },
         ]}
       >
+        {icon && (
+          <SymbolView
+            name={{ ios: symbol.ios, android: symbol.android }}
+            size={14}
+            tintColor={selected ? theme.onAccent : theme.textSecondary}
+          />
+        )}
         <ThemedText type="small" themeColor={selected ? 'onAccent' : undefined}>
           {label}
         </ThemedText>
@@ -66,6 +84,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.one,
   },
   chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Spacing.five,
     paddingHorizontal: Spacing.three,
