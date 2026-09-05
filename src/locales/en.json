@@ -1,4 +1,20 @@
 {
+  "onboarding": {
+    "title": "Welcome to Roomly",
+    "subtitle": "Share expenses and a shopping list with your roommates",
+    "createHousehold": "Create a Household",
+    "joinHousehold": "Join a Household",
+    "yourNameLabel": "Your name",
+    "yourNamePlaceholder": "e.g. Alex",
+    "householdNameLabel": "Household name",
+    "householdNamePlaceholder": "e.g. Downtown Apartment",
+    "joinCodeLabel": "Invite code",
+    "joinCodePlaceholder": "e.g. AB12CD",
+    "createButton": "Create",
+    "joinButton": "Join",
+    "joinComingSoon": "Joining a household will work once the backend is connected",
+    "back": "Back"
+  },
   "tabs": {
     "expenses": "Expenses",
     "list": "List",
@@ -18,12 +34,19 @@
   },
   "people": {
     "title": "People",
-    "empty": "No roommates found",
-    "emptyHint": "Roommates you invite with the invite code will show up here",
+    "you": "(you)",
     "iban": "IBAN",
     "ibanMissing": "No IBAN added",
     "ibanCopied": "IBAN copied",
-    "edit": "Edit"
+    "edit": "Edit",
+    "editTitle": "Edit your info",
+    "nameLabel": "Your name",
+    "ibanLabel": "IBAN",
+    "ibanPlaceholder": "TR.. .... .... .... .... .... ..",
+    "householdSection": "Household",
+    "inviteCode": "Invite code",
+    "inviteCodeCopied": "Invite code copied",
+    "logout": "Leave household"
   },
   "common": {
     "cancel": "Cancel",

@@ -1,4 +1,20 @@
 {
+  "onboarding": {
+    "title": "Roomly'e Hoş Geldin",
+    "subtitle": "Ev arkadaşlarınla harcamaları ve ihtiyaç listesini paylaş",
+    "createHousehold": "Ev Oluştur",
+    "joinHousehold": "Ev'e Katıl",
+    "yourNameLabel": "Adın",
+    "yourNamePlaceholder": "Örn. Ahmet",
+    "householdNameLabel": "Ev adı",
+    "householdNamePlaceholder": "Örn. Bahçelievler Ev",
+    "joinCodeLabel": "Davet kodu",
+    "joinCodePlaceholder": "Örn. AB12CD",
+    "createButton": "Oluştur",
+    "joinButton": "Katıl",
+    "joinComingSoon": "Ev'e katılma, backend bağlandığında aktif olacak",
+    "back": "Geri"
+  },
   "tabs": {
     "expenses": "Harcamalar",
     "list": "Liste",
@@ -18,12 +34,19 @@
   },
   "people": {
     "title": "Kişiler",
-    "empty": "Ev arkadaşı bulunamadı",
-    "emptyHint": "Davet koduyla ev arkadaşlarını ekledikçe burada listelenecekler",
+    "you": "(sen)",
     "iban": "IBAN",
     "ibanMissing": "IBAN eklenmedi",
     "ibanCopied": "IBAN kopyalandı",
-    "edit": "Düzenle"
+    "edit": "Düzenle",
+    "editTitle": "Bilgilerini düzenle",
+    "nameLabel": "Adın",
+    "ibanLabel": "IBAN",
+    "ibanPlaceholder": "TR.. .... .... .... .... .... ..",
+    "householdSection": "Ev",
+    "inviteCode": "Davet kodu",
+    "inviteCodeCopied": "Davet kodu kopyalandı",
+    "logout": "Ev'den çık"
   },
   "common": {
     "cancel": "Vazgeç",

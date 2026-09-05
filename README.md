@@ -26,12 +26,27 @@ Detay ve gerekçe için [AGENTS.md](AGENTS.md)'ye bakın.
 
 ## Geliştirme
 
+Proje native modüller kullanıyor (native tab bar, glass effect vb.), bu yüzden **Expo Go ile çalışmaz** — bir development build (custom dev client) gerekiyor.
+
 ```bash
 npm install
-npx expo start
+npx expo run:ios       # simulator/cihazda derleyip çalıştırır
+npx expo run:android   # USB bağlı cihaz/emulator'da derleyip çalıştırır
 ```
 
-- `npm run ios` / `npm run android` / `npm run web` — belirli platformda başlatır
+Kod değiştikçe `npx expo start` ile Metro'yu ayrı başlatıp dev client'ı ona bağlı tutabilirsiniz; native bir paket (yeni `expo install` ile eklenen bir modül) eklendiğinde `run:ios`/`run:android`'i tekrar çalıştırmak gerekir.
+
 - `npm run lint` — ESLint
 - `npm run typecheck` — TypeScript
 - `npm run format` — Prettier
+
+### Telefonda test etme (kablo olmadan)
+
+USB bağlantısı olmadan telefonda denemek için [EAS Build](https://docs.expo.dev/build/introduction/) (ücretsiz plan yeterli):
+
+```bash
+npx eas-cli login              # ücretsiz Expo hesabınla giriş yap
+npx eas-cli build --platform android --profile preview
+```
+
+Derleme bulutta tamamlanınca bir indirme linki/QR verir; telefonda açıp APK'yı indirip kurman yeterli (ilk seferde "bilinmeyen kaynaklardan yükleme" izni istenir). iOS için aynı akış `--platform ios` ile çalışır ama cihaza kurmak için ücretsiz Apple hesabıyla sınırlı sayıda cihaz kaydı gerekir; simulator'da test etmek için yukarıdaki `npx expo run:ios` yeterli.
