@@ -12,6 +12,7 @@ iOS ve Android'de aynı anda çalışacak şekilde (cross-platform) geliştirile
 Proje henüz planlama aşamasında. Detaylar için:
 
 - [FEATURES.md](FEATURES.md) — özellik listesi ve kapsam
+- [SCREENS.md](SCREENS.md) — ekran ekran hangi özelliklerin nerede olacağı
 - [CLAUDE.md](CLAUDE.md) — bu repo üzerinde Claude Code ile çalışırken uyulacak kurallar
 - [AGENTS.md](AGENTS.md) — proje yapısı, teknoloji seçimleri ve ajan/geliştirici notları
 
