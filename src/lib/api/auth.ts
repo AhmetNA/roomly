@@ -1,5 +1,6 @@
 import { makeRedirectUri } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
+import { Platform } from 'react-native';
 
 import { supabase } from '@/lib/supabase';
 
@@ -38,7 +39,19 @@ export async function signOut() {
 // Google sign-in opens the OAuth consent page in an in-app browser (no native
 // Google Sign-In SDK needed — keeps this on Supabase's free Auth tier and avoids
 // a native rebuild), then exchanges the redirected `code` for a session.
+//
+// On web there's no in-app browser or deep link to come back through — Supabase
+// does a full-page redirect to Google and back, and `detectSessionInUrl` (set on
+// the web client in lib/supabase.ts) picks the `?code=` param up automatically
+// once the page reloads, so this call never returns on that path.
 export async function signInWithGoogle() {
+  if (Platform.OS === 'web') {
+    const redirectTo = `${window.location.origin}${window.location.pathname}`;
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+    if (error) throw error;
+    return;
+  }
+
   const redirectTo = makeRedirectUri({ scheme: 'roomly', path: 'auth-callback' });
 
   const { data, error } = await supabase.auth.signInWithOAuth({

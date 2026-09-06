@@ -4,7 +4,7 @@ import 'react-native-url-polyfill/auto';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 import type { Database } from '@/types/database';
 
@@ -20,11 +20,16 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     storage: AsyncStorage,
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
+    // On web the OAuth redirect lands back on the page itself with a `?code=`
+    // param in the URL — Supabase must parse and exchange it there. On native
+    // there's no page to reload, so this stays off and the deep-link callback
+    // exchanges the code manually (see signInWithGoogle in lib/api/auth.ts).
+    detectSessionInUrl: Platform.OS === 'web',
     // PKCE (not the implicit flow) is required for Google sign-in on native: the
     // OAuth redirect comes back as a deep link, and only PKCE's `code` param
     // survives that round-trip cleanly (the implicit flow's token is a URL
-    // fragment, which native deep links don't reliably preserve).
+    // fragment, which native deep links don't reliably preserve). Works the
+    // same way on web, so it's used unconditionally.
     flowType: 'pkce',
   },
 });
