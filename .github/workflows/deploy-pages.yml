@@ -44,3 +44,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          # GitHub Pages caches index.html for 10 minutes and gives no way to
+          # change that. Wiping the old hashed bundle on deploy means anyone
+          # holding a cached index.html requests a file that no longer exists,
+          # gets a 404, and sees a blank page until their cache expires — so
+          # previous builds are kept alongside the new one instead.
+          keep_files: true
