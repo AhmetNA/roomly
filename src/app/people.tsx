@@ -89,7 +89,7 @@ export default function PeopleScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <ScreenHeader title={t('people.title')} />
+        <ScreenHeader title={t('people.title')} refreshing={refreshing} onRefresh={onRefresh} />
         <FlatList
           data={members}
           keyExtractor={(member) => member.id}

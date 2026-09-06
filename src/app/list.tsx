@@ -112,7 +112,7 @@ export default function ShoppingListScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <ScreenHeader title={t('list.title')} />
+        <ScreenHeader title={t('list.title')} refreshing={refreshing} onRefresh={onRefresh} />
         <SectionList
           sections={sections}
           keyExtractor={(item) => item.id}

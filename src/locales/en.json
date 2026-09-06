@@ -133,6 +133,7 @@
     "close": "Close",
     "comingSoon": "Coming soon",
     "today": "Today",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "refresh": "Refresh"
   }
 }

@@ -16,6 +16,7 @@ import { DebtSummaryModal } from '@/components/debt-summary-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ExpenseDetailModal } from '@/components/expense-detail-modal';
 import { FloatingActionButton } from '@/components/floating-action-button';
+import { RefreshAction } from '@/components/refresh-action';
 import { StatisticsModal } from '@/components/statistics-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -106,6 +107,7 @@ export default function ExpensesScreen() {
         <ThemedView style={styles.header}>
           <ThemedText type="subtitle">{t('expenses.title')}</ThemedText>
           <View style={styles.headerActions}>
+            <RefreshAction refreshing={refreshing} onPress={onRefresh} />
             <Pressable onPress={() => setDebtVisible(true)} hitSlop={8} style={styles.headerButton}>
               <AppSymbol
                 name={{ ios: 'arrow.left.arrow.right.circle', android: 'swap_horizontal_circle' }}
