@@ -79,3 +79,23 @@ export const Spacing = {
 
 export const BottomTabInset = Platform.select({ ios: 30, android: 48 }) ?? 0;
 export const MaxContentWidth = 800;
+
+// A soft, low, black-based shadow reads as "lifted" in both themes (dark mode
+// shadows are still conventionally black, just less visible) — this is a
+// physical light-simulation constant, not a themed design color, so it lives
+// here once rather than as a per-palette token.
+export const CardShadow = {
+  shadowColor: '#000000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.08,
+  shadowRadius: 8,
+  elevation: 2,
+} as const;
+
+export const PopupShadow = {
+  shadowColor: '#000000',
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.2,
+  shadowRadius: 24,
+  elevation: 12,
+} as const;

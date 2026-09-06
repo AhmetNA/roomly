@@ -3,11 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PrimaryButton } from '@/components/primary-button';
-import { ScreenHeader } from '@/components/screen-header';
+import { SheetHeader } from '@/components/sheet-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { CardShadow, Spacing } from '@/constants/theme';
 import { useExpensesQuery } from '@/hooks/use-expenses';
 import { useTheme } from '@/hooks/use-theme';
 import type { CategoryRow } from '@/lib/api/categories';
@@ -48,7 +47,7 @@ export function StatisticsModal({
     >
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <ScreenHeader title={t('statistics.title')} />
+          <SheetHeader title={t('statistics.title')} onClose={onClose} />
           <ScrollView contentContainerStyle={styles.content}>
             <View style={styles.segmentRow}>
               {(['month', 'year', 'all'] as const).map((p) => (
@@ -69,11 +68,11 @@ export function StatisticsModal({
               ))}
             </View>
 
-            <ThemedView type="backgroundElement" style={styles.totalCard}>
+            <ThemedView style={[styles.totalCard, { backgroundColor: `${theme.accent}17` }]}>
               <ThemedText type="small" themeColor="textSecondary">
                 {t('statistics.totalLabel')}
               </ThemedText>
-              <ThemedText type="title" style={styles.totalAmount}>
+              <ThemedText type="title" themeColor="accent" style={styles.totalAmount}>
                 {stats.totalAmount.toFixed(2)}
               </ThemedText>
             </ThemedView>
@@ -111,13 +110,6 @@ export function StatisticsModal({
                   ))}
               </>
             )}
-
-            <PrimaryButton
-              label={t('common.close')}
-              variant="secondary"
-              icon={{ ios: 'xmark', android: 'close' }}
-              onPress={onClose}
-            />
           </ScrollView>
         </SafeAreaView>
       </ThemedView>
@@ -172,6 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: Spacing.three,
     borderRadius: Spacing.three,
+    ...CardShadow,
   },
   empty: {
     textAlign: 'center',

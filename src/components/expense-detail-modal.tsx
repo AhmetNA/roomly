@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
-import { ScreenHeader } from '@/components/screen-header';
+import { SheetHeader } from '@/components/sheet-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { CardShadow, Spacing } from '@/constants/theme';
 import type { CategoryRow } from '@/lib/api/categories';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
 import type { MemberRow } from '@/lib/api/household';
@@ -39,18 +39,22 @@ export function ExpenseDetailModal({
       {expense && (
         <ThemedView style={styles.container}>
           <SafeAreaView style={styles.container}>
-            <ScreenHeader title={t('expenses.detailTitle')} />
+            <SheetHeader title={t('expenses.detailTitle')} onClose={onClose} />
             <ScrollView contentContainerStyle={styles.content}>
-              <ThemedText type="title" style={styles.amount}>
-                {expense.total_amount.toFixed(2)}
-              </ThemedText>
-              <ThemedText type="subtitle">{expense.title}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {new Date(expense.created_at).toLocaleDateString()}
-                {expense.category_id && categoryById.has(expense.category_id)
-                  ? ` · ${categoryById.get(expense.category_id)}`
-                  : ''}
-              </ThemedText>
+              <ThemedView style={styles.hero}>
+                <ThemedText type="title" style={styles.amount}>
+                  {expense.total_amount.toFixed(2)}
+                </ThemedText>
+                <ThemedText type="subtitle" style={styles.heroTitle}>
+                  {expense.title}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {new Date(expense.created_at).toLocaleDateString()}
+                  {expense.category_id && categoryById.has(expense.category_id)
+                    ? ` · ${categoryById.get(expense.category_id)}`
+                    : ''}
+                </ThemedText>
+              </ThemedView>
 
               <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
                 {t('expenses.paidBySection').toUpperCase()}
@@ -98,24 +102,14 @@ export function ExpenseDetailModal({
                 </>
               )}
 
-              <View style={styles.buttonRow}>
-                <View style={styles.buttonFlex}>
-                  <PrimaryButton
-                    label={t('common.delete')}
-                    variant="danger"
-                    icon={{ ios: 'trash', android: 'delete' }}
-                    onPress={() => onDelete(expense)}
-                  />
-                </View>
-                <View style={styles.buttonFlex}>
-                  <PrimaryButton
-                    label={t('common.close')}
-                    variant="secondary"
-                    icon={{ ios: 'xmark', android: 'close' }}
-                    onPress={onClose}
-                  />
-                </View>
-              </View>
+              <ThemedView style={styles.deleteRow}>
+                <PrimaryButton
+                  label={t('common.delete')}
+                  variant="danger"
+                  icon={{ ios: 'trash', android: 'delete' }}
+                  onPress={() => onDelete(expense)}
+                />
+              </ThemedView>
             </ScrollView>
           </SafeAreaView>
         </ThemedView>
@@ -133,9 +127,18 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.five,
     gap: Spacing.two,
   },
+  hero: {
+    alignItems: 'center',
+    gap: Spacing.one,
+    paddingVertical: Spacing.three,
+  },
   amount: {
-    fontSize: 36,
-    lineHeight: 42,
+    fontSize: 40,
+    lineHeight: 46,
+  },
+  heroTitle: {
+    fontSize: 20,
+    lineHeight: 26,
   },
   sectionTitle: {
     marginTop: Spacing.three,
@@ -145,13 +148,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: Spacing.three,
     borderRadius: Spacing.three,
+    ...CardShadow,
   },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    marginTop: Spacing.two,
-  },
-  buttonFlex: {
-    flex: 1,
+  deleteRow: {
+    marginTop: Spacing.four,
   },
 });

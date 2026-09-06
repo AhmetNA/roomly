@@ -6,11 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CategoryPicker } from '@/components/category-picker';
 import { PrimaryButton } from '@/components/primary-button';
-import { ScreenHeader } from '@/components/screen-header';
+import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { CardShadow, Spacing } from '@/constants/theme';
 import { useCategoriesQuery } from '@/hooks/use-categories';
 import { useCreateExpenseMutation } from '@/hooks/use-expenses';
 import { useTheme } from '@/hooks/use-theme';
@@ -159,7 +159,7 @@ export function AddExpenseModal({
     >
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <ScreenHeader title={t('expenses.addTitle')} />
+          <SheetHeader title={t('expenses.addTitle')} onClose={resetAndClose} />
           <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
             <TextField
               label={t('expenses.titleLabel')}
@@ -334,24 +334,12 @@ export function AddExpenseModal({
               </ThemedView>
             )}
 
-            <View style={styles.actionRow}>
-              <View style={styles.actionFlex}>
-                <PrimaryButton
-                  label={t('common.add')}
-                  icon={{ ios: 'plus', android: 'add' }}
-                  disabled={!canSubmit || createExpense.isPending}
-                  onPress={handleSubmit}
-                />
-              </View>
-              <View style={styles.actionFlex}>
-                <PrimaryButton
-                  label={t('common.cancel')}
-                  variant="secondary"
-                  icon={{ ios: 'xmark', android: 'close' }}
-                  onPress={resetAndClose}
-                />
-              </View>
-            </View>
+            <PrimaryButton
+              label={t('common.add')}
+              icon={{ ios: 'plus', android: 'add' }}
+              disabled={!canSubmit || createExpense.isPending}
+              onPress={handleSubmit}
+            />
           </ScrollView>
         </SafeAreaView>
       </ThemedView>
@@ -412,13 +400,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  actionRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  actionFlex: {
-    flex: 1,
-  },
   form: {
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.six,
@@ -457,7 +438,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: Spacing.two,
-    borderRadius: Spacing.two,
+    borderRadius: Spacing.three,
+    ...CardShadow,
     gap: Spacing.two,
   },
   memberInputName: {

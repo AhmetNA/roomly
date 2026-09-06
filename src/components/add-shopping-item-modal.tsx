@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CategoryManagerModal } from '@/components/category-manager-modal';
 import { CategoryPicker } from '@/components/category-picker';
 import { PrimaryButton } from '@/components/primary-button';
-import { ScreenHeader } from '@/components/screen-header';
+import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -53,7 +53,7 @@ export function AddShoppingItemModal({
     >
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <ScreenHeader title={t('list.addItemTitle')} />
+          <SheetHeader title={t('list.addItemTitle')} onClose={handleClose} />
           <ThemedView style={styles.form}>
             <TextField
               label={t('list.itemNameLabel')}
@@ -80,24 +80,12 @@ export function AddShoppingItemModal({
               </ThemedText>
             </Pressable>
 
-            <View style={styles.actionRow}>
-              <View style={styles.actionFlex}>
-                <PrimaryButton
-                  label={t('common.add')}
-                  icon={{ ios: 'plus', android: 'add' }}
-                  disabled={!name.trim()}
-                  onPress={handleSubmit}
-                />
-              </View>
-              <View style={styles.actionFlex}>
-                <PrimaryButton
-                  label={t('common.cancel')}
-                  variant="secondary"
-                  icon={{ ios: 'xmark', android: 'close' }}
-                  onPress={handleClose}
-                />
-              </View>
-            </View>
+            <PrimaryButton
+              label={t('common.add')}
+              icon={{ ios: 'plus', android: 'add' }}
+              disabled={!name.trim()}
+              onPress={handleSubmit}
+            />
           </ThemedView>
         </SafeAreaView>
       </ThemedView>
@@ -113,13 +101,6 @@ export function AddShoppingItemModal({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  actionFlex: {
     flex: 1,
   },
   form: {

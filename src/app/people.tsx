@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
 import { ScreenHeader } from '@/components/screen-header';
+import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -232,7 +233,7 @@ function EditMemberModal({
     >
       <ThemedView style={styles.modalContainer}>
         <SafeAreaView style={styles.safeArea}>
-          <ScreenHeader title={t('people.editTitle')} />
+          <SheetHeader title={t('people.editTitle')} onClose={onClose} />
           <ThemedView style={styles.modalForm}>
             <TextField
               label={t('people.nameLabel')}
@@ -252,24 +253,12 @@ function EditMemberModal({
                 {t('people.ibanInvalid')}
               </ThemedText>
             )}
-            <View style={styles.buttonRow}>
-              <View style={styles.buttonFlex}>
-                <PrimaryButton
-                  label={t('common.save')}
-                  icon={{ ios: 'checkmark', android: 'check' }}
-                  disabled={name.trim().length === 0 || ibanError}
-                  onPress={handleSave}
-                />
-              </View>
-              <View style={styles.buttonFlex}>
-                <PrimaryButton
-                  label={t('common.cancel')}
-                  variant="secondary"
-                  icon={{ ios: 'xmark', android: 'close' }}
-                  onPress={onClose}
-                />
-              </View>
-            </View>
+            <PrimaryButton
+              label={t('common.save')}
+              icon={{ ios: 'checkmark', android: 'check' }}
+              disabled={name.trim().length === 0 || ibanError}
+              onPress={handleSave}
+            />
           </ThemedView>
         </SafeAreaView>
       </ThemedView>
@@ -329,12 +318,5 @@ const styles = StyleSheet.create({
   modalForm: {
     paddingHorizontal: Spacing.four,
     gap: Spacing.three,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  buttonFlex: {
-    flex: 1,
   },
 });

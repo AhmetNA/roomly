@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
-import { ScreenHeader } from '@/components/screen-header';
+import { SheetHeader } from '@/components/sheet-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import {
@@ -22,7 +22,7 @@ import {
   DEFAULT_CATEGORY_ICON_KEY,
   getCategoryIconSymbol,
 } from '@/constants/category-icons';
-import { Spacing } from '@/constants/theme';
+import { CardShadow, Spacing } from '@/constants/theme';
 import {
   useAddCategoryMutation,
   useCategoriesQuery,
@@ -85,7 +85,7 @@ export function CategoryManagerModal({
     >
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <ScreenHeader title={t('categories.title')} />
+          <SheetHeader title={t('categories.title')} onClose={onClose} />
           <FlatList
             data={categories}
             keyExtractor={(category) => category.id}
@@ -171,14 +171,6 @@ export function CategoryManagerModal({
               />
             </ThemedView>
           </ThemedView>
-          <ThemedView style={styles.closeRow}>
-            <PrimaryButton
-              label={t('common.close')}
-              variant="secondary"
-              icon={{ ios: 'xmark', android: 'close' }}
-              onPress={onClose}
-            />
-          </ThemedView>
         </SafeAreaView>
       </ThemedView>
     </Modal>
@@ -249,6 +241,7 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     borderRadius: Spacing.three,
     gap: Spacing.two,
+    ...CardShadow,
   },
   rowLabel: {
     flex: 1,
@@ -256,6 +249,7 @@ const styles = StyleSheet.create({
   addSection: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
+    paddingBottom: Spacing.four,
     gap: Spacing.two,
   },
   addRow: {
@@ -284,9 +278,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: Spacing.two,
-  },
-  closeRow: {
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.three,
   },
 });
