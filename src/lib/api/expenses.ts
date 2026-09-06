@@ -41,7 +41,7 @@ export async function createExpenseRemote(input: {
   splits: SplitInput[];
   payments: PaymentInput[];
 }) {
-  const { error } = await supabase.rpc('create_expense', {
+  const { data, error } = await supabase.rpc('create_expense', {
     p_household_id: input.householdId,
     p_category_id: input.categoryId,
     p_title: input.title,
@@ -58,6 +58,7 @@ export async function createExpenseRemote(input: {
     })),
   });
   if (error) throw error;
+  return data;
 }
 
 export async function removeExpenseRemote(id: string) {

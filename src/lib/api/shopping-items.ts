@@ -18,10 +18,13 @@ export async function addShoppingItemRemote(
   categoryId: string | null,
   addedBy: string,
 ) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('shopping_items')
-    .insert({ household_id: householdId, name, category_id: categoryId, added_by: addedBy });
+    .insert({ household_id: householdId, name, category_id: categoryId, added_by: addedBy })
+    .select('id')
+    .single();
   if (error) throw error;
+  return data;
 }
 
 // Marking purchased records who did it and when; un-marking clears both —

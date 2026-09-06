@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
+import { notifyHousehold } from '@/lib/api/notifications';
 import * as shoppingApi from '@/lib/api/shopping-items';
 import { queryKeys } from '@/lib/query-keys';
 import { supabase } from '@/lib/supabase';
@@ -51,8 +52,10 @@ export function useAddShoppingItemMutation(householdId: string | undefined) {
       categoryId: string | null;
       addedBy: string;
     }) => shoppingApi.addShoppingItemRemote(householdId ?? '', name, categoryId, addedBy),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.shoppingItems(householdId) }),
+    onSuccess: (item) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.shoppingItems(householdId) });
+      if (item) notifyHousehold({ kind: 'item_added', entityId: item.id });
+    },
   });
 }
 
@@ -68,8 +71,13 @@ export function useToggleShoppingItemMutation(householdId: string | undefined) {
       isPurchased: boolean;
       purchasedBy: string | null;
     }) => shoppingApi.toggleShoppingItemPurchasedRemote(id, isPurchased, purchasedBy),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.shoppingItems(householdId) }),
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.shoppingItems(householdId) });
+      // Only buying is worth a notification; un-ticking a mistake is not.
+      if (variables.isPurchased) {
+        notifyHousehold({ kind: 'item_purchased', entityId: variables.id });
+      }
+    },
   });
 }
 

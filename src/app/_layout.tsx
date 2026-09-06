@@ -11,6 +11,7 @@ import { AuthScreen } from '@/components/auth-screen';
 import { OnboardingScreen } from '@/components/onboarding-screen';
 import { ThemedView } from '@/components/themed-view';
 import { useHouseholdQuery } from '@/hooks/use-household';
+import { usePushRegistration } from '@/hooks/use-push-registration';
 import { SessionProvider, useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import { queryClient } from '@/lib/query-client';
@@ -37,6 +38,7 @@ function RootNavigator() {
   // Only fetch once there's a session — otherwise this query runs unauthenticated
   // and RLS correctly (but confusingly) returns nothing.
   const { data: household, isLoading: isHouseholdLoading } = useHouseholdQuery(!!session);
+  usePushRegistration(!!session && !!household);
 
   if (session === undefined || (session && isHouseholdLoading)) {
     return (

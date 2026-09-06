@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import * as expensesApi from '@/lib/api/expenses';
+import { notifyHousehold } from '@/lib/api/notifications';
 import { queryKeys } from '@/lib/query-keys';
 import { supabase } from '@/lib/supabase';
 
@@ -49,7 +50,10 @@ export function useCreateExpenseMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: expensesApi.createExpenseRemote,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.expenses(householdId) }),
+    onSuccess: (expense) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.expenses(householdId) });
+      if (expense) notifyHousehold({ kind: 'expense_added', entityId: expense.id });
+    },
   });
 }
 
@@ -66,6 +70,9 @@ export function useSettleDebtMutation(householdId: string | undefined) {
   return useMutation({
     mutationFn: ({ fromMemberId, toMemberId }: { fromMemberId: string; toMemberId: string }) =>
       expensesApi.settleDebtRemote(fromMemberId, toMemberId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.expenses(householdId) }),
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.expenses(householdId) });
+      notifyHousehold({ kind: 'debt_settled', memberId: variables.toMemberId });
+    },
   });
 }
