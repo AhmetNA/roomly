@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   RefreshControl,
   SectionList,
@@ -31,6 +30,7 @@ import {
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
+import { showAlert } from '@/lib/alert';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
 import { groupByDateSection } from '@/lib/date-sections';
 import { isExpenseFullySettled } from '@/lib/debt';
@@ -77,7 +77,7 @@ export default function ExpensesScreen() {
   const [selectedExpense, setSelectedExpense] = useState<ExpenseWithSplits | null>(null);
 
   function handleDelete(expense: ExpenseWithSplits) {
-    Alert.alert(t('expenses.deleteConfirm'), undefined, [
+    showAlert(t('expenses.deleteConfirm'), undefined, [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('common.delete'),

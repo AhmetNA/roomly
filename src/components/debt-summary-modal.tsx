@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppSymbol } from '@/components/app-symbol';
@@ -12,6 +12,7 @@ import { ThemedView } from '@/components/themed-view';
 import { CardShadow, PopupShadow, Spacing } from '@/constants/theme';
 import { useExpensesQuery, useSettleDebtMutation } from '@/hooks/use-expenses';
 import { useTheme } from '@/hooks/use-theme';
+import { showAlert } from '@/lib/alert';
 import type { MemberRow } from '@/lib/api/household';
 import { computeDebtBalances, type DebtBalance } from '@/lib/debt';
 
@@ -130,7 +131,7 @@ function SettleConfirmModal({
   async function copyIban() {
     if (!toMember?.iban) return;
     await Clipboard.setStringAsync(toMember.iban);
-    Alert.alert(t('people.ibanCopied'));
+    showAlert(t('people.ibanCopied'));
   }
 
   function handleConfirm() {

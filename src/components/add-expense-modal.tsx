@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppSymbol } from '@/components/app-symbol';
@@ -14,6 +14,7 @@ import { CardShadow, Spacing } from '@/constants/theme';
 import { useCategoriesQuery } from '@/hooks/use-categories';
 import { useCreateExpenseMutation } from '@/hooks/use-expenses';
 import { useTheme } from '@/hooks/use-theme';
+import { showAlert } from '@/lib/alert';
 import { getExpenseErrorMessageKey } from '@/lib/api/expenses';
 import type { MemberRow } from '@/lib/api/household';
 import { computeEqualSplit, computeSharesSplit, sumSplitAmounts } from '@/lib/expense-split';
@@ -116,7 +117,7 @@ export function AddExpenseModal({
             }));
 
     if (splits.length === 0 || Math.abs(sumSplitAmounts(splits) - amount) > 0.01) {
-      Alert.alert(t('expenses.splitMismatch'));
+      showAlert(t('expenses.splitMismatch'));
       return;
     }
 
@@ -140,7 +141,7 @@ export function AddExpenseModal({
       });
       resetAndClose();
     } catch (error) {
-      Alert.alert(t(getExpenseErrorMessageKey(error)));
+      showAlert(t(getExpenseErrorMessageKey(error)));
     }
   }
 

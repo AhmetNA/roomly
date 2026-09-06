@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
@@ -8,6 +8,7 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { showAlert } from '@/lib/alert';
 import {
   getAuthErrorMessageKey,
   signInWithEmail,
@@ -39,10 +40,10 @@ export function AuthScreen() {
         await signInWithEmail(email.trim(), password);
       } else {
         await signUpWithEmail(email.trim(), password);
-        Alert.alert(t('auth.checkEmailTitle'), t('auth.checkEmailBody'));
+        showAlert(t('auth.checkEmailTitle'), t('auth.checkEmailBody'));
       }
     } catch (error) {
-      Alert.alert(t(getAuthErrorMessageKey(error)));
+      showAlert(t(getAuthErrorMessageKey(error)));
     } finally {
       setSubmitting(false);
     }
@@ -53,7 +54,7 @@ export function AuthScreen() {
     try {
       await signInWithGoogle();
     } catch (error) {
-      Alert.alert(t(getAuthErrorMessageKey(error)));
+      showAlert(t(getAuthErrorMessageKey(error)));
     } finally {
       setSubmitting(false);
     }

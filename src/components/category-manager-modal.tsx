@@ -1,15 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  FlatList,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppSymbol } from '@/components/app-symbol';
@@ -30,6 +21,7 @@ import {
   useUpdateCategoryMutation,
 } from '@/hooks/use-categories';
 import { useTheme } from '@/hooks/use-theme';
+import { showAlert } from '@/lib/alert';
 import type { CategoryRow } from '@/lib/api/categories';
 
 const ICON_KEYS = Object.keys(CATEGORY_ICONS);
@@ -66,7 +58,7 @@ export function CategoryManagerModal({
   }
 
   function handleDelete(category: CategoryRow) {
-    Alert.alert(t('categories.deleteConfirm'), undefined, [
+    showAlert(t('categories.deleteConfirm'), undefined, [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('common.delete'),

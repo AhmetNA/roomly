@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -31,6 +30,7 @@ import {
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
+import { showAlert } from '@/lib/alert';
 import { getAuthErrorMessageKey, signOut } from '@/lib/api/auth';
 import type { MemberRow } from '@/lib/api/household';
 import { isValidIban } from '@/lib/iban';
@@ -55,11 +55,11 @@ export default function PeopleScreen() {
 
   async function copyToClipboard(value: string, message: string) {
     await Clipboard.setStringAsync(value);
-    Alert.alert(message);
+    showAlert(message);
   }
 
   function handleLeaveHousehold() {
-    Alert.alert(t('people.leaveHousehold'), undefined, [
+    showAlert(t('people.leaveHousehold'), undefined, [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('people.leaveHousehold'),
@@ -70,7 +70,7 @@ export default function PeopleScreen() {
   }
 
   function handleSignOut() {
-    Alert.alert(t('people.signOut'), undefined, [
+    showAlert(t('people.signOut'), undefined, [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('people.signOut'), style: 'destructive', onPress: () => signOut() },
     ]);
@@ -188,7 +188,7 @@ export default function PeopleScreen() {
             await updateMember.mutateAsync({ memberId: editingMember.id, updates });
             setEditingMember(null);
           } catch (error) {
-            Alert.alert(t(getAuthErrorMessageKey(error)));
+            showAlert(t(getAuthErrorMessageKey(error)));
           }
         }}
       />
@@ -214,7 +214,7 @@ function EditMemberModal({
 
   function handleSave() {
     if (ibanError) {
-      Alert.alert(t('people.ibanInvalid'));
+      showAlert(t('people.ibanInvalid'));
       return;
     }
     onSave({ name: name.trim(), iban: trimmedIban || null });

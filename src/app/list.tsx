@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   RefreshControl,
   SectionList,
@@ -32,6 +31,7 @@ import {
   useToggleShoppingItemMutation,
 } from '@/hooks/use-shopping-items';
 import { useTheme } from '@/hooks/use-theme';
+import { showAlert } from '@/lib/alert';
 import type { ShoppingItemRow } from '@/lib/api/shopping-items';
 
 export default function ShoppingListScreen() {
@@ -93,7 +93,7 @@ export default function ShoppingListScreen() {
   }, [items, t]);
 
   function handleDelete(item: ShoppingItemRow) {
-    Alert.alert(t('list.deleteItemConfirm'), undefined, [
+    showAlert(t('list.deleteItemConfirm'), undefined, [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('common.delete'), style: 'destructive', onPress: () => removeItem.mutate(item.id) },
     ]);

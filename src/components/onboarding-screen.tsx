@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useCreateHouseholdMutation, useJoinHouseholdMutation } from '@/hooks/use-household';
+import { showAlert } from '@/lib/alert';
 import { getAuthErrorMessageKey } from '@/lib/api/auth';
 
 type Mode = 'create' | 'join';
@@ -38,7 +39,7 @@ export function OnboardingScreen() {
         await joinHousehold.mutateAsync({ code: joinCode.trim(), myName: yourName.trim() });
       }
     } catch (error) {
-      Alert.alert(t(getAuthErrorMessageKey(error)));
+      showAlert(t(getAuthErrorMessageKey(error)));
     }
   }
 
