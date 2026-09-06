@@ -1,7 +1,15 @@
 import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Pressable, SectionList, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  RefreshControl,
+  SectionList,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AddExpenseModal } from '@/components/add-expense-modal';
@@ -20,6 +28,7 @@ import {
   useExpensesRealtime,
   useRemoveExpenseMutation,
 } from '@/hooks/use-expenses';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
@@ -31,13 +40,24 @@ export default function ExpensesScreen() {
   const theme = useTheme();
   const session = useSession();
 
-  const { data: household } = useHouseholdQuery();
+  const householdQuery = useHouseholdQuery();
+  const household = householdQuery.data;
   const householdId = household?.id;
-  const { data: members = [] } = useMembersQuery(householdId);
-  const { data: categories = [] } = useCategoriesQuery(householdId);
-  const { data: expenses = [], isLoading } = useExpensesQuery(householdId);
+  const membersQuery = useMembersQuery(householdId);
+  const members = membersQuery.data ?? [];
+  const categoriesQuery = useCategoriesQuery(householdId);
+  const categories = categoriesQuery.data ?? [];
+  const expensesQuery = useExpensesQuery(householdId);
+  const { data: expenses = [], isLoading } = expensesQuery;
   useExpensesRealtime(householdId);
   const removeExpense = useRemoveExpenseMutation(householdId);
+
+  const { refreshing, onRefresh } = usePullRefresh([
+    householdQuery.refetch,
+    membersQuery.refetch,
+    categoriesQuery.refetch,
+    expensesQuery.refetch,
+  ]);
 
   const currentMemberId = members.find((m) => m.user_id === session?.user.id)?.id;
   const nameById = new Map(members.map((m) => [m.id, m.name]));
@@ -107,68 +127,74 @@ export default function ExpensesScreen() {
           </View>
         </ThemedView>
 
-        {expenses.length === 0 ? (
-          <EmptyState
-            icon={{ ios: 'creditcard', android: 'credit_card' }}
-            title={t('expenses.empty')}
-            hint={t('expenses.emptyHint')}
-          />
-        ) : (
-          <SectionList
-            sections={sections}
-            keyExtractor={(expense) => expense.id}
-            contentContainerStyle={styles.listContent}
-            renderSectionHeader={({ section }) => (
-              <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionHeader}>
-                {section.title.toUpperCase()}
-              </ThemedText>
-            )}
-            renderItem={({ item }) => {
-              const isSettled = isExpenseFullySettled(item);
-              const time = new Intl.DateTimeFormat(i18n.language, { timeStyle: 'short' }).format(
-                new Date(item.created_at),
-              );
-              return (
-                <Pressable onPress={() => setSelectedExpense(item)}>
-                  <ThemedView type="backgroundElement" style={styles.row}>
-                    <SymbolView
-                      name={
-                        isSettled
-                          ? { ios: 'checkmark.seal.fill', android: 'verified' }
-                          : { ios: 'circle', android: 'circle' }
-                      }
-                      size={20}
-                      tintColor={isSettled ? theme.success : theme.textSecondary}
-                    />
-                    <View style={styles.rowInfo}>
-                      <ThemedText
-                        type="default"
-                        themeColor={isSettled ? 'textSecondary' : 'text'}
-                        style={[styles.rowTitle, isSettled && styles.rowTitleSettled]}
-                      >
-                        {item.title}
-                      </ThemedText>
-                      <ThemedText type="small" themeColor="textSecondary">
-                        {item.expense_payments.length > 0
-                          ? item.expense_payments
-                              .map((payment) => nameById.get(payment.member_id) ?? '—')
-                              .join(', ')
-                          : '—'}{' '}
-                        · {time}
-                      </ThemedText>
-                    </View>
+        <SectionList
+          sections={sections}
+          keyExtractor={(expense) => expense.id}
+          contentContainerStyle={[
+            styles.listContent,
+            expenses.length === 0 && styles.listContentEmpty,
+          ]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.accent}
+            />
+          }
+          ListEmptyComponent={
+            <EmptyState
+              icon={{ ios: 'creditcard', android: 'credit_card' }}
+              title={t('expenses.empty')}
+              hint={t('expenses.emptyHint')}
+            />
+          }
+          renderSectionHeader={({ section }) => (
+            <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionHeader}>
+              {section.title.toUpperCase()}
+            </ThemedText>
+          )}
+          renderItem={({ item }) => {
+            const isSettled = isExpenseFullySettled(item);
+            const time = new Intl.DateTimeFormat(i18n.language, { timeStyle: 'short' }).format(
+              new Date(item.created_at),
+            );
+            return (
+              <Pressable onPress={() => setSelectedExpense(item)}>
+                <ThemedView type="backgroundElement" style={styles.row}>
+                  <SymbolView
+                    name={
+                      isSettled
+                        ? { ios: 'checkmark.seal.fill', android: 'verified' }
+                        : { ios: 'circle', android: 'circle' }
+                    }
+                    size={20}
+                    tintColor={isSettled ? theme.success : theme.textSecondary}
+                  />
+                  <View style={styles.rowInfo}>
                     <ThemedText
-                      type="smallBold"
-                      themeColor={isSettled ? 'textSecondary' : undefined}
+                      type="default"
+                      themeColor={isSettled ? 'textSecondary' : 'text'}
+                      style={[styles.rowTitle, isSettled && styles.rowTitleSettled]}
                     >
-                      {item.total_amount.toFixed(2)}
+                      {item.title}
                     </ThemedText>
-                  </ThemedView>
-                </Pressable>
-              );
-            }}
-          />
-        )}
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {item.expense_payments.length > 0
+                        ? item.expense_payments
+                            .map((payment) => nameById.get(payment.member_id) ?? '—')
+                            .join(', ')
+                        : '—'}{' '}
+                      · {time}
+                    </ThemedText>
+                  </View>
+                  <ThemedText type="smallBold" themeColor={isSettled ? 'textSecondary' : undefined}>
+                    {item.total_amount.toFixed(2)}
+                  </ThemedText>
+                </ThemedView>
+              </Pressable>
+            );
+          }}
+        />
       </SafeAreaView>
 
       <FloatingActionButton
@@ -237,6 +263,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.six,
     gap: Spacing.two,
+  },
+  listContentEmpty: {
+    flexGrow: 1,
   },
   sectionHeader: {
     marginTop: Spacing.three,

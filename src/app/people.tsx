@@ -8,6 +8,7 @@ import {
   FlatList,
   Modal,
   Pressable,
+  RefreshControl,
   StyleSheet,
   View,
 } from 'react-native';
@@ -26,6 +27,7 @@ import {
   useMembersQuery,
   useUpdateMemberMutation,
 } from '@/hooks/use-household';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import { getAuthErrorMessageKey, signOut } from '@/lib/api/auth';
@@ -37,11 +39,15 @@ export default function PeopleScreen() {
   const theme = useTheme();
   const session = useSession();
 
-  const { data: household } = useHouseholdQuery();
-  const { data: members = [], isLoading } = useMembersQuery(household?.id);
+  const householdQuery = useHouseholdQuery();
+  const household = householdQuery.data;
+  const membersQuery = useMembersQuery(household?.id);
+  const { data: members = [], isLoading } = membersQuery;
   const updateMember = useUpdateMemberMutation(household?.id);
   const leaveHousehold = useLeaveHouseholdMutation();
   useHouseholdRealtime(household?.id);
+
+  const { refreshing, onRefresh } = usePullRefresh([householdQuery.refetch, membersQuery.refetch]);
 
   const currentUserId = session?.user.id;
   const [editingMember, setEditingMember] = useState<MemberRow | null>(null);
@@ -87,6 +93,13 @@ export default function PeopleScreen() {
           data={members}
           keyExtractor={(member) => member.id}
           contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.accent}
+            />
+          }
           renderItem={({ item }) => {
             const isSelf = item.user_id === currentUserId;
             return (

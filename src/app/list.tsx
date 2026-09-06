@@ -1,7 +1,15 @@
 import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Pressable, SectionList, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  RefreshControl,
+  SectionList,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AddShoppingItemModal } from '@/components/add-shopping-item-modal';
@@ -14,6 +22,7 @@ import { getCategoryIconSymbol } from '@/constants/category-icons';
 import { Spacing } from '@/constants/theme';
 import { useCategoriesQuery, useCategoriesRealtime } from '@/hooks/use-categories';
 import { useHouseholdQuery, useMembersQuery } from '@/hooks/use-household';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useSession } from '@/hooks/use-session';
 import {
   useAddShoppingItemMutation,
@@ -30,13 +39,24 @@ export default function ShoppingListScreen() {
   const theme = useTheme();
   const session = useSession();
 
-  const { data: household } = useHouseholdQuery();
+  const householdQuery = useHouseholdQuery();
+  const household = householdQuery.data;
   const householdId = household?.id;
-  const { data: members = [] } = useMembersQuery(householdId);
-  const { data: categories = [] } = useCategoriesQuery(householdId);
-  const { data: items = [], isLoading } = useShoppingItemsQuery(householdId);
+  const membersQuery = useMembersQuery(householdId);
+  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+  const categoriesQuery = useCategoriesQuery(householdId);
+  const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data]);
+  const itemsQuery = useShoppingItemsQuery(householdId);
+  const { data: items = [], isLoading } = itemsQuery;
   useCategoriesRealtime(householdId);
   useShoppingItemsRealtime(householdId);
+
+  const { refreshing, onRefresh } = usePullRefresh([
+    householdQuery.refetch,
+    membersQuery.refetch,
+    categoriesQuery.refetch,
+    itemsQuery.refetch,
+  ]);
 
   const addItem = useAddShoppingItemMutation(householdId);
   const toggleItem = useToggleShoppingItemMutation(householdId);
@@ -93,80 +113,89 @@ export default function ShoppingListScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScreenHeader title={t('list.title')} />
-        {items.length === 0 ? (
-          <EmptyState
-            icon={{ ios: 'cart', android: 'shopping_cart' }}
-            title={t('list.empty')}
-            hint={t('list.emptyHint')}
-          />
-        ) : (
-          <SectionList
-            sections={sections}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContent}
-            renderSectionHeader={({ section }) => (
-              <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionHeader}>
-                {section.title.toUpperCase()}
-              </ThemedText>
-            )}
-            renderItem={({ item }) => {
-              const category = item.category_id ? categoryById.get(item.category_id) : undefined;
-              const categoryIcon = category ? getCategoryIconSymbol(category.icon) : null;
+        <SectionList
+          sections={sections}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={[
+            styles.listContent,
+            items.length === 0 && styles.listContentEmpty,
+          ]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.accent}
+            />
+          }
+          ListEmptyComponent={
+            <EmptyState
+              icon={{ ios: 'cart', android: 'shopping_cart' }}
+              title={t('list.empty')}
+              hint={t('list.emptyHint')}
+            />
+          }
+          renderSectionHeader={({ section }) => (
+            <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionHeader}>
+              {section.title.toUpperCase()}
+            </ThemedText>
+          )}
+          renderItem={({ item }) => {
+            const category = item.category_id ? categoryById.get(item.category_id) : undefined;
+            const categoryIcon = category ? getCategoryIconSymbol(category.icon) : null;
 
-              return (
-                <Pressable
-                  onLongPress={() => handleDelete(item)}
-                  onPress={() =>
-                    toggleItem.mutate({
-                      id: item.id,
-                      isPurchased: !item.is_purchased,
-                      purchasedBy: currentMemberId ?? null,
-                    })
-                  }
-                >
-                  <ThemedView type="backgroundElement" style={styles.itemRow}>
-                    <SymbolView
-                      name={
-                        item.is_purchased
-                          ? { ios: 'checkmark.circle.fill', android: 'check_circle' }
-                          : { ios: 'circle', android: 'circle' }
-                      }
-                      size={22}
-                      tintColor={item.is_purchased ? theme.success : theme.textSecondary}
-                    />
-                    <View style={styles.itemInfo}>
-                      <ThemedText
-                        type="default"
-                        themeColor={item.is_purchased ? 'textSecondary' : 'text'}
-                        style={item.is_purchased ? styles.itemNamePurchased : undefined}
-                      >
-                        {item.name}
-                      </ThemedText>
-                      {category && categoryIcon && (
-                        <View style={styles.categoryRow}>
-                          <SymbolView
-                            name={{ ios: categoryIcon.ios, android: categoryIcon.android }}
-                            size={12}
-                            tintColor={theme.textSecondary}
-                          />
-                          <ThemedText type="small" themeColor="textSecondary">
-                            {category.name}
-                          </ThemedText>
-                        </View>
-                      )}
-                      {item.is_purchased && item.purchased_at && (
+            return (
+              <Pressable
+                onLongPress={() => handleDelete(item)}
+                onPress={() =>
+                  toggleItem.mutate({
+                    id: item.id,
+                    isPurchased: !item.is_purchased,
+                    purchasedBy: currentMemberId ?? null,
+                  })
+                }
+              >
+                <ThemedView type="backgroundElement" style={styles.itemRow}>
+                  <SymbolView
+                    name={
+                      item.is_purchased
+                        ? { ios: 'checkmark.circle.fill', android: 'check_circle' }
+                        : { ios: 'circle', android: 'circle' }
+                    }
+                    size={22}
+                    tintColor={item.is_purchased ? theme.success : theme.textSecondary}
+                  />
+                  <View style={styles.itemInfo}>
+                    <ThemedText
+                      type="default"
+                      themeColor={item.is_purchased ? 'textSecondary' : 'text'}
+                      style={item.is_purchased ? styles.itemNamePurchased : undefined}
+                    >
+                      {item.name}
+                    </ThemedText>
+                    {category && categoryIcon && (
+                      <View style={styles.categoryRow}>
+                        <SymbolView
+                          name={{ ios: categoryIcon.ios, android: categoryIcon.android }}
+                          size={12}
+                          tintColor={theme.textSecondary}
+                        />
                         <ThemedText type="small" themeColor="textSecondary">
-                          {item.purchased_by ? memberNameById.get(item.purchased_by) : '—'} ·{' '}
-                          {dateFormatter.format(new Date(item.purchased_at))}
+                          {category.name}
                         </ThemedText>
-                      )}
-                    </View>
-                  </ThemedView>
-                </Pressable>
-              );
-            }}
-          />
-        )}
+                      </View>
+                    )}
+                    {item.is_purchased && item.purchased_at && (
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {item.purchased_by ? memberNameById.get(item.purchased_by) : '—'} ·{' '}
+                        {dateFormatter.format(new Date(item.purchased_at))}
+                      </ThemedText>
+                    )}
+                  </View>
+                </ThemedView>
+              </Pressable>
+            );
+          }}
+        />
       </SafeAreaView>
       <FloatingActionButton
         accessibilityLabel={t('list.addButton')}
@@ -202,6 +231,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.six,
     gap: Spacing.two,
+  },
+  listContentEmpty: {
+    flexGrow: 1,
   },
   sectionHeader: {
     marginTop: Spacing.three,
