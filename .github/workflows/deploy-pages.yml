@@ -31,6 +31,14 @@ jobs:
       - name: Export web build
         run: npx expo export -p web
 
+      # GitHub Pages is a static host with no server-side rewrites: an
+      # in-app navigation changes the URL (e.g. /roomly/list), and reloading
+      # or deep-linking to that URL 404s because no such file exists. Serving
+      # the same index.html for any unmatched path lets Expo Router's client
+      # -side navigation take over and render the right screen.
+      - name: Add SPA fallback for GitHub Pages routing
+        run: cp dist/index.html dist/404.html
+
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
