@@ -72,7 +72,10 @@ export function TabButton({ children, isFocused, icon, materialIcon, ...props }:
 
 export function CustomTabList(props: TabListProps) {
   return (
-    <View {...props} style={styles.tabListContainer}>
+    // The container spans the full width so the pill can center, but only the
+    // pill itself should catch taps — without box-none it sits on top of the
+    // whole bottom strip and swallows presses meant for the button underneath.
+    <View {...props} pointerEvents="box-none" style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         {props.children}
       </ThemedView>

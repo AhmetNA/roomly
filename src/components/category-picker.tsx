@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
+import { AppSymbol } from '@/components/app-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { getCategoryIconSymbol } from '@/constants/category-icons';
 import { Spacing } from '@/constants/theme';
@@ -64,7 +64,7 @@ export function CategoryPicker({
         ]}
       >
         {icon && (
-          <SymbolView
+          <AppSymbol
             name={{ ios: symbol.ios, android: symbol.android }}
             size={14}
             tintColor={selected ? theme.onAccent : theme.textSecondary}

@@ -1,4 +1,3 @@
-import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AddExpenseModal } from '@/components/add-expense-modal';
+import { AppSymbol } from '@/components/app-symbol';
 import { DebtSummaryModal } from '@/components/debt-summary-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ExpenseDetailModal } from '@/components/expense-detail-modal';
@@ -107,7 +107,7 @@ export default function ExpensesScreen() {
           <ThemedText type="subtitle">{t('expenses.title')}</ThemedText>
           <View style={styles.headerActions}>
             <Pressable onPress={() => setDebtVisible(true)} hitSlop={8} style={styles.headerButton}>
-              <SymbolView
+              <AppSymbol
                 name={{ ios: 'arrow.left.arrow.right.circle', android: 'swap_horizontal_circle' }}
                 size={22}
                 tintColor={theme.accent}
@@ -118,7 +118,7 @@ export default function ExpensesScreen() {
               hitSlop={8}
               style={styles.headerButton}
             >
-              <SymbolView
+              <AppSymbol
                 name={{ ios: 'chart.bar', android: 'bar_chart' }}
                 size={22}
                 tintColor={theme.accent}
@@ -161,7 +161,7 @@ export default function ExpensesScreen() {
             return (
               <Pressable onPress={() => setSelectedExpense(item)}>
                 <ThemedView type="backgroundElement" style={styles.row}>
-                  <SymbolView
+                  <AppSymbol
                     name={
                       isSettled
                         ? { ios: 'checkmark.seal.fill', android: 'verified' }

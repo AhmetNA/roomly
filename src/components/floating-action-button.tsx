@@ -1,7 +1,7 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
+import { AppSymbol } from '@/components/app-symbol';
 import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -42,7 +42,7 @@ export function FloatingActionButton({
         animatedStyle,
       ]}
     >
-      <SymbolView
+      <AppSymbol
         name={{ ios: 'plus', android: 'add' }}
         size={24}
         tintColor={theme.onAccent}
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   button: {
     position: 'absolute',
     right: Spacing.four,
-    bottom: BottomTabInset + Spacing.two,
+    bottom: BottomTabInset + Spacing.three,
     width: 56,
     height: 56,
     borderRadius: 28,

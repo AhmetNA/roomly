@@ -1,9 +1,9 @@
-import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppSymbol } from '@/components/app-symbol';
 import { CategoryPicker } from '@/components/category-picker';
 import { PrimaryButton } from '@/components/primary-button';
 import { SheetHeader } from '@/components/sheet-header';
@@ -376,7 +376,7 @@ function MemberChipRow({
             ]}
           >
             {multiSelect && (
-              <SymbolView
+              <AppSymbol
                 name={
                   selected
                     ? { ios: 'checkmark.circle.fill', android: 'check_circle' }

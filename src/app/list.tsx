@@ -1,4 +1,3 @@
-import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AddShoppingItemModal } from '@/components/add-shopping-item-modal';
+import { AppSymbol } from '@/components/app-symbol';
 import { EmptyState } from '@/components/empty-state';
 import { FloatingActionButton } from '@/components/floating-action-button';
 import { ScreenHeader } from '@/components/screen-header';
@@ -155,7 +155,7 @@ export default function ShoppingListScreen() {
                 }
               >
                 <ThemedView type="backgroundElement" style={styles.itemRow}>
-                  <SymbolView
+                  <AppSymbol
                     name={
                       item.is_purchased
                         ? { ios: 'checkmark.circle.fill', android: 'check_circle' }
@@ -174,7 +174,7 @@ export default function ShoppingListScreen() {
                     </ThemedText>
                     {category && categoryIcon && (
                       <View style={styles.categoryRow}>
-                        <SymbolView
+                        <AppSymbol
                           name={{ ios: categoryIcon.ios, android: categoryIcon.android }}
                           size={12}
                           tintColor={theme.textSecondary}

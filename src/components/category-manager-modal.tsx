@@ -1,4 +1,3 @@
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppSymbol } from '@/components/app-symbol';
 import { PrimaryButton } from '@/components/primary-button';
 import { SheetHeader } from '@/components/sheet-header';
 import { ThemedText } from '@/components/themed-text';
@@ -130,7 +130,7 @@ export function CategoryManagerModal({
                     </Pressable>
                   )}
                   <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
-                    <SymbolView
+                    <AppSymbol
                       name={{ ios: 'trash', android: 'delete' }}
                       size={18}
                       tintColor={theme.danger}
@@ -188,7 +188,7 @@ function CategoryIcon({
 }) {
   const symbol = getCategoryIconSymbol(iconKey);
   return (
-    <SymbolView name={{ ios: symbol.ios, android: symbol.android }} size={size} tintColor={color} />
+    <AppSymbol name={{ ios: symbol.ios, android: symbol.android }} size={size} tintColor={color} />
   );
 }
 

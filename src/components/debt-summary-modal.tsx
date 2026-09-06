@@ -1,10 +1,10 @@
 import * as Clipboard from 'expo-clipboard';
-import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppSymbol } from '@/components/app-symbol';
 import { PrimaryButton } from '@/components/primary-button';
 import { SheetHeader } from '@/components/sheet-header';
 import { ThemedText } from '@/components/themed-text';
@@ -47,7 +47,7 @@ export function DebtSummaryModal({
           <SheetHeader title={t('expenses.debtSummaryTitle')} onClose={onClose} />
           {balances.length === 0 ? (
             <ThemedView style={styles.empty}>
-              <SymbolView
+              <AppSymbol
                 name={{ ios: 'party.popper', android: 'celebration' }}
                 size={40}
                 tintColor={theme.textSecondary}
@@ -76,7 +76,7 @@ export function DebtSummaryModal({
                     onPress={() => setSettling(item)}
                     style={[styles.settleChip, { backgroundColor: theme.accent }]}
                   >
-                    <SymbolView
+                    <AppSymbol
                       name={{ ios: 'checkmark', android: 'check' }}
                       size={13}
                       tintColor={theme.onAccent}
@@ -160,7 +160,7 @@ function SettleConfirmModal({
                     </ThemedText>
                     <ThemedText type="default">{toMember.iban}</ThemedText>
                   </View>
-                  <SymbolView
+                  <AppSymbol
                     name={{ ios: 'doc.on.doc', android: 'content_copy' }}
                     size={16}
                     tintColor={theme.accent}

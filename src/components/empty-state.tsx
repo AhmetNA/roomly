@@ -1,13 +1,13 @@
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { StyleSheet } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
+import { AppSymbol, type AppSymbolName } from '@/components/app-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type EmptyStateProps = {
-  icon: SymbolViewProps['name'];
+  icon: AppSymbolName;
   title: string;
   hint: string;
 };
@@ -17,7 +17,7 @@ export function EmptyState({ icon, title, hint }: EmptyStateProps) {
 
   return (
     <Animated.View entering={FadeInDown.duration(400)} style={styles.container}>
-      <SymbolView name={icon} size={44} tintColor={theme.textSecondary} />
+      <AppSymbol name={icon} size={44} tintColor={theme.textSecondary} />
       <ThemedText type="default" style={styles.title}>
         {title}
       </ThemedText>

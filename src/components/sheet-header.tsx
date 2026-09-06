@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppSymbol } from '@/components/app-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -28,7 +28,7 @@ export function SheetHeader({ title, onClose }: { title: string; onClose: () => 
           accessibilityRole="button"
           accessibilityLabel={title}
         >
-          <SymbolView
+          <AppSymbol
             name={{ ios: 'xmark', android: 'close' }}
             size={14}
             tintColor={theme.textSecondary}

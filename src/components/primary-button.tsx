@@ -1,9 +1,7 @@
-import type { AndroidSymbol, SymbolViewProps } from 'expo-symbols';
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import type { SFSymbol } from 'sf-symbols-typescript';
 
+import { AppSymbol, type AppSymbolName } from '@/components/app-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -14,7 +12,7 @@ type PrimaryButtonProps = {
   label: string;
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'danger';
-  icon?: { ios: SFSymbol; android: AndroidSymbol };
+  icon?: AppSymbolName;
   disabled?: boolean;
 };
 
@@ -59,14 +57,7 @@ export function PrimaryButton({
       }}
       style={[styles.button, { backgroundColor, opacity: disabled ? 0.5 : 1 }, animatedStyle]}
     >
-      {icon && (
-        <SymbolView
-          name={icon as SymbolViewProps['name']}
-          size={16}
-          tintColor={textColor}
-          weight="semibold"
-        />
-      )}
+      {icon && <AppSymbol name={icon} size={16} tintColor={textColor} weight="semibold" />}
       <ThemedText type="default" style={[styles.label, { color: textColor }]}>
         {label}
       </ThemedText>

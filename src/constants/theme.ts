@@ -77,7 +77,10 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 30, android: 48 }) ?? 0;
+// How much room the bottom tab bar takes, so floating content can clear it.
+// Web renders its own tab bar (components/app-tabs.web.tsx) rather than the
+// native one, and that pill sits in a 76pt-tall strip.
+export const BottomTabInset = Platform.select({ ios: 30, android: 48, web: 76 }) ?? 0;
 export const MaxContentWidth = 800;
 
 // A soft, low, black-based shadow reads as "lifted" in both themes (dark mode

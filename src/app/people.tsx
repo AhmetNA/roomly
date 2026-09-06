@@ -1,5 +1,4 @@
 import * as Clipboard from 'expo-clipboard';
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppSymbol } from '@/components/app-symbol';
 import { PrimaryButton } from '@/components/primary-button';
 import { ScreenHeader } from '@/components/screen-header';
 import { SheetHeader } from '@/components/sheet-header';
@@ -117,7 +117,7 @@ export default function PeopleScreen() {
                       <ThemedText type="small" themeColor="textSecondary">
                         {item.iban}
                       </ThemedText>
-                      <SymbolView
+                      <AppSymbol
                         name={{ ios: 'doc.on.doc', android: 'content_copy' }}
                         size={13}
                         tintColor={theme.textSecondary}
@@ -157,7 +157,7 @@ export default function PeopleScreen() {
                   <ThemedText type="small" themeColor="textSecondary">
                     {t('people.inviteCode')}: {household.invite_code}
                   </ThemedText>
-                  <SymbolView
+                  <AppSymbol
                     name={{ ios: 'doc.on.doc', android: 'content_copy' }}
                     size={13}
                     tintColor={theme.textSecondary}
