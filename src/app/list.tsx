@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AddShoppingItemModal } from '@/components/add-shopping-item-modal';
-import { AppSymbol } from '@/components/app-symbol';
+import { AppSymbol, type AppSymbolName } from '@/components/app-symbol';
 import { EmptyState } from '@/components/empty-state';
 import { FloatingActionButton } from '@/components/floating-action-button';
 import { ScreenHeader } from '@/components/screen-header';
@@ -33,6 +33,18 @@ import {
 import { useTheme } from '@/hooks/use-theme';
 import { showAlert } from '@/lib/alert';
 import type { ShoppingItemRow } from '@/lib/api/shopping-items';
+
+const UNCATEGORIZED_KEY = 'uncategorized';
+const PURCHASED_KEY = 'purchased';
+
+type ListSection = {
+  key: string;
+  title: string;
+  icon: AppSymbolName | null;
+  sortOrder: number;
+  count: number;
+  data: ShoppingItemRow[];
+};
 
 export default function ShoppingListScreen() {
   const { t, i18n } = useTranslation();
@@ -63,6 +75,7 @@ export default function ShoppingListScreen() {
   const removeItem = useRemoveShoppingItemMutation(householdId);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const currentMemberId = members.find((member) => member.user_id === session?.user.id)?.id;
 
@@ -83,14 +96,51 @@ export default function ShoppingListScreen() {
     [i18n.language],
   );
 
-  const sections = useMemo(() => {
+  const sections = useMemo<ListSection[]>(() => {
     const toBuy = items.filter((item) => !item.is_purchased);
     const purchased = items.filter((item) => item.is_purchased);
+
+    // Sections come from the items, not from the category list: otherwise every
+    // unused category would render an empty dropdown.
+    const keys = Array.from(
+      new Set(toBuy.map((item) => item.category_id ?? UNCATEGORIZED_KEY)),
+    );
+
+    const categorySections = keys
+      .map((key) => {
+        const category = key === UNCATEGORIZED_KEY ? undefined : categoryById.get(key);
+        const data = toBuy.filter((item) => (item.category_id ?? UNCATEGORIZED_KEY) === key);
+        return {
+          key,
+          title: category?.name ?? t('list.noCategory'),
+          icon: category ? getCategoryIconSymbol(category.icon) : null,
+          sortOrder: category?.sort_order ?? Number.MAX_SAFE_INTEGER,
+          count: data.length,
+          data,
+        };
+      })
+      .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title, i18n.language));
+
+    if (purchased.length === 0) return categorySections;
+
     return [
-      { title: t('list.toBuySection'), data: toBuy },
-      { title: t('list.purchasedSection'), data: purchased },
-    ].filter((section) => section.data.length > 0);
-  }, [items, t]);
+      ...categorySections,
+      {
+        key: PURCHASED_KEY,
+        title: t('list.purchasedSection'),
+        icon: { ios: 'checkmark.circle.fill', android: 'check_circle' } as AppSymbolName,
+        sortOrder: Number.MAX_SAFE_INTEGER,
+        count: purchased.length,
+        data: purchased,
+      },
+    ];
+  }, [items, categoryById, t, i18n.language]);
+
+  // Collapsing only empties a section's data so its header stays visible.
+  const visibleSections = useMemo(
+    () => sections.map((section) => (collapsed[section.key] ? { ...section, data: [] } : section)),
+    [sections, collapsed],
+  );
 
   function handleDelete(item: ShoppingItemRow) {
     showAlert(t('list.deleteItemConfirm'), undefined, [
@@ -114,7 +164,7 @@ export default function ShoppingListScreen() {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScreenHeader title={t('list.title')} refreshing={refreshing} onRefresh={onRefresh} />
         <SectionList
-          sections={sections}
+          sections={visibleSections}
           keyExtractor={(item) => item.id}
           contentContainerStyle={[
             styles.listContent,
@@ -134,11 +184,42 @@ export default function ShoppingListScreen() {
               hint={t('list.emptyHint')}
             />
           }
-          renderSectionHeader={({ section }) => (
-            <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionHeader}>
-              {section.title.toUpperCase()}
-            </ThemedText>
-          )}
+          renderSectionHeader={({ section }) => {
+            const isCollapsed = collapsed[section.key] === true;
+            return (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ expanded: !isCollapsed }}
+                onPress={() =>
+                  setCollapsed((prev) => ({ ...prev, [section.key]: !prev[section.key] }))
+                }
+                style={[styles.sectionHeader, { backgroundColor: theme.background }]}
+              >
+                {section.icon && (
+                  <AppSymbol name={section.icon} size={16} tintColor={theme.textSecondary} />
+                )}
+                <ThemedText
+                  type="smallBold"
+                  themeColor="textSecondary"
+                  style={styles.sectionTitle}
+                >
+                  {section.title.toUpperCase()}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {section.count}
+                </ThemedText>
+                <AppSymbol
+                  name={
+                    isCollapsed
+                      ? { ios: 'chevron.down', android: 'expand_more' }
+                      : { ios: 'chevron.up', android: 'expand_less' }
+                  }
+                  size={16}
+                  tintColor={theme.textSecondary}
+                />
+              </Pressable>
+            );
+          }}
           renderItem={({ item }) => {
             const category = item.category_id ? categoryById.get(item.category_id) : undefined;
             const categoryIcon = category ? getCategoryIconSymbol(category.icon) : null;
@@ -172,7 +253,7 @@ export default function ShoppingListScreen() {
                     >
                       {item.name}
                     </ThemedText>
-                    {category && categoryIcon && (
+                    {item.is_purchased && category && categoryIcon && (
                       <View style={styles.categoryRow}>
                         <AppSymbol
                           name={{ ios: categoryIcon.ios, android: categoryIcon.android }}
@@ -236,8 +317,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   sectionHeader: {
-    marginTop: Spacing.three,
-    marginBottom: Spacing.one,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    paddingVertical: Spacing.two,
+    marginTop: Spacing.one,
+  },
+  sectionTitle: {
+    flex: 1,
   },
   itemRow: {
     flexDirection: 'row',
