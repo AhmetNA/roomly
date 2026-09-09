@@ -13,6 +13,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useCategoriesQuery } from '@/hooks/use-categories';
 import { showAlert } from '@/lib/alert';
+import type { ShoppingItemRow } from '@/lib/api/shopping-items';
 
 const MAX_ITEMS = 50;
 const MAX_NAME_LENGTH = 200;
@@ -36,13 +37,17 @@ function parseItemNames(input: string) {
 export function AddShoppingItemModal({
   visible,
   householdId,
+  editingItem,
   onClose,
   onSubmit,
+  onUpdate,
 }: {
   visible: boolean;
   householdId: string | undefined;
+  editingItem: ShoppingItemRow | null;
   onClose: () => void;
   onSubmit: (names: string[], categoryId: string | null) => void;
+  onUpdate: (id: string, name: string, categoryId: string | null) => void;
 }) {
   const { t } = useTranslation();
   const { data: categories = [] } = useCategoriesQuery(householdId);
@@ -51,7 +56,10 @@ export function AddShoppingItemModal({
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [managingCategories, setManagingCategories] = useState(false);
 
-  const names = parseItemNames(name);
+  const editing = editingItem !== null;
+  // Editing touches one row, so the multi-entry parsing is off here: a comma in
+  // a corrected name is part of the name, not a second item.
+  const names = editing ? [name.trim()].filter(Boolean) : parseItemNames(name);
 
   function handleClose() {
     setName('');
@@ -65,7 +73,8 @@ export function AddShoppingItemModal({
       showAlert(t('list.itemsInvalid'));
       return;
     }
-    onSubmit(names, categoryId);
+    if (editingItem) onUpdate(editingItem.id, names[0], categoryId);
+    else onSubmit(names, categoryId);
     handleClose();
   }
 
@@ -75,10 +84,17 @@ export function AddShoppingItemModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
+      onShow={() => {
+        setName(editingItem?.name ?? '');
+        setCategoryId(editingItem?.category_id ?? null);
+      }}
     >
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <SheetHeader title={t('list.addItemTitle')} onClose={handleClose} />
+          <SheetHeader
+            title={editing ? t('list.editItemTitle') : t('list.addItemTitle')}
+            onClose={handleClose}
+          />
           <ThemedView style={styles.form}>
             <TextField
               label={t('list.itemNameLabel')}
@@ -87,13 +103,15 @@ export function AddShoppingItemModal({
               onChangeText={setName}
               autoCapitalize="sentences"
               autoFocus
-              multiline
+              multiline={!editing}
               textAlignVertical="top"
-              style={styles.input}
+              style={editing ? undefined : styles.input}
             />
-            <ThemedText type="small" themeColor="textSecondary">
-              {t('list.multiHint')}
-            </ThemedText>
+            {!editing && (
+              <ThemedText type="small" themeColor="textSecondary">
+                {t('list.multiHint')}
+              </ThemedText>
+            )}
 
             <ThemedText type="small" themeColor="textSecondary">
               {t('list.categoryLabel')}
@@ -113,9 +131,17 @@ export function AddShoppingItemModal({
 
             <PrimaryButton
               label={
-                names.length > 1 ? t('list.addCount', { count: names.length }) : t('common.add')
+                editing
+                  ? t('common.save')
+                  : names.length > 1
+                    ? t('list.addCount', { count: names.length })
+                    : t('common.add')
               }
-              icon={{ ios: 'plus', android: 'add' }}
+              icon={
+                editing
+                  ? { ios: 'checkmark', android: 'check' }
+                  : { ios: 'plus', android: 'add' }
+              }
               disabled={names.length === 0}
               onPress={handleSubmit}
             />

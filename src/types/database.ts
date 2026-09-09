@@ -526,6 +526,34 @@ export type Database = {
           name: string;
         }[];
       };
+      update_expense_with_details: {
+        Args: {
+          p_category_id: string | null;
+          p_expense_id: string;
+          p_items?: Json;
+          p_payments: Json;
+          p_split_type: string;
+          p_splits: Json;
+          p_title: string;
+          p_total_amount: number;
+        };
+        Returns: {
+          category_id: string | null;
+          created_at: string;
+          household_id: string;
+          id: string;
+          receipt_photo_url: string | null;
+          split_type: string;
+          title: string;
+          total_amount: number;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'expenses';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       settle_debt: {
         Args: { p_from_member_id: string; p_to_member_id: string };
         Returns: undefined;

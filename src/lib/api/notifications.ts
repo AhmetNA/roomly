@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 
 export type NotifyEvent =
   | { kind: 'expense_added'; entityId: string }
+  | { kind: 'expense_edited'; entityId: string }
   | { kind: 'item_added'; entityId: string }
   | { kind: 'item_purchased'; entityId: string }
   | { kind: 'debt_settled'; memberId: string };

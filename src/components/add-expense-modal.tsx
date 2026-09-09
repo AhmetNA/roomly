@@ -14,10 +14,10 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { CardShadow, Spacing } from '@/constants/theme';
 import { useCategoriesQuery } from '@/hooks/use-categories';
-import { useCreateExpenseMutation } from '@/hooks/use-expenses';
+import { useCreateExpenseMutation, useUpdateExpenseMutation } from '@/hooks/use-expenses';
 import { useTheme } from '@/hooks/use-theme';
 import { showAlert } from '@/lib/alert';
-import { getExpenseErrorMessageKey } from '@/lib/api/expenses';
+import { getExpenseErrorMessageKey, type ExpenseWithSplits } from '@/lib/api/expenses';
 import type { MemberRow } from '@/lib/api/household';
 import { computeEqualSplit, computeSharesSplit, sumSplitAmounts } from '@/lib/expense-split';
 
@@ -28,18 +28,23 @@ export function AddExpenseModal({
   householdId,
   members,
   currentMemberId,
+  editingExpense,
   onClose,
 }: {
   visible: boolean;
   householdId: string | undefined;
   members: MemberRow[];
   currentMemberId: string | undefined;
+  editingExpense: ExpenseWithSplits | null;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { data: categories = [] } = useCategoriesQuery(householdId);
   const createExpense = useCreateExpenseMutation(householdId);
+  const updateExpense = useUpdateExpenseMutation(householdId);
+  const editing = editingExpense !== null;
+  const pending = createExpense.isPending || updateExpense.isPending;
 
   const [title, setTitle] = useState('');
   const [itemsText, setItemsText] = useState('');
@@ -84,7 +89,7 @@ export function AddExpenseModal({
     (splitType !== 'shares' || Object.values(sharesText).some((value) => Number(value) > 0));
 
   function resetAndClose() {
-    if (createExpense.isPending) return;
+    if (pending) return;
     setItemsText('');
     setReceipt(null);
     setTitle('');
@@ -98,7 +103,7 @@ export function AddExpenseModal({
   }
 
   async function handleSubmit() {
-    if (!householdId || !canSubmit || createExpense.isPending) return;
+    if (!householdId || !canSubmit || pending) return;
     const items = itemsText
       .split('\n')
       .map((line) => line.trim())
@@ -145,17 +150,30 @@ export function AddExpenseModal({
           }));
 
     try {
-      await createExpense.mutateAsync({
-        householdId,
-        categoryId,
-        title: title.trim(),
-        totalAmount: Math.round(amount * 100) / 100,
-        splitType,
-        splits,
-        payments,
-        items,
-        receipt,
-      });
+      if (editingExpense) {
+        await updateExpense.mutateAsync({
+          expenseId: editingExpense.id,
+          categoryId,
+          title: title.trim(),
+          totalAmount: Math.round(amount * 100) / 100,
+          splitType,
+          splits,
+          payments,
+          items,
+        });
+      } else {
+        await createExpense.mutateAsync({
+          householdId,
+          categoryId,
+          title: title.trim(),
+          totalAmount: Math.round(amount * 100) / 100,
+          splitType,
+          splits,
+          payments,
+          items,
+          receipt,
+        });
+      }
       resetAndClose();
     } catch (error) {
       showAlert(t(getExpenseErrorMessageKey(error)));
@@ -169,15 +187,52 @@ export function AddExpenseModal({
       presentationStyle="pageSheet"
       onRequestClose={resetAndClose}
       onShow={() => {
-        // Re-sync defaults each time the modal opens (household membership can
-        // change between opens) rather than only once on mount.
+        // Re-sync each time the modal opens (household membership can change
+        // between opens) rather than only once on mount.
+        if (editingExpense) {
+          setTitle(editingExpense.title);
+          setAmountText(String(editingExpense.total_amount));
+          setCategoryId(editingExpense.category_id);
+          setSplitType(editingExpense.split_type as SplitType);
+          setPayerIds(editingExpense.expense_payments.map((p) => p.member_id));
+          setPaidText(
+            Object.fromEntries(
+              editingExpense.expense_payments.map((p) => [p.member_id, String(p.amount_paid)]),
+            ),
+          );
+          setParticipantIds(editingExpense.expense_splits.map((s) => s.member_id));
+          setSharesText(
+            Object.fromEntries(
+              editingExpense.expense_splits
+                .filter((s) => s.shares !== null)
+                .map((s) => [s.member_id, String(s.shares)]),
+            ),
+          );
+          setFixedText(
+            Object.fromEntries(
+              editingExpense.expense_splits.map((s) => [s.member_id, String(s.amount_owed)]),
+            ),
+          );
+          setItemsText(
+            [...editingExpense.expense_line_items]
+              .sort((a, b) => a.sort_order - b.sort_order)
+              .map((item) => item.name)
+              .join('\n'),
+          );
+          // The photo is not editable here, so it is never loaded into the form.
+          setReceipt(null);
+          return;
+        }
         setPayerIds(currentMemberId ? [currentMemberId] : []);
         setParticipantIds(members.map((m) => m.id));
       }}
     >
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <SheetHeader title={t('expenses.addTitle')} onClose={resetAndClose} />
+          <SheetHeader
+            title={editing ? t('expenses.editTitle') : t('expenses.addTitle')}
+            onClose={resetAndClose}
+          />
           <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
             <TextField
               label={t('expenses.titleLabel')}
@@ -358,12 +413,13 @@ export function AddExpenseModal({
               onChangeText={setItemsText}
               photo={receipt}
               onChangePhoto={setReceipt}
-              disabled={createExpense.isPending}
+              allowPhoto={!editing}
+              disabled={pending}
             />
             <PrimaryButton
-              label={t('common.add')}
-              icon={{ ios: 'plus', android: 'add' }}
-              disabled={!canSubmit || createExpense.isPending}
+              label={editing ? t('common.save') : t('common.add')}
+              icon={editing ? { ios: 'checkmark', android: 'check' } : { ios: 'plus', android: 'add' }}
+              disabled={!canSubmit || pending}
               onPress={handleSubmit}
             />
           </ScrollView>

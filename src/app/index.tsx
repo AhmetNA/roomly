@@ -76,6 +76,7 @@ export default function ExpensesScreen() {
   const [debtVisible, setDebtVisible] = useState(false);
   const [statsVisible, setStatsVisible] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<ExpenseWithSplits | null>(null);
+  const [editingExpense, setEditingExpense] = useState<ExpenseWithSplits | null>(null);
 
   function handleDelete(expense: ExpenseWithSplits) {
     showAlert(t('expenses.deleteConfirm'), undefined, [
@@ -209,7 +210,11 @@ export default function ExpensesScreen() {
         householdId={householdId}
         members={members}
         currentMemberId={currentMemberId}
-        onClose={() => setAddVisible(false)}
+        editingExpense={editingExpense}
+        onClose={() => {
+          setAddVisible(false);
+          setEditingExpense(null);
+        }}
       />
       <DebtSummaryModal
         visible={debtVisible}
@@ -230,6 +235,13 @@ export default function ExpensesScreen() {
         members={members}
         categories={categories}
         onClose={() => setSelectedExpense(null)}
+        onEdit={(expense) => {
+          // Close the detail sheet first: two page sheets stacked on top of each
+          // other leaves the form behind an overlay on iOS.
+          setSelectedExpense(null);
+          setEditingExpense(expense);
+          setAddVisible(true);
+        }}
         onDelete={handleDelete}
       />
     </ThemedView>

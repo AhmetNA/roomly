@@ -63,6 +63,24 @@ export function useAddShoppingItemsMutation(householdId: string | undefined) {
   });
 }
 
+export function useUpdateShoppingItemMutation(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      name,
+      categoryId,
+    }: {
+      id: string;
+      name: string;
+      categoryId: string | null;
+    }) => shoppingApi.updateShoppingItemRemote(id, name, categoryId),
+    // Renaming something already on the list is a correction, not news.
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.shoppingItems(householdId) }),
+  });
+}
+
 export function useToggleShoppingItemMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({

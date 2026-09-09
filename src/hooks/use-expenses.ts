@@ -57,6 +57,17 @@ export function useCreateExpenseMutation(householdId: string | undefined) {
   });
 }
 
+export function useUpdateExpenseMutation(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expensesApi.updateExpenseRemote,
+    onSuccess: (expense) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.expenses(householdId) });
+      if (expense) notifyHousehold({ kind: 'expense_edited', entityId: expense.id });
+    },
+  });
+}
+
 export function useRemoveExpenseMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({

@@ -4,7 +4,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const EXPO_BATCH_SIZE = 100;
 
-type Kind = 'expense_added' | 'item_added' | 'item_purchased' | 'debt_settled';
+type Kind = 'expense_added' | 'expense_edited' | 'item_added' | 'item_purchased' | 'debt_settled';
 
 // The body is composed here, not sent by the client: otherwise any caller could
 // push arbitrary text to their housemates. It also can't reuse the app's i18n
@@ -14,6 +14,8 @@ const STRINGS = {
   tr: {
     expense_added: (actor: string, subject: string, amount: string) =>
       `${actor} harcama ekledi: ${subject} · ${amount}`,
+    expense_edited: (actor: string, subject: string, amount: string) =>
+      `${actor} harcamayı güncelledi: ${subject} · ${amount}`,
     item_added: (actor: string, subject: string) => `${actor} listeye ekledi: ${subject}`,
     item_purchased: (actor: string, subject: string) => `${actor} aldı: ${subject}`,
     debt_settled: (actor: string, subject: string) => `${actor}, ${subject} ile hesabı kapattı`,
@@ -21,6 +23,8 @@ const STRINGS = {
   en: {
     expense_added: (actor: string, subject: string, amount: string) =>
       `${actor} added an expense: ${subject} · ${amount}`,
+    expense_edited: (actor: string, subject: string, amount: string) =>
+      `${actor} updated an expense: ${subject} · ${amount}`,
     item_added: (actor: string, subject: string) => `${actor} added to the list: ${subject}`,
     item_purchased: (actor: string, subject: string) => `${actor} bought: ${subject}`,
     debt_settled: (actor: string, subject: string) => `${actor} settled up with ${subject}`,
@@ -73,11 +77,15 @@ Deno.serve(async (req: Request) => {
   let subject = '';
   let amount = '';
 
-  // Only set for expense_added: an expense concerns the people who owe a share
-  // of it or put money toward it, and nobody else needs interrupting.
+  // Only set for the expense kinds: an expense concerns the people who owe a
+  // share of it or put money toward it, and nobody else needs interrupting. An
+  // edit that drops someone therefore does not reach them — they simply stop
+  // seeing it, which is a separate product question.
   let involvedMemberIds: string[] | null = null;
 
-  if (kind === 'expense_added') {
+  const isExpenseKind = kind === 'expense_added' || kind === 'expense_edited';
+
+  if (isExpenseKind) {
     const { data } = await asCaller
       .from('expenses')
       .select('title, total_amount, expense_splits(member_id), expense_payments(member_id)')
@@ -145,10 +153,9 @@ Deno.serve(async (req: Request) => {
 
   const messages = tokens.map((row) => {
     const strings = STRINGS[row.locale === 'en' ? 'en' : 'tr'];
-    const body =
-      kind === 'expense_added'
-        ? strings.expense_added(actor.name, subject, amount)
-        : strings[kind](actor.name, subject);
+    const body = isExpenseKind
+      ? strings[kind](actor.name, subject, amount)
+      : strings[kind](actor.name, subject);
     return { to: row.token, title: 'Roomly', body, sound: 'default' };
   });
 

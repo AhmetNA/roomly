@@ -17,12 +17,16 @@ export function ExpenseAttachments({
   onChangeText,
   photo,
   onChangePhoto,
+  allowPhoto = true,
   disabled,
 }: {
   text: string;
   onChangeText: (value: string) => void;
   photo: ReceiptPhoto | null;
   onChangePhoto: (value: ReceiptPhoto | null) => void;
+  // Editing an expense cannot change its photo (the old file would be orphaned),
+  // so the picker is hidden rather than offering something that gets dropped.
+  allowPhoto?: boolean;
   disabled: boolean;
 }) {
   const { t } = useTranslation();
@@ -118,7 +122,12 @@ export function ExpenseAttachments({
           <ThemedText type="small" themeColor="textSecondary">
             {t('expenses.itemsHint')}
           </ThemedText>
-          {photo && (
+          {!allowPhoto && (
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('expenses.receiptLocked')}
+            </ThemedText>
+          )}
+          {allowPhoto && photo && (
             <Image
               source={{ uri: photo.uri }}
               accessibilityLabel={t('expenses.receipt')}
@@ -126,33 +135,37 @@ export function ExpenseAttachments({
               resizeMode="contain"
             />
           )}
-          <View style={styles.buttons}>
-            <View style={styles.label}>
-              <PrimaryButton
-                label={t('expenses.choosePhoto')}
-                variant="secondary"
-                disabled={disabled || picking}
-                onPress={() => pickPhoto(false)}
-              />
-            </View>
-            {Platform.OS !== 'web' && (
-              <View style={styles.label}>
+          {allowPhoto && (
+            <>
+              <View style={styles.buttons}>
+                <View style={styles.label}>
+                  <PrimaryButton
+                    label={t('expenses.choosePhoto')}
+                    variant="secondary"
+                    disabled={disabled || picking}
+                    onPress={() => pickPhoto(false)}
+                  />
+                </View>
+                {Platform.OS !== 'web' && (
+                  <View style={styles.label}>
+                    <PrimaryButton
+                      label={t('expenses.takePhoto')}
+                      variant="secondary"
+                      disabled={disabled || picking}
+                      onPress={() => pickPhoto(true)}
+                    />
+                  </View>
+                )}
+              </View>
+              {photo && (
                 <PrimaryButton
-                  label={t('expenses.takePhoto')}
+                  label={t('expenses.removePhoto')}
                   variant="secondary"
                   disabled={disabled || picking}
-                  onPress={() => pickPhoto(true)}
+                  onPress={() => onChangePhoto(null)}
                 />
-              </View>
-            )}
-          </View>
-          {photo && (
-            <PrimaryButton
-              label={t('expenses.removePhoto')}
-              variant="secondary"
-              disabled={disabled || picking}
-              onPress={() => onChangePhoto(null)}
-            />
+              )}
+            </>
           )}
         </View>
       )}

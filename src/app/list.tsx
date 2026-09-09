@@ -25,6 +25,7 @@ import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useSession } from '@/hooks/use-session';
 import {
   useAddShoppingItemsMutation,
+  useUpdateShoppingItemMutation,
   useRemoveShoppingItemMutation,
   useShoppingItemsQuery,
   useShoppingItemsRealtime,
@@ -71,10 +72,12 @@ export default function ShoppingListScreen() {
   ]);
 
   const addItems = useAddShoppingItemsMutation(householdId);
+  const updateItem = useUpdateShoppingItemMutation(householdId);
   const toggleItem = useToggleShoppingItemMutation(householdId);
   const removeItem = useRemoveShoppingItemMutation(householdId);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [editingItem, setEditingItem] = useState<ShoppingItemRow | null>(null);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const currentMemberId = members.find((member) => member.user_id === session?.user.id)?.id;
@@ -141,6 +144,20 @@ export default function ShoppingListScreen() {
     () => sections.map((section) => (collapsed[section.key] ? { ...section, data: [] } : section)),
     [sections, collapsed],
   );
+
+  function handleLongPress(item: ShoppingItemRow) {
+    showAlert(item.name, undefined, [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('list.editItemTitle'),
+        onPress: () => {
+          setEditingItem(item);
+          setModalVisible(true);
+        },
+      },
+      { text: t('common.delete'), style: 'destructive', onPress: () => handleDelete(item) },
+    ]);
+  }
 
   function handleDelete(item: ShoppingItemRow) {
     showAlert(t('list.deleteItemConfirm'), undefined, [
@@ -226,7 +243,7 @@ export default function ShoppingListScreen() {
 
             return (
               <Pressable
-                onLongPress={() => handleDelete(item)}
+                onLongPress={() => handleLongPress(item)}
                 onPress={() =>
                   toggleItem.mutate({
                     id: item.id,
@@ -286,7 +303,12 @@ export default function ShoppingListScreen() {
       <AddShoppingItemModal
         visible={modalVisible}
         householdId={householdId}
-        onClose={() => setModalVisible(false)}
+        editingItem={editingItem}
+        onClose={() => {
+          setModalVisible(false);
+          setEditingItem(null);
+        }}
+        onUpdate={(id, name, categoryId) => updateItem.mutate({ id, name, categoryId })}
         onSubmit={(names, categoryId) => {
           const myMember = members.find((member) => member.user_id === session?.user.id);
           if (!householdId || !myMember) return;

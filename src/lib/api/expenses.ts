@@ -74,6 +74,40 @@ export async function createExpenseRemote(input: {
   return data;
 }
 
+// Editing re-derives splits, payments and debts from scratch server-side. The
+// receipt is deliberately not a parameter: replacing it would orphan the old
+// file, and the storage delete policy only covers files no expense references.
+export async function updateExpenseRemote(input: {
+  expenseId: string;
+  categoryId: string | null;
+  title: string;
+  totalAmount: number;
+  splitType: 'equal' | 'shares' | 'fixed';
+  splits: SplitInput[];
+  payments: PaymentInput[];
+  items?: string[];
+}) {
+  const { data, error } = await supabase.rpc('update_expense_with_details', {
+    p_expense_id: input.expenseId,
+    p_category_id: input.categoryId,
+    p_title: input.title,
+    p_total_amount: input.totalAmount,
+    p_split_type: input.splitType,
+    p_splits: input.splits.map((split) => ({
+      member_id: split.memberId,
+      amount_owed: split.amountOwed,
+      shares: split.shares,
+    })),
+    p_payments: input.payments.map((payment) => ({
+      member_id: payment.memberId,
+      amount_paid: payment.amountPaid,
+    })),
+    p_items: input.items ?? [],
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function removeExpenseRemote(id: string) {
   const { error } = await supabase.from('expenses').delete().eq('id', id);
   if (error) throw error;
@@ -94,6 +128,7 @@ export function getExpenseErrorMessageKey(error: unknown): string {
       : String(error);
   if (message.includes('photo_too_large')) return 'expenses.photoSize';
   if (message.includes('invalid_items')) return 'expenses.itemsInvalid';
+  if (message.includes('expense_already_settled')) return 'expenses.editSettledError';
   if (message.includes('splits_do_not_match_total')) return 'expenses.splitMismatch';
   if (message.includes('payments_do_not_match_total')) return 'expenses.paymentMismatch';
   return 'auth.errors.generic';

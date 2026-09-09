@@ -100,7 +100,11 @@
     "debtBreakdownTitle": "Expenses behind this debt",
     "debtsYouAreOwed": "You are owed",
     "debtsYouOwe": "You owe",
-    "debtsOthers": "Between other housemates"
+    "debtsOthers": "Between other housemates",
+    "editTitle": "Edit Expense",
+    "editButton": "Edit",
+    "editSettledError": "This expense has been settled, so it can no longer be edited. Delete it and add it again to change it.",
+    "receiptLocked": "The receipt photo cannot be changed while editing."
   },
   "list": {
     "title": "Shopping List",
@@ -118,7 +122,9 @@
     "deleteItemConfirm": "Delete this item?",
     "multiHint": "One per line, or separated by commas — each becomes its own item.",
     "addCount": "Add {{count}} items",
-    "itemsInvalid": "You can add at most 50 items, and each can be at most 200 characters."
+    "itemsInvalid": "You can add at most 50 items, and each can be at most 200 characters.",
+    "editItemTitle": "Edit Item",
+    "editItemHint": "Long-press an item to edit it"
   },
   "statistics": {
     "title": "Statistics",

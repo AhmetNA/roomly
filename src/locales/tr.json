@@ -100,7 +100,11 @@
     "debtBreakdownTitle": "Bu borcu oluşturan harcamalar",
     "debtsYouAreOwed": "Senin alacağın",
     "debtsYouOwe": "Senin borcun",
-    "debtsOthers": "Diğer ev arkadaşları arasında"
+    "debtsOthers": "Diğer ev arkadaşları arasında",
+    "editTitle": "Harcamayı Düzenle",
+    "editButton": "Düzenle",
+    "editSettledError": "Bu harcamanın borcu ödendi olarak işaretlenmiş, artık düzenlenemez. Değiştirmek için silip yeniden ekle.",
+    "receiptLocked": "Fiş fotoğrafı düzenlemede değiştirilemez."
   },
   "list": {
     "title": "İhtiyaç Listesi",
@@ -118,7 +122,9 @@
     "deleteItemConfirm": "Bu öğeyi silmek istiyor musun?",
     "multiHint": "Her satıra bir tane yaz ya da virgülle ayır — hepsi ayrı madde olarak eklenir.",
     "addCount": "{{count}} madde ekle",
-    "itemsInvalid": "En fazla 50 madde ekleyebilirsin; her madde en fazla 200 karakter olabilir."
+    "itemsInvalid": "En fazla 50 madde ekleyebilirsin; her madde en fazla 200 karakter olabilir.",
+    "editItemTitle": "Öğeyi Düzenle",
+    "editItemHint": "Düzenlemek için bir öğeye uzun bas"
   },
   "statistics": {
     "title": "İstatistikler",

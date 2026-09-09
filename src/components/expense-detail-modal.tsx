@@ -19,12 +19,14 @@ export function ExpenseDetailModal({
   members,
   categories,
   onClose,
+  onEdit,
   onDelete,
 }: {
   expense: ExpenseWithSplits | null;
   members: MemberRow[];
   categories: CategoryRow[];
   onClose: () => void;
+  onEdit: (expense: ExpenseWithSplits) => void;
   onDelete: (expense: ExpenseWithSplits) => void;
 }) {
   const { t } = useTranslation();
@@ -126,6 +128,11 @@ export function ExpenseDetailModal({
               )}
               <ThemedView style={styles.deleteRow}>
                 <PrimaryButton
+                  label={t('expenses.editButton')}
+                  icon={{ ios: 'pencil', android: 'edit' }}
+                  onPress={() => onEdit(expense)}
+                />
+                <PrimaryButton
                   label={t('common.delete')}
                   variant="danger"
                   icon={{ ios: 'trash', android: 'delete' }}
@@ -174,6 +181,7 @@ const styles = StyleSheet.create({
   },
   deleteRow: {
     marginTop: Spacing.four,
+    gap: Spacing.two,
   },
 });
 
