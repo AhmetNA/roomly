@@ -72,9 +72,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.two,
     paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.three,
     borderRadius: Spacing.three,
   },
   label: {
     fontWeight: '600',
+    // Without this a long label (Turkish ones run longer) pushes past a button
+    // whose width is set by its container, instead of wrapping inside it.
+    flexShrink: 1,
   },
 });

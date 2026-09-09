@@ -85,16 +85,30 @@ export function DebtSummaryModal({
                       onPress={() => setExpandedKey(expanded ? null : key)}
                       style={styles.row}
                     >
-                      <View style={styles.rowInfo}>
-                        <ThemedText type="default">
+                      <View style={styles.rowTop}>
+                        <ThemedText type="default" numberOfLines={1} style={styles.rowNames}>
                           {nameById.get(item.fromMemberId)} {t('expenses.owesArrow')}{' '}
                           {nameById.get(item.toMemberId)}
                         </ThemedText>
-                        <ThemedText type="smallBold" themeColor="danger">
+                        <AppSymbol
+                          name={
+                            expanded
+                              ? { ios: 'chevron.up', android: 'expand_less' }
+                              : { ios: 'chevron.down', android: 'expand_more' }
+                          }
+                          size={16}
+                          tintColor={theme.textSecondary}
+                        />
+                      </View>
+                      <View style={styles.rowBottom}>
+                        <ThemedText
+                          type="smallBold"
+                          themeColor="danger"
+                          numberOfLines={1}
+                          style={styles.rowAmount}
+                        >
                           {item.amount.toFixed(2)}
                         </ThemedText>
-                      </View>
-                      <View style={styles.rowActions}>
                         <Pressable
                           onPress={() => setSettling(item)}
                           style={[styles.settleChip, { backgroundColor: theme.accent }]}
@@ -105,19 +119,10 @@ export function DebtSummaryModal({
                             tintColor={theme.onAccent}
                             weight="bold"
                           />
-                          <ThemedText type="small" themeColor="onAccent">
+                          <ThemedText type="small" themeColor="onAccent" numberOfLines={1}>
                             {t('expenses.settleButton')}
                           </ThemedText>
                         </Pressable>
-                        <AppSymbol
-                          name={
-                            expanded
-                              ? { ios: 'chevron.up', android: 'expand_less' }
-                              : { ios: 'chevron.down', android: 'expand_more' }
-                          }
-                          size={16}
-                          tintColor={theme.textSecondary}
-                        />
                       </View>
                     </Pressable>
 
@@ -235,22 +240,18 @@ function SettleConfirmModal({
               </ThemedView>
             )}
 
-            <View style={styles.actionRow}>
-              <View style={styles.actionFlex}>
-                <PrimaryButton
-                  label={t('common.cancel')}
-                  variant="secondary"
-                  icon={{ ios: 'xmark', android: 'close' }}
-                  onPress={onClose}
-                />
-              </View>
-              <View style={styles.actionFlex}>
-                <PrimaryButton
-                  label={t('expenses.settleButton')}
-                  icon={{ ios: 'checkmark', android: 'check' }}
-                  onPress={handleConfirm}
-                />
-              </View>
+            <View style={styles.actionColumn}>
+              <PrimaryButton
+                label={t('expenses.settleButton')}
+                icon={{ ios: 'checkmark', android: 'check' }}
+                onPress={handleConfirm}
+              />
+              <PrimaryButton
+                label={t('common.cancel')}
+                variant="secondary"
+                icon={{ ios: 'xmark', android: 'close' }}
+                onPress={onClose}
+              />
             </View>
           </ThemedView>
         )}
@@ -263,13 +264,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  actionRow: {
-    flexDirection: 'row',
+  actionColumn: {
     gap: Spacing.two,
     marginTop: Spacing.two,
-  },
-  actionFlex: {
-    flex: 1,
   },
   empty: {
     flex: 1,
@@ -289,16 +286,27 @@ const styles = StyleSheet.create({
     ...CardShadow,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     padding: Spacing.three,
     gap: Spacing.two,
   },
-  rowActions: {
+  rowTop: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
+  },
+  rowNames: {
+    flex: 1,
+  },
+  rowBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.three,
+  },
+  rowAmount: {
+    flexShrink: 1,
+    fontSize: 22,
+    lineHeight: 28,
   },
   breakdown: {
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -315,9 +323,6 @@ const styles = StyleSheet.create({
   },
   breakdownInfo: {
     flex: 1,
-    gap: Spacing.half,
-  },
-  rowInfo: {
     gap: Spacing.half,
   },
   settleChip: {
