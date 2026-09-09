@@ -60,8 +60,15 @@ export function useCreateHouseholdMutation() {
 export function useJoinHouseholdMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ code, myName }: { code: string; myName: string }) =>
-      householdApi.joinHouseholdRemote(code, myName),
+    mutationFn: ({
+      code,
+      myName,
+      memberId,
+    }: {
+      code: string;
+      myName: string;
+      memberId?: string | null;
+    }) => householdApi.joinHouseholdRemote(code, myName, memberId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.household });
       queryClient.invalidateQueries({ queryKey: ['household_members'] });
@@ -83,9 +90,7 @@ export function useUpdateMemberMutation(householdId: string | undefined) {
   });
 }
 
-// Leaving is a security-definer RPC (not a plain delete): if the caller is the
-// last member, it also deletes the household itself, so an empty, invite-only,
-// permanently-invisible-under-RLS household can never be left behind.
+// Leaving detaches the account while preserving the member and financial history.
 export function useLeaveHouseholdMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -94,5 +99,13 @@ export function useLeaveHouseholdMutation() {
       queryClient.invalidateQueries({ queryKey: queryKeys.household });
       queryClient.invalidateQueries({ queryKey: ['household_members'] });
     },
+  });
+}
+
+export function useAddUnclaimedMemberMutation(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: householdApi.addUnclaimedMember,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.members(householdId) }),
   });
 }

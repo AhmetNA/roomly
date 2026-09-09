@@ -44,7 +44,7 @@ export async function registerPushToken(language: string) {
   const granted = existing.granted || (await Notifications.requestPermissionsAsync()).granted;
   if (!granted) return;
 
-  const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+  const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
   if (!projectId) return;
 
   const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
@@ -52,9 +52,8 @@ export async function registerPushToken(language: string) {
   const { data } = await supabase.auth.getUser();
   if (!data.user) return;
 
-  // Keyed on the token: a device keeps the same one across sessions, and a
-  // reinstall or a different account signing in should move it, not duplicate.
-  await supabase.from('push_tokens').upsert(
+  // Refresh the signed-in user's device registration on subsequent launches.
+  const { error } = await supabase.from('push_tokens').upsert(
     {
       token,
       user_id: data.user.id,
@@ -63,6 +62,7 @@ export async function registerPushToken(language: string) {
     },
     { onConflict: 'token' },
   );
+  if (error) throw error;
 }
 
 // Fire-and-forget: the action the user took has already succeeded, so a failed

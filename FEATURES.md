@@ -3,7 +3,7 @@
 ## 1. Ortak Harcamalar (Expense Splitting)
 
 - Kullanıcı bir harcama ekler: ne alındı, ne kadar ödendi, kim ödedi.
-- Bir harcamanın altına **kalem kalem liste** eklenebilir (örn. harcama "Market", altında: süt, ekmek, deterjan — her kalemin kendi tutarı olabilir, toplamı harcama tutarını oluşturur). Zorunlu değil; tek kalemlik basit harcama da girilebilir.
+- Bir harcamanın altına **kalem kalem liste** eklenebilir (örn. harcama "Market", altında: süt, ekmek, deterjan — mevcut sürümde açıklama satırlarıdır; kalem başına tutar ve otomatik toplam daha sonraki kapsamdır). Zorunlu değil; tek kalemlik basit harcama da girilebilir.
 - Harcamaya **fiş/fatura fotoğrafı** eklenebilir (kamera veya galeriden).
 - Harcama, ev arkadaşları arasında bölüştürülür:
   - Eşit bölüşüm (varsayılan)
@@ -39,6 +39,8 @@
 - Yeni bir ev için birkaç varsayılan kategori önerilebilir (Yemek, Temizlik, Fatura, Diğer gibi) ama bunlar da düzenlenebilir/silinebilir.
 
 ## 5. Kişiler ve IBAN
+
+- Uygulamayı henüz kullanmayan kişiler eve eklenebilir ve adlarına harcama/ödeme kaydedilebilir. Davet koduyla katılan kullanıcı sahipsiz kişiyi seçerek aynı üye kimliğiyle geçmişini sahiplenir.
 
 - Ev arkadaşlarının listelendiği bir ekran: her kişinin adı ve IBAN'ı (varsa) görünür.
 - IBAN alanı **kopyalanabilir** (dokununca panoya kopyalanır).

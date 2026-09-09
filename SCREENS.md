@@ -39,7 +39,7 @@ Kişiler (Tab)
 
 - Yeni kullanıcı: "Ev oluştur" veya "Davet koduyla katıl" seçimi.
 - Ev oluşturma: ev adı girme, otomatik davet kodu üretme.
-- Ev'e katılma: davet kodu girme.
+- Ev'e katılma: davet kodundan sonra sahipsiz kişi seçme veya yeni kişi olarak katılma.
 - Kullanıcı zaten bir eve bağlıysa bu ekrana bir daha düşmez (tek ev kuralı).
 
 ## 3. Harcama Listesi
@@ -123,3 +123,8 @@ Profil ekranı ayrı değil — kullanıcının kendi bilgileri de bu ekranda, k
 ## Henüz Netleşmemiş Ekran Kararları
 
 - Ev adını kim düzenleyebilir (herkes mi, sadece eve ilk katılan/kuran mı)? Şu an düzenleme UI'ı yok (sadece görüntüleme).
+
+### Kişi ve harcama ekleri
+- Kişiler ekranında “Eve kişi ekle”; sahipsiz kişilerde “Henüz katılmadı” etiketi.
+- Harcama formunda açılır/kapanır “İçerik ve fiş”: satır bazlı içerik listesi, galeri/kamera, fotoğraf kaldırma. İçerik ve fotoğraf bağımsız ve isteğe bağlıdır.
+- Harcama detayında kaydedilen içerik sırası ve özel fiş fotoğrafı görüntülenir.

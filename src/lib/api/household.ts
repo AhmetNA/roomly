@@ -28,8 +28,16 @@ export async function createHouseholdRemote(householdName: string, myName: strin
   return data;
 }
 
-export async function joinHouseholdRemote(code: string, myName: string) {
-  const { data, error } = await supabase.rpc('join_household', { code, my_name: myName });
+export async function joinHouseholdRemote(
+  code: string,
+  myName: string,
+  memberId: string | null = null,
+) {
+  const { data, error } = await supabase.rpc('join_household_with_member', {
+    code,
+    my_name: myName,
+    member_id: memberId ?? undefined,
+  });
   if (error) throw error;
   return data;
 }
@@ -45,4 +53,16 @@ export async function updateMemberRemote(
 export async function leaveHouseholdRemote() {
   const { error } = await supabase.rpc('leave_household');
   if (error) throw error;
+}
+
+export async function previewHouseholdMembers(code: string) {
+  const { data, error } = await supabase.rpc('preview_household_members', { code });
+  if (error) throw error;
+  return data;
+}
+
+export async function addUnclaimedMember(memberName: string) {
+  const { data, error } = await supabase.rpc('add_unclaimed_member', { member_name: memberName });
+  if (error) throw error;
+  return data;
 }

@@ -36,7 +36,12 @@
     "back": "Back",
     "errors": {
       "inviteCodeNotFound": "No household found with that invite code"
-    }
+    },
+    "checkCode": "Show people",
+    "chooseMember": "Are you one of these people?",
+    "newMember": "Join as a new person",
+    "claimHint": "The selected person’s previous expenses and payments will be linked to your account.",
+    "claimed": "This person has already been claimed. Refresh the list and choose again."
   },
   "tabs": {
     "expenses": "Expenses",
@@ -73,7 +78,25 @@
     "owesArrow": "→",
     "settleButton": "Mark as settled",
     "settleConfirm": "Mark this debt as settled?",
-    "statisticsButton": "Statistics"
+    "statisticsButton": "Statistics",
+    "attachments": "Contents and receipt",
+    "optional": "Optional",
+    "itemsLabel": "Contents list",
+    "itemsHint": "Write one item per line (up to 50 lines).",
+    "itemsPlaceholder": "Bread\nMilk\nCleaning supplies",
+    "receipt": "Receipt photo",
+    "choosePhoto": "Choose photo",
+    "takePhoto": "Take photo",
+    "removePhoto": "Remove photo",
+    "photoError": "Could not load the photo. Please try again.",
+    "photoSize": "Choose a photo no larger than 5 MB.",
+    "cameraPermission": "Camera permission is required to photograph a receipt.",
+    "itemsInvalid": "Add up to 50 items, with no more than 200 characters per line.",
+    "itemsCount": "{{count}} items",
+    "receiptAdded": "Receipt added",
+    "loadingReceipt": "Loading receipt…",
+    "retryReceipt": "Reload receipt",
+    "photoFormat": "Choose a JPEG, PNG or WebP photo."
   },
   "list": {
     "title": "Shopping List",
@@ -123,7 +146,10 @@
     "inviteCode": "Invite code",
     "inviteCodeCopied": "Invite code copied",
     "leaveHousehold": "Leave household",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "addMember": "Add person to household",
+    "unclaimed": "Not joined yet",
+    "addMemberHint": "Record expenses and payments before they join the app. They can select this person when joining to keep their history."
   },
   "common": {
     "cancel": "Cancel",

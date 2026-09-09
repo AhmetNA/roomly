@@ -21,6 +21,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import {
+  useAddUnclaimedMemberMutation,
   useHouseholdQuery,
   useHouseholdRealtime,
   useLeaveHouseholdMutation,
@@ -46,6 +47,9 @@ export default function PeopleScreen() {
   const { data: members = [], isLoading } = membersQuery;
   const updateMember = useUpdateMemberMutation(household?.id);
   const leaveHousehold = useLeaveHouseholdMutation();
+  const addMember = useAddUnclaimedMemberMutation(household?.id);
+  const [addingMember, setAddingMember] = useState(false);
+  const [newMemberName, setNewMemberName] = useState('');
   useHouseholdRealtime(household?.id);
 
   const { refreshing, onRefresh } = usePullRefresh([householdQuery.refetch, membersQuery.refetch]);
@@ -91,6 +95,14 @@ export default function PeopleScreen() {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScreenHeader title={t('people.title')} refreshing={refreshing} onRefresh={onRefresh} />
         <FlatList
+          ListHeaderComponent={
+            <PrimaryButton
+              label={t('people.addMember')}
+              variant="secondary"
+              icon={{ ios: 'person.badge.plus', android: 'person_add' }}
+              onPress={() => setAddingMember(true)}
+            />
+          }
           data={members}
           keyExtractor={(member) => member.id}
           contentContainerStyle={styles.listContent}
@@ -125,7 +137,7 @@ export default function PeopleScreen() {
                     </Pressable>
                   ) : (
                     <ThemedText type="small" themeColor="textSecondary">
-                      {t('people.ibanMissing')}
+                      {t(item.user_id === null ? 'people.unclaimed' : 'people.ibanMissing')}
                     </ThemedText>
                   )}
                 </View>
@@ -179,6 +191,51 @@ export default function PeopleScreen() {
         />
       </SafeAreaView>
 
+      <Modal
+        visible={addingMember}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          if (!addMember.isPending) setAddingMember(false);
+        }}
+      >
+        <ThemedView style={styles.container}>
+          <SafeAreaView style={styles.safeArea}>
+            <SheetHeader
+              title={t('people.addMember')}
+              onClose={() => {
+                if (!addMember.isPending) setAddingMember(false);
+              }}
+            />
+            <View style={styles.modalForm}>
+              <ThemedText type="small" themeColor="textSecondary">
+                {t('people.addMemberHint')}
+              </ThemedText>
+              <TextField
+                label={t('people.nameLabel')}
+                value={newMemberName}
+                onChangeText={setNewMemberName}
+                maxLength={100}
+                autoCapitalize="words"
+                editable={!addMember.isPending}
+              />
+              <PrimaryButton
+                label={t('common.add')}
+                disabled={!newMemberName.trim() || addMember.isPending}
+                onPress={async () => {
+                  try {
+                    await addMember.mutateAsync(newMemberName.trim());
+                    setNewMemberName('');
+                    setAddingMember(false);
+                  } catch (error) {
+                    showAlert(t(getAuthErrorMessageKey(error)));
+                  }
+                }}
+              />
+            </View>
+          </SafeAreaView>
+        </ThemedView>
+      </Modal>
       <EditMemberModal
         member={editingMember}
         onClose={() => setEditingMember(null)}

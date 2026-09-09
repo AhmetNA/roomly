@@ -1,9 +1,10 @@
-// Auto-generated from the Supabase project schema (mcp: generate_typescript_types).
-// Regenerate after any migration instead of editing by hand.
-
+// Generated from the live Supabase schema. Nullable category RPC arguments are
+// annotated explicitly because the generator does not infer argument nullability.
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: '14.5';
   };
@@ -95,22 +96,25 @@ export type Database = {
       };
       expense_line_items: {
         Row: {
-          amount: number;
+          amount: number | null;
           expense_id: string;
           id: string;
           name: string;
+          sort_order: number;
         };
         Insert: {
-          amount: number;
+          amount?: number | null;
           expense_id: string;
           id?: string;
           name: string;
+          sort_order?: number;
         };
         Update: {
-          amount?: number;
+          amount?: number | null;
           expense_id?: string;
           id?: string;
           name?: string;
+          sort_order?: number;
         };
         Relationships: [
           {
@@ -252,7 +256,7 @@ export type Database = {
           iban: string | null;
           id: string;
           name: string;
-          user_id: string;
+          user_id: string | null;
         };
         Insert: {
           created_at?: string;
@@ -260,7 +264,7 @@ export type Database = {
           iban?: string | null;
           id?: string;
           name: string;
-          user_id: string;
+          user_id?: string | null;
         };
         Update: {
           created_at?: string;
@@ -268,7 +272,7 @@ export type Database = {
           iban?: string | null;
           id?: string;
           name?: string;
-          user_id?: string;
+          user_id?: string | null;
         };
         Relationships: [
           {
@@ -368,13 +372,6 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'shopping_items_purchased_by_fkey';
-            columns: ['purchased_by'];
-            isOneToOne: false;
-            referencedRelation: 'household_members';
-            referencedColumns: ['id'];
-          },
-          {
             foreignKeyName: 'shopping_items_category_id_fkey';
             columns: ['category_id'];
             isOneToOne: false;
@@ -388,6 +385,13 @@ export type Database = {
             referencedRelation: 'households';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'shopping_items_purchased_by_fkey';
+            columns: ['purchased_by'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id'];
+          },
         ];
       };
     };
@@ -395,6 +399,79 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_unclaimed_member: {
+        Args: { member_name: string };
+        Returns: {
+          created_at: string;
+          household_id: string;
+          iban: string | null;
+          id: string;
+          name: string;
+          user_id: string | null;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'household_members';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      create_expense: {
+        Args: {
+          p_category_id: string | null;
+          p_household_id: string;
+          p_payments: Json;
+          p_split_type: string;
+          p_splits: Json;
+          p_title: string;
+          p_total_amount: number;
+        };
+        Returns: {
+          category_id: string | null;
+          created_at: string;
+          household_id: string;
+          id: string;
+          receipt_photo_url: string | null;
+          split_type: string;
+          title: string;
+          total_amount: number;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'expenses';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      create_expense_with_details: {
+        Args: {
+          p_category_id: string | null;
+          p_household_id: string;
+          p_items?: Json;
+          p_payments: Json;
+          p_receipt_path?: string;
+          p_split_type: string;
+          p_splits: Json;
+          p_title: string;
+          p_total_amount: number;
+        };
+        Returns: {
+          category_id: string | null;
+          created_at: string;
+          household_id: string;
+          id: string;
+          receipt_photo_url: string | null;
+          split_type: string;
+          title: string;
+          total_amount: number;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'expenses';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       create_household: {
         Args: { household_name: string; my_name: string };
         Returns: {
@@ -403,9 +480,14 @@ export type Database = {
           invite_code: string;
           name: string;
         };
+        SetofOptions: {
+          from: '*';
+          to: 'households';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
       get_my_household_id: { Args: never; Returns: string };
-      leave_household: { Args: never; Returns: undefined };
       join_household: {
         Args: { code: string; my_name: string };
         Returns: {
@@ -414,18 +496,35 @@ export type Database = {
           invite_code: string;
           name: string;
         };
-      };
-      create_expense: {
-        Args: {
-          p_household_id: string;
-          p_category_id: string | null;
-          p_title: string;
-          p_total_amount: number;
-          p_split_type: string;
-          p_splits: Json;
-          p_payments: Json;
+        SetofOptions: {
+          from: '*';
+          to: 'households';
+          isOneToOne: true;
+          isSetofReturn: false;
         };
-        Returns: Database['public']['Tables']['expenses']['Row'];
+      };
+      join_household_with_member: {
+        Args: { code: string; member_id?: string; my_name: string };
+        Returns: {
+          created_at: string;
+          id: string;
+          invite_code: string;
+          name: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'households';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      leave_household: { Args: never; Returns: undefined };
+      preview_household_members: {
+        Args: { code: string };
+        Returns: {
+          id: string;
+          name: string;
+        }[];
       };
       settle_debt: {
         Args: { p_from_member_id: string; p_to_member_id: string };
@@ -441,13 +540,119 @@ export type Database = {
   };
 };
 
-type PublicSchema = Database['public'];
+type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
 
-export type Tables<TableName extends keyof PublicSchema['Tables']> =
-  PublicSchema['Tables'][TableName]['Row'];
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>];
 
-export type TablesInsert<TableName extends keyof PublicSchema['Tables']> =
-  PublicSchema['Tables'][TableName]['Insert'];
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+      Row: infer R;
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
 
-export type TablesUpdate<TableName extends keyof PublicSchema['Tables']> =
-  PublicSchema['Tables'][TableName]['Update'];
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    keyof DefaultSchema['Tables'] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Insert: infer I;
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    keyof DefaultSchema['Tables'] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Update: infer U;
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    keyof DefaultSchema['Enums'] | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+    : never;
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    keyof DefaultSchema['CompositeTypes'] | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+    : never;
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const;

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "482754321224",
+    "project_id": "roomly-notifications",
+    "storage_bucket": "roomly-notifications.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:482754321224:android:974242e2f8bf4f39daf17d",
+        "android_client_info": {
+          "package_name": "com.anonymous.roomly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeaHbKR4YHaAlnsQ7mc_xljIhTb4HMWCI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

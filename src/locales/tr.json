@@ -36,7 +36,12 @@
     "back": "Geri",
     "errors": {
       "inviteCodeNotFound": "Bu davet koduyla bir ev bulunamadı"
-    }
+    },
+    "checkCode": "Kişileri göster",
+    "chooseMember": "Bu evdeki kişi siz misiniz?",
+    "newMember": "Yeni kişi olarak katıl",
+    "claimHint": "Seçtiğiniz kişinin önceki harcamaları ve ödemeleri hesabınıza bağlanır.",
+    "claimed": "Bu kişi artık başka bir hesaba bağlı. Listeyi yenileyip tekrar seçin."
   },
   "tabs": {
     "expenses": "Harcamalar",
@@ -73,7 +78,25 @@
     "owesArrow": "→",
     "settleButton": "Ödendi işaretle",
     "settleConfirm": "Bu borç ödendi olarak işaretlensin mi?",
-    "statisticsButton": "İstatistikler"
+    "statisticsButton": "İstatistikler",
+    "attachments": "İçerik ve fiş",
+    "optional": "İsteğe bağlı",
+    "itemsLabel": "İçerik listesi",
+    "itemsHint": "Her satıra bir içerik yazın (en fazla 50 satır).",
+    "itemsPlaceholder": "Ekmek\nSüt\nTemizlik malzemeleri",
+    "receipt": "Fiş fotoğrafı",
+    "choosePhoto": "Fotoğraf seç",
+    "takePhoto": "Fotoğraf çek",
+    "removePhoto": "Fotoğrafı kaldır",
+    "photoError": "Fotoğraf yüklenemedi. Tekrar deneyin.",
+    "photoSize": "En fazla 5 MB büyüklüğünde fotoğraf seçin.",
+    "cameraPermission": "Fiş çekmek için kamera izni gerekiyor.",
+    "itemsInvalid": "En fazla 50 içerik ekleyin; her satır en fazla 200 karakter olabilir.",
+    "itemsCount": "{{count}} içerik",
+    "receiptAdded": "Fiş eklendi",
+    "loadingReceipt": "Fiş yükleniyor…",
+    "retryReceipt": "Fişi tekrar yükle",
+    "photoFormat": "JPEG, PNG veya WebP biçiminde bir fotoğraf seçin."
   },
   "list": {
     "title": "İhtiyaç Listesi",
@@ -123,7 +146,10 @@
     "inviteCode": "Davet kodu",
     "inviteCodeCopied": "Davet kodu kopyalandı",
     "leaveHousehold": "Ev'den çık",
-    "signOut": "Çıkış yap"
+    "signOut": "Çıkış yap",
+    "addMember": "Eve kişi ekle",
+    "unclaimed": "Henüz katılmadı",
+    "addMemberHint": "Uygulamaya katılmadan önce adına harcama ve ödeme kaydedebilirsiniz. Geldiğinde bu kişiyi seçerek geçmiş kayıtlarını devralır."
   },
   "common": {
     "cancel": "Vazgeç",

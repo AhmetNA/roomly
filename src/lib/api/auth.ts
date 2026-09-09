@@ -12,7 +12,10 @@ WebBrowser.maybeCompleteAuthSession();
 // logs, not end users — map the ones we can identify to i18n keys and fall back
 // to a generic translated message for anything else.
 export function getAuthErrorMessageKey(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error);
+  const message =
+    typeof error === 'object' && error !== null && 'message' in error
+      ? String(error.message)
+      : String(error);
   if (message.includes('Invalid login credentials')) return 'auth.errors.invalidCredentials';
   if (message.includes('User already registered')) return 'auth.errors.emailInUse';
   if (message.includes('Password should be at least')) return 'auth.errors.weakPassword';

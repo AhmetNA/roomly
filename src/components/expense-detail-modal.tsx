@@ -1,5 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, ScrollView, StyleSheet } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
@@ -7,6 +9,7 @@ import { SheetHeader } from '@/components/sheet-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { CardShadow, Spacing } from '@/constants/theme';
+import { getReceiptUrl } from '@/lib/api/receipts';
 import type { CategoryRow } from '@/lib/api/categories';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
 import type { MemberRow } from '@/lib/api/household';
@@ -102,6 +105,25 @@ export function ExpenseDetailModal({
                 </>
               )}
 
+              {expense.expense_line_items.length > 0 && (
+                <>
+                  <ThemedText
+                    type="smallBold"
+                    themeColor="textSecondary"
+                    style={styles.sectionTitle}
+                  >
+                    {t('expenses.itemsLabel')}
+                  </ThemedText>
+                  {[...expense.expense_line_items]
+                    .sort((a, b) => a.sort_order - b.sort_order)
+                    .map((item) => (
+                      <ThemedText key={item.id}>• {item.name}</ThemedText>
+                    ))}
+                </>
+              )}
+              {expense.receipt_photo_url && (
+                <ReceiptImage key={expense.receipt_photo_url} path={expense.receipt_photo_url} />
+              )}
               <ThemedView style={styles.deleteRow}>
                 <PrimaryButton
                   label={t('common.delete')}
@@ -154,3 +176,41 @@ const styles = StyleSheet.create({
     marginTop: Spacing.four,
   },
 });
+
+function ReceiptImage({ path }: { path: string }) {
+  const { t } = useTranslation();
+  const [imageFailed, setImageFailed] = useState(false);
+  const receipt = useQuery({
+    queryKey: ['receipt', path],
+    queryFn: () => getReceiptUrl(path),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 0,
+  });
+  return (
+    <ThemedView>
+      <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
+        {t('expenses.receipt')}
+      </ThemedText>
+      {receipt.isPending ? (
+        <ThemedText type="small">{t('expenses.loadingReceipt')}</ThemedText>
+      ) : receipt.isError || imageFailed ? (
+        <PrimaryButton
+          label={t('expenses.retryReceipt')}
+          variant="secondary"
+          onPress={async () => {
+            setImageFailed(false);
+            await receipt.refetch();
+          }}
+        />
+      ) : (
+        <Image
+          source={{ uri: receipt.data }}
+          onError={() => setImageFailed(true)}
+          accessibilityLabel={t('expenses.receipt')}
+          resizeMode="contain"
+          style={{ width: '100%', height: 420 }}
+        />
+      )}
+    </ThemedView>
+  );
+}

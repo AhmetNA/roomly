@@ -4,6 +4,8 @@ import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppSymbol } from '@/components/app-symbol';
+import { ExpenseAttachments } from '@/components/expense-attachments';
+import type { ReceiptPhoto } from '@/lib/api/receipts';
 import { CategoryPicker } from '@/components/category-picker';
 import { PrimaryButton } from '@/components/primary-button';
 import { SheetHeader } from '@/components/sheet-header';
@@ -40,6 +42,8 @@ export function AddExpenseModal({
   const createExpense = useCreateExpenseMutation(householdId);
 
   const [title, setTitle] = useState('');
+  const [itemsText, setItemsText] = useState('');
+  const [receipt, setReceipt] = useState<ReceiptPhoto | null>(null);
   const [amountText, setAmountText] = useState('');
   const [payerIds, setPayerIds] = useState<string[]>(currentMemberId ? [currentMemberId] : []);
   const [paidText, setPaidText] = useState<Record<string, string>>({});
@@ -80,6 +84,9 @@ export function AddExpenseModal({
     (splitType !== 'shares' || Object.values(sharesText).some((value) => Number(value) > 0));
 
   function resetAndClose() {
+    if (createExpense.isPending) return;
+    setItemsText('');
+    setReceipt(null);
     setTitle('');
     setAmountText('');
     setCategoryId(null);
@@ -91,7 +98,15 @@ export function AddExpenseModal({
   }
 
   async function handleSubmit() {
-    if (!householdId || payerIds.length === 0) return;
+    if (!householdId || !canSubmit || createExpense.isPending) return;
+    const items = itemsText
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+    if (items.length > 50 || items.some((line) => line.length > 200)) {
+      showAlert(t('expenses.itemsInvalid'));
+      return;
+    }
 
     // The remainder from an uneven split lands on the first selected payer —
     // arbitrary among multiple payers, but it has to land somewhere exact.
@@ -138,6 +153,8 @@ export function AddExpenseModal({
         splitType,
         splits,
         payments,
+        items,
+        receipt,
       });
       resetAndClose();
     } catch (error) {
@@ -335,6 +352,14 @@ export function AddExpenseModal({
               </ThemedView>
             )}
 
+            <ExpenseAttachments
+              key={visible ? 'open' : 'closed'}
+              text={itemsText}
+              onChangeText={setItemsText}
+              photo={receipt}
+              onChangePhoto={setReceipt}
+              disabled={createExpense.isPending}
+            />
             <PrimaryButton
               label={t('common.add')}
               icon={{ ios: 'plus', android: 'add' }}
