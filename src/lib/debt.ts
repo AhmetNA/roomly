@@ -46,6 +46,48 @@ export function computeDebtBalances(expenses: ExpenseWithSplits[]): DebtBalance[
   return balances;
 }
 
+export type DebtBreakdownEntry = {
+  expenseId: string;
+  title: string;
+  createdAt: string;
+  // Positive means this expense pushes the balance toward `from` owing `to`;
+  // negative means it pulls the other way. They sum to the net balance shown.
+  amount: number;
+};
+
+// What a single pairwise balance is actually made of. A net debt can hide
+// expenses running in both directions, so entries keep their sign instead of
+// only listing what one side owes.
+export function computeDebtBreakdown(
+  expenses: ExpenseWithSplits[],
+  fromMemberId: string,
+  toMemberId: string,
+): DebtBreakdownEntry[] {
+  const entries: DebtBreakdownEntry[] = [];
+
+  for (const expense of expenses) {
+    let cents = 0;
+    for (const debt of expense.expense_debts) {
+      if (debt.is_settled) continue;
+      if (debt.from_member_id === fromMemberId && debt.to_member_id === toMemberId) {
+        cents += Math.round(debt.amount * 100);
+      } else if (debt.from_member_id === toMemberId && debt.to_member_id === fromMemberId) {
+        cents -= Math.round(debt.amount * 100);
+      }
+    }
+    if (cents !== 0) {
+      entries.push({
+        expenseId: expense.id,
+        title: expense.title,
+        createdAt: expense.created_at,
+        amount: cents / 100,
+      });
+    }
+  }
+
+  return entries;
+}
+
 // An expense with no one still owing anyone else for it reads as "settled" in
 // the list — every debt it generated has been marked paid (or it never
 // generated any, e.g. a single person paying only for themselves).
