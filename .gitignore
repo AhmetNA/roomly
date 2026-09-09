@@ -18,6 +18,19 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+# Firebase / FCM service account keys (never commit)
+# NOT: google-services.json bunlara UYMAZ ve commit'lenmelidir.
+*service-account*.json
+*firebase-adminsdk*.json
+roomly-notifications-*.json
+
+# Supabase CLI scratch
+supabase/.temp/
+
+# Yerel EAS build çıktıları
+*.apk
+*.aab
+
 # Metro
 .metro-health-check*
 

@@ -94,7 +94,10 @@ roomly/
       tr.json, en.json
     types/
       database.ts             # Supabase generate_typescript_types çıktısı (migration sonrası yeniden üretilmeli)
-  supabase/                    # (henüz yok, bkz. not) — migration'lar şimdilik Supabase MCP ile uzak projeye uygulanıyor
+  supabase/
+    migrations/              # şema değişiklikleri (baseline yok, bkz. "Bilinen boşluklar")
+    functions/notify/        # push bildirimi Edge Function'ı (deploy edilmiş sürümün kaynağı)
+    tests/                   # rollback ile çalışan entegrasyon kontrolleri
   assets/
   README.md
   AGENTS.md
@@ -103,7 +106,7 @@ roomly/
   SCREENS.md
 ```
 
-Not: `CLAUDE.md` migration dosyası tutulmasını istiyor; şu an migration'lar Supabase MCP (`apply_migration`) ile doğrudan uzak projeye uygulanıyor ve yerelde bir `supabase/migrations/` klasörü yok. Supabase CLI kurulup yerel migration geçmişi tutulacaksa bu bir sonraki adım.
+Not: `supabase/` klasörü artık yerelde mevcut (migration'lar, `notify` fonksiyonunun kaynağı ve testler). Ancak klasörün tamamı henüz git'e eklenmedi ve şema baseline'ı yok — ayrıntı için "Bilinen boşluklar".
 
 ## Çalışma Kuralları
 
@@ -114,7 +117,6 @@ Not: `CLAUDE.md` migration dosyası tutulmasını istiyor; şu an migration'lar 
 
 ## Henüz Karara Bağlanmamış
 
-- Push notification servisi: Expo Notifications yeterli mi, yoksa ayrı bir servis mi?
 - Web versiyonu olacak mı (Expo web ile aynı kod tabanından)?
 - Fiş fotoğrafı depolama: Supabase Storage bucket yapısı ve boyut/format kısıtı ne olacak?
 
@@ -123,4 +125,24 @@ Not: `CLAUDE.md` migration dosyası tutulmasını istiyor; şu an migration'lar 
 - **Kimlik doğrulama**: Email + şifre + Google OAuth (ikisi de aktif, Supabase Auth). Google Cloud OAuth istemcisi ayrı bir proje (`Roomly`) altında, `src/components/auth-screen.tsx`'te `GOOGLE_AUTH_ENABLED = true` (bkz. README "Google ile giriş" kurulum adımları — yeni bir Supabase projesine taşınırsa tekrarlanmalı).
 - **Harcama düzenleme/silme yetkisi**: herkes düzenleyebilir/silebilir (tek ev, güven bazlı roommate modeli).
 - **Kategori silme davranışı**: bağlı kayıtlar kategorisiz kalır, otomatik başka kategoriye taşınmaz.
+- **Push notification**: Expo Notifications yeterli, ayrı servis alınmadı. Gönderim `notify` Edge Function'ı üzerinden `https://exp.host/--/api/v2/push/send`'e yapılır; Android için ayrı `roomly-notifications` Firebase projesinin FCM V1 servis hesabı EAS'e yüklenir (kurulum adımları README "Android bildirim kurulumu").
 - **E-posta doğrulama (Supabase Auth "Confirm email")**: bu ayar dashboard'dan kontrol edilmeli — MCP araçlarıyla okunamıyor/değiştirilemiyor. Açıksa kayıt olan kullanıcı session almadan önce e-postasını onaylamalı; MVP test hızını artırmak isteniyorsa dashboard'dan kapatılabilir.
+
+## 2026-09-09 güncellemesi: kişiler ve harcama ekleri
+
+Yukarıdaki eski yapı notlarının yerine şu sözleşmeler geçerlidir:
+- `household_members.user_id` nullable: `null` sahipsiz kişidir. Sahiplenme `join_household_with_member` RPC'siyle aynı üye satırına hesap bağlar. `preview_household_members` geçerli davet koduyla yalnızca sahipsiz ad/kimlikleri döndürür. `add_unclaimed_member` yalnızca mevcut eve ekler.
+- `leave_household` kişiyi silmez; hesap/IBAN bağlantısını temizleyip finansal geçmişi korur. Son üye ayrıldığında da ev korunur.
+- `expense_line_items` artık UI'da kullanılıyor; `amount` nullable, `sort_order` sıralamadır. Şimdilik içerikler açıklama satırlarıdır, toplam tutar hesabına katılmaz.
+- `create_expense_with_details` mevcut harcama RPC'sini çağırır ve içerik satırları/fiş yolunu aynı transaction içinde kaydeder.
+- `expenses.receipt_photo_url` public URL değil, özel `receipts` Storage bucket'ındaki yoldur. Bucket 5 MB ve JPEG/PNG/WebP sınırıyla yalnızca ev üyelerine okunabilir. Kamera/galeri için `expo-image-picker` eklendi.
+- Yeni migration dosyaları `supabase/migrations/` altında tutulur; eski uzak geçmiş henüz baseline edilmedi.
+
+## Bilinen boşluklar
+
+2026-09-09 itibarıyla doğrulandı; bir sonraki temizlik turunda kapatılmalı:
+
+- **`supabase/` klasörü git'e eklenmemiş.** `git ls-files supabase` boş dönüyor: migration'lar, `functions/notify/index.ts` ve testler takip edilmiyor. Yani repoyu klonlayan (veya bir ajan) bu dosyaları göremez.
+- **Şema baseline'ı yok.** Mevcut migration'ların hiçbiri `create table` içermiyor; `push_tokens` dahil tüm tablolar uzak projede elle/MCP ile oluşturulmuş. Şema repodan sıfır veritabanına yeniden üretilemez. Bu, CLAUDE.md'deki "elle dashboard değişikliği yapma" kuralıyla çelişiyor.
+- **`notify` fonksiyonu yalnızca deploy edilmişti.** Kaynağı `npx supabase@latest functions download notify` ile indirilip `supabase/functions/notify/index.ts` altına alındı; dosya sunucudaki ACTIVE sürümle birebir aynı, yeniden deploy edilmedi.
+- **`notify` Expo bilet hatalarını yutuyor.** Fonksiyon yalnızca `status === 'ok'` sayıyor ve `DeviceNotRegistered` dışındaki hataları (ör. FCM kimlik bilgisi eksikse gelen `MismatchSenderId`) sessizce atlıyor. Sonuç her durumda `{sent: 0}` olduğu için "FCM anahtarı yüklenmemiş", "hiç token kaydolmamış" ve "ev arkadaşı yok" durumları dışarıdan ayırt edilemiyor — teşhis için fonksiyon logları okunmalı (bkz. README "Android bildirim kurulumu").

@@ -44,6 +44,9 @@ Bu dosya, Claude Code'un bu repoda nasıl çalışması gerektiğini tanımlar. 
 - Yeni bir ekran veya akış eklendiğinde iOS simulator'da (mcp Claude_Code_iOS_Simulator araçlarıyla) gözle doğrula — hem açık hem koyu temada.
 - Android tarafı için gerekirse kullanıcıdan emulator/cihaz üzerinde teyit iste (bu ortamda Android emulator kontrolü yok).
 - Supabase şema değişikliklerinde migration dosyası oluştur, elle dashboard değişikliği yapma.
+- Aynı kural Edge Function'lar için: fonksiyon kaynağı `supabase/functions/<slug>/index.ts` altında repoda durur, yalnızca deploy edilmiş halde bırakılmaz. Uzakta olup repoda olmayan bir fonksiyon varsa önce indir (`npx supabase@latest functions download <slug> --project-ref vigmiiiwyliqslbwuzet`), sonra üzerinde çalış.
+- `supabase/` klasörünün tamamı (`migrations/`, `functions/`, `tests/`) git'e commit'lenmeli. Bu klasör şu an takip edilmiyor ve hiçbir migration `create table` içermiyor — yani şema repodan yeniden üretilemez durumda (bkz. AGENTS.md "Bilinen boşluklar").
+- Servis hesabı özel anahtarları (Firebase/FCM) repoya konulmaz; `.gitignore` `*-firebase-adminsdk-*.json` ve `service-account*.json` desenlerini kapsar.
 
 ## Ücretsiz Kalma İlkesi
 
