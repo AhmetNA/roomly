@@ -73,16 +73,26 @@ Deno.serve(async (req: Request) => {
   let subject = '';
   let amount = '';
 
+  // Only set for expense_added: an expense concerns the people who owe a share
+  // of it or put money toward it, and nobody else needs interrupting.
+  let involvedMemberIds: string[] | null = null;
+
   if (kind === 'expense_added') {
     const { data } = await asCaller
       .from('expenses')
-      .select('title, total_amount')
+      .select('title, total_amount, expense_splits(member_id), expense_payments(member_id)')
       .eq('id', payload.entityId ?? '')
       .eq('household_id', actor.household_id)
       .maybeSingle();
     if (!data) return json({ error: 'entity_not_found' }, 404);
     subject = data.title;
     amount = Number(data.total_amount).toFixed(2);
+    involvedMemberIds = Array.from(
+      new Set([
+        ...(data.expense_splits ?? []).map((row: { member_id: string }) => row.member_id),
+        ...(data.expense_payments ?? []).map((row: { member_id: string }) => row.member_id),
+      ]),
+    );
   } else if (kind === 'item_added' || kind === 'item_purchased') {
     const { data } = await asCaller
       .from('shopping_items')
@@ -109,11 +119,19 @@ Deno.serve(async (req: Request) => {
   // any signed-in user, including this caller.
   const asService = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 
-  const { data: housemates } = await asService
+  let housemateQuery = asService
     .from('household_members')
     .select('user_id')
     .eq('household_id', actor.household_id)
     .neq('user_id', userData.user.id);
+
+  if (involvedMemberIds) {
+    // An expense nobody else is part of has no one left to tell.
+    if (involvedMemberIds.length === 0) return json({ sent: 0 }, 200);
+    housemateQuery = housemateQuery.in('id', involvedMemberIds);
+  }
+
+  const { data: housemates } = await housemateQuery;
 
   const recipientIds = (housemates ?? []).map((m) => m.user_id).filter(Boolean);
   if (recipientIds.length === 0) return json({ sent: 0 }, 200);
