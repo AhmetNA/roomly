@@ -305,6 +305,55 @@ export type Database = {
         };
         Relationships: [];
       };
+      settlements: {
+        Row: {
+          amount: number;
+          created_at: string;
+          from_member_id: string;
+          household_id: string;
+          id: string;
+          to_member_id: string;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string;
+          from_member_id: string;
+          household_id: string;
+          id?: string;
+          to_member_id: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          from_member_id?: string;
+          household_id?: string;
+          id?: string;
+          to_member_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'settlements_from_member_id_fkey';
+            columns: ['from_member_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'settlements_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'settlements_to_member_id_fkey';
+            columns: ['to_member_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       push_tokens: {
         Row: {
           created_at: string;
@@ -554,9 +603,22 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      settle_debt: {
-        Args: { p_from_member_id: string; p_to_member_id: string };
-        Returns: undefined;
+      record_settlement: {
+        Args: { p_amount: number; p_from_member_id: string; p_to_member_id: string };
+        Returns: {
+          amount: number;
+          created_at: string;
+          from_member_id: string;
+          household_id: string;
+          id: string;
+          to_member_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'settlements';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
     };
     Enums: {

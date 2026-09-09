@@ -1,3 +1,4 @@
+import type { SettlementRow } from '@/lib/api/settlements';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
 
 export type DebtBalance = {
@@ -6,91 +7,90 @@ export type DebtBalance = {
   amount: number;
 };
 
-// Net, pairwise balances only (no multi-hop simplification — that's explicitly
-// post-MVP per CLAUDE.md). expense_debts is already a materialized ledger
-// (computed at expense-creation time, proportional across multiple payers —
-// see create_expense), so this just nets it out per pair and drops settled
-// debts, which shouldn't count anymore.
-export function computeDebtBalances(expenses: ExpenseWithSplits[]): DebtBalance[] {
-  const owed = new Map<string, number>(); // key: `${fromMemberId}>${toMemberId}` -> cents
+// Every member's net position in cents: negative means they owe the household
+// that much, positive means the household owes them. Built from the materialized
+// expense_debts ledger (already proportional across multiple payers — see
+// create_expense) minus everything that's since been paid back through the
+// settlements ledger. Settled legacy rows are skipped: they were zeroed out
+// before settlements existed and have no settlement row, so counting them would
+// double up.
+function computeNetCents(
+  expenses: ExpenseWithSplits[],
+  settlements: SettlementRow[],
+): Map<string, number> {
+  const net = new Map<string, number>();
+  const add = (memberId: string, cents: number) =>
+    net.set(memberId, (net.get(memberId) ?? 0) + cents);
 
   for (const expense of expenses) {
     for (const debt of expense.expense_debts) {
       if (debt.is_settled) continue;
-      const key = `${debt.from_member_id}>${debt.to_member_id}`;
       const cents = Math.round(debt.amount * 100);
-      owed.set(key, (owed.get(key) ?? 0) + cents);
+      add(debt.from_member_id, -cents);
+      add(debt.to_member_id, cents);
     }
   }
 
-  const seenPairs = new Set<string>();
-  const balances: DebtBalance[] = [];
-
-  for (const key of owed.keys()) {
-    const [a, b] = key.split('>');
-    const pairKey = [a, b].sort().join('|');
-    if (seenPairs.has(pairKey)) continue;
-    seenPairs.add(pairKey);
-
-    const aOwesB = owed.get(`${a}>${b}`) ?? 0;
-    const bOwesA = owed.get(`${b}>${a}`) ?? 0;
-    const netCents = aOwesB - bOwesA;
-
-    if (netCents > 0) {
-      balances.push({ fromMemberId: a, toMemberId: b, amount: netCents / 100 });
-    } else if (netCents < 0) {
-      balances.push({ fromMemberId: b, toMemberId: a, amount: -netCents / 100 });
-    }
+  for (const settlement of settlements) {
+    const cents = Math.round(settlement.amount * 100);
+    // Paying money out settles what you owed: your net moves up.
+    add(settlement.from_member_id, cents);
+    add(settlement.to_member_id, -cents);
   }
 
-  return balances;
+  return net;
 }
 
-export type DebtBreakdownEntry = {
-  expenseId: string;
-  title: string;
-  createdAt: string;
-  // Positive means this expense pushes the balance toward `from` owing `to`;
-  // negative means it pulls the other way. They sum to the net balance shown.
-  amount: number;
-};
-
-// What a single pairwise balance is actually made of. A net debt can hide
-// expenses running in both directions, so entries keep their sign instead of
-// only listing what one side owes.
-export function computeDebtBreakdown(
+// Reduce every net position to the fewest transfers that clear them: repeatedly
+// send from the biggest debtor to the biggest creditor. Produces at most n-1
+// transfers for n members, which is what "settle everything in one payment each"
+// asks for — at the cost of losing which original expense a transfer traces to.
+export function computeSimplifiedTransfers(
   expenses: ExpenseWithSplits[],
-  fromMemberId: string,
-  toMemberId: string,
-): DebtBreakdownEntry[] {
-  const entries: DebtBreakdownEntry[] = [];
+  settlements: SettlementRow[],
+): DebtBalance[] {
+  const net = computeNetCents(expenses, settlements);
 
-  for (const expense of expenses) {
-    let cents = 0;
-    for (const debt of expense.expense_debts) {
-      if (debt.is_settled) continue;
-      if (debt.from_member_id === fromMemberId && debt.to_member_id === toMemberId) {
-        cents += Math.round(debt.amount * 100);
-      } else if (debt.from_member_id === toMemberId && debt.to_member_id === fromMemberId) {
-        cents -= Math.round(debt.amount * 100);
-      }
-    }
-    if (cents !== 0) {
-      entries.push({
-        expenseId: expense.id,
-        title: expense.title,
-        createdAt: expense.created_at,
-        amount: cents / 100,
-      });
-    }
+  const debtors: { memberId: string; cents: number }[] = [];
+  const creditors: { memberId: string; cents: number }[] = [];
+  for (const [memberId, cents] of net) {
+    if (cents < 0) debtors.push({ memberId, cents: -cents });
+    else if (cents > 0) creditors.push({ memberId, cents });
   }
 
-  return entries;
+  // Deterministic order so the same balances always yield the same transfers.
+  debtors.sort((a, b) => b.cents - a.cents || a.memberId.localeCompare(b.memberId));
+  creditors.sort((a, b) => b.cents - a.cents || a.memberId.localeCompare(b.memberId));
+
+  const transfers: DebtBalance[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < debtors.length && j < creditors.length) {
+    const pay = Math.min(debtors[i].cents, creditors[j].cents);
+    // Rounding in the ledger can leave a stray kuruş with no real counterpart;
+    // a sub-kuruş transfer is noise, not a debt.
+    if (pay > 0) {
+      transfers.push({
+        fromMemberId: debtors[i].memberId,
+        toMemberId: creditors[j].memberId,
+        amount: pay / 100,
+      });
+    }
+    debtors[i].cents -= pay;
+    creditors[j].cents -= pay;
+    if (debtors[i].cents === 0) i += 1;
+    if (creditors[j].cents === 0) j += 1;
+  }
+
+  return transfers;
 }
 
 // An expense with no one still owing anyone else for it reads as "settled" in
-// the list — every debt it generated has been marked paid (or it never
-// generated any, e.g. a single person paying only for themselves).
+// the list. With household-wide simplification a single payment can no longer be
+// traced back to one expense, so this only ever reflects legacy per-expense
+// settlement (or an expense that never created a debt, e.g. one person paying
+// only for themselves). New settlements live in the settlements ledger and show
+// up in the debt summary instead.
 export function isExpenseFullySettled(expense: ExpenseWithSplits) {
   return expense.expense_debts.every((debt) => debt.is_settled);
 }

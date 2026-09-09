@@ -29,6 +29,7 @@ import {
   useRemoveExpenseMutation,
 } from '@/hooks/use-expenses';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
+import { useSettlementsRealtime } from '@/hooks/use-settlements';
 import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import { showAlert } from '@/lib/alert';
@@ -51,6 +52,7 @@ export default function ExpensesScreen() {
   const expensesQuery = useExpensesQuery(householdId);
   const { data: expenses = [], isLoading } = expensesQuery;
   useExpensesRealtime(householdId);
+  useSettlementsRealtime(householdId);
   const removeExpense = useRemoveExpenseMutation(householdId);
 
   const { refreshing, onRefresh } = usePullRefresh([

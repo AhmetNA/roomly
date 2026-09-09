@@ -96,12 +96,7 @@ export function ExpenseDetailModal({
                         {nameById.get(debt.from_member_id) ?? '—'} {t('expenses.owesArrow')}{' '}
                         {nameById.get(debt.to_member_id) ?? '—'}
                       </ThemedText>
-                      <ThemedText
-                        type="smallBold"
-                        themeColor={debt.is_settled ? 'success' : 'danger'}
-                      >
-                        {debt.amount.toFixed(2)}
-                      </ThemedText>
+                      <ThemedText type="smallBold">{debt.amount.toFixed(2)}</ThemedText>
                     </ThemedView>
                   ))}
                 </>

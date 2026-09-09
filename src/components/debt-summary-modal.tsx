@@ -10,11 +10,12 @@ import { SheetHeader } from '@/components/sheet-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { CardShadow, PopupShadow, Spacing, type ThemeColor } from '@/constants/theme';
-import { useExpensesQuery, useSettleDebtMutation } from '@/hooks/use-expenses';
+import { useExpensesQuery } from '@/hooks/use-expenses';
+import { useRecordSettlementMutation, useSettlementsQuery } from '@/hooks/use-settlements';
 import { useTheme } from '@/hooks/use-theme';
 import { showAlert } from '@/lib/alert';
 import type { MemberRow } from '@/lib/api/household';
-import { computeDebtBalances, computeDebtBreakdown, type DebtBalance } from '@/lib/debt';
+import { computeSimplifiedTransfers, type DebtBalance } from '@/lib/debt';
 
 type DebtSection = {
   key: string;
@@ -39,17 +40,16 @@ export function DebtSummaryModal({
   currentMemberId: string | undefined;
   onClose: () => void;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const { data: expenses = [] } = useExpensesQuery(householdId);
-
-  const dateFormatter = useMemo(
-    () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }),
-    [i18n.language],
-  );
+  const { data: settlements = [] } = useSettlementsQuery(householdId);
 
   const nameById = useMemo(() => new Map(members.map((m) => [m.id, m.name])), [members]);
-  const balances = useMemo(() => computeDebtBalances(expenses), [expenses]);
+  const balances = useMemo(
+    () => computeSimplifiedTransfers(expenses, settlements),
+    [expenses, settlements],
+  );
 
   // Money coming to you and money you owe read as opposites; one flat red list
   // made the reader work out which was which from the direction of an arrow.
@@ -86,7 +86,6 @@ export function DebtSummaryModal({
   }, [balances, currentMemberId, t]);
 
   const [settling, setSettling] = useState<DebtBalance | null>(null);
-  const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   return (
     <Modal
@@ -114,6 +113,11 @@ export function DebtSummaryModal({
               sections={sections}
               keyExtractor={(item) => `${item.fromMemberId}-${item.toMemberId}`}
               contentContainerStyle={styles.listContent}
+              ListHeaderComponent={
+                <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
+                  {t('expenses.debtsSimplifiedNote')}
+                </ThemedText>
+              }
               renderSectionHeader={({ section }) => (
                 <ThemedText
                   type="smallBold"
@@ -123,96 +127,47 @@ export function DebtSummaryModal({
                   {section.title.toUpperCase()}
                 </ThemedText>
               )}
-              renderItem={({ item, section }) => {
-                const key = `${item.fromMemberId}-${item.toMemberId}`;
-                const expanded = expandedKey === key;
-                // A net balance can be made of expenses running both ways, so
-                // the breakdown is only worth computing for the open row.
-                const breakdown = expanded
-                  ? computeDebtBreakdown(expenses, item.fromMemberId, item.toMemberId)
-                  : [];
-
-                return (
-                  <ThemedView type="backgroundElement" style={styles.debtCard}>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityState={{ expanded }}
-                      onPress={() => setExpandedKey(expanded ? null : key)}
-                      style={styles.row}
-                    >
-                      <View style={styles.rowTop}>
-                        <ThemedText type="default" numberOfLines={1} style={styles.rowNames}>
-                          {section.mine
-                            ? nameById.get(
-                                item.fromMemberId === currentMemberId
-                                  ? item.toMemberId
-                                  : item.fromMemberId,
-                              )
-                            : `${nameById.get(item.fromMemberId)} ${t('expenses.owesArrow')} ${nameById.get(item.toMemberId)}`}
-                        </ThemedText>
+              renderItem={({ item, section }) => (
+                <ThemedView type="backgroundElement" style={styles.debtCard}>
+                  <View style={styles.row}>
+                    <View style={styles.rowTop}>
+                      <ThemedText type="default" numberOfLines={1} style={styles.rowNames}>
+                        {section.mine
+                          ? nameById.get(
+                              item.fromMemberId === currentMemberId
+                                ? item.toMemberId
+                                : item.fromMemberId,
+                            )
+                          : `${nameById.get(item.fromMemberId)} ${t('expenses.owesArrow')} ${nameById.get(item.toMemberId)}`}
+                      </ThemedText>
+                    </View>
+                    <View style={styles.rowBottom}>
+                      <ThemedText
+                        type="smallBold"
+                        themeColor={section.tone}
+                        numberOfLines={1}
+                        style={styles.rowAmount}
+                      >
+                        {item.amount.toFixed(2)}
+                      </ThemedText>
+                      <Pressable
+                        onPress={() => setSettling(item)}
+                        style={[styles.settleChip, { backgroundColor: theme.accent }]}
+                      >
                         <AppSymbol
-                          name={
-                            expanded
-                              ? { ios: 'chevron.up', android: 'expand_less' }
-                              : { ios: 'chevron.down', android: 'expand_more' }
-                          }
-                          size={16}
-                          tintColor={theme.textSecondary}
+                          name={{ ios: 'checkmark', android: 'check' }}
+                          size={13}
+                          tintColor={theme.onAccent}
+                          weight="bold"
                         />
-                      </View>
-                      <View style={styles.rowBottom}>
-                        <ThemedText
-                          type="smallBold"
-                          themeColor={section.tone}
-                          numberOfLines={1}
-                          style={styles.rowAmount}
-                        >
-                          {item.amount.toFixed(2)}
+                        <ThemedText type="small" themeColor="onAccent" numberOfLines={1}>
+                          {t('expenses.settleButton')}
                         </ThemedText>
-                        <Pressable
-                          onPress={() => setSettling(item)}
-                          style={[styles.settleChip, { backgroundColor: theme.accent }]}
-                        >
-                          <AppSymbol
-                            name={{ ios: 'checkmark', android: 'check' }}
-                            size={13}
-                            tintColor={theme.onAccent}
-                            weight="bold"
-                          />
-                          <ThemedText type="small" themeColor="onAccent" numberOfLines={1}>
-                            {t('expenses.settleButton')}
-                          </ThemedText>
-                        </Pressable>
-                      </View>
-                    </Pressable>
-
-                    {expanded && (
-                      <View style={[styles.breakdown, { borderTopColor: theme.border }]}>
-                        <ThemedText type="small" themeColor="textSecondary">
-                          {t('expenses.debtBreakdownTitle')}
-                        </ThemedText>
-                        {breakdown.map((entry) => (
-                          <View key={entry.expenseId} style={styles.breakdownRow}>
-                            <View style={styles.breakdownInfo}>
-                              <ThemedText type="default">{entry.title}</ThemedText>
-                              <ThemedText type="small" themeColor="textSecondary">
-                                {dateFormatter.format(new Date(entry.createdAt))}
-                              </ThemedText>
-                            </View>
-                            <ThemedText
-                              type="smallBold"
-                              themeColor={entry.amount > 0 ? 'danger' : 'success'}
-                            >
-                              {entry.amount > 0 ? '' : '-'}
-                              {Math.abs(entry.amount).toFixed(2)}
-                            </ThemedText>
-                          </View>
-                        ))}
-                      </View>
-                    )}
-                  </ThemedView>
-                );
-              }}
+                      </Pressable>
+                    </View>
+                  </View>
+                </ThemedView>
+              )}
             />
           )}
         </SafeAreaView>
@@ -250,7 +205,7 @@ function SettleConfirmModal({
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const settleDebt = useSettleDebtMutation(householdId);
+  const recordSettlement = useRecordSettlementMutation(householdId);
 
   async function copyIban() {
     if (!toMember?.iban) return;
@@ -260,7 +215,11 @@ function SettleConfirmModal({
 
   function handleConfirm() {
     if (!balance) return;
-    settleDebt.mutate({ fromMemberId: balance.fromMemberId, toMemberId: balance.toMemberId });
+    recordSettlement.mutate({
+      fromMemberId: balance.fromMemberId,
+      toMemberId: balance.toMemberId,
+      amount: balance.amount,
+    });
     onClose();
   }
 
@@ -341,6 +300,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     gap: Spacing.two,
   },
+  note: {
+    marginTop: Spacing.three,
+  },
   sectionHeader: {
     marginTop: Spacing.three,
   },
@@ -370,23 +332,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontSize: 22,
     lineHeight: 28,
-  },
-  breakdown: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: Spacing.three,
-    paddingBottom: Spacing.three,
-    paddingTop: Spacing.two,
-    gap: Spacing.two,
-  },
-  breakdownRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
-  },
-  breakdownInfo: {
-    flex: 1,
-    gap: Spacing.half,
   },
   settleChip: {
     flexDirection: 'row',

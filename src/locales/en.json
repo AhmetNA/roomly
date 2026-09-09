@@ -97,7 +97,7 @@
     "loadingReceipt": "Loading receipt…",
     "retryReceipt": "Reload receipt",
     "photoFormat": "Choose a JPEG, PNG or WebP photo.",
-    "debtBreakdownTitle": "Expenses behind this debt",
+    "debtsSimplifiedNote": "Debts are simplified into the fewest transfers that clear them (at most one payment per person). A payment may therefore settle your overall balance rather than one specific expense.",
     "debtsYouAreOwed": "You are owed",
     "debtsYouOwe": "You owe",
     "debtsOthers": "Between other housemates",

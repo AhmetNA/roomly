@@ -75,15 +75,3 @@ export function useRemoveExpenseMutation(householdId: string | undefined) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.expenses(householdId) }),
   });
 }
-
-export function useSettleDebtMutation(householdId: string | undefined) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ fromMemberId, toMemberId }: { fromMemberId: string; toMemberId: string }) =>
-      expensesApi.settleDebtRemote(fromMemberId, toMemberId),
-    onSuccess: (_result, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.expenses(householdId) });
-      notifyHousehold({ kind: 'debt_settled', memberId: variables.toMemberId });
-    },
-  });
-}

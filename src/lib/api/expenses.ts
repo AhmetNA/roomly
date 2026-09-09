@@ -113,14 +113,6 @@ export async function removeExpenseRemote(id: string) {
   if (error) throw error;
 }
 
-export async function settleDebtRemote(fromMemberId: string, toMemberId: string) {
-  const { error } = await supabase.rpc('settle_debt', {
-    p_from_member_id: fromMemberId,
-    p_to_member_id: toMemberId,
-  });
-  if (error) throw error;
-}
-
 export function getExpenseErrorMessageKey(error: unknown): string {
   const message =
     typeof error === 'object' && error !== null && 'message' in error

@@ -97,7 +97,7 @@
     "loadingReceipt": "Fiş yükleniyor…",
     "retryReceipt": "Fişi tekrar yükle",
     "photoFormat": "JPEG, PNG veya WebP biçiminde bir fotoğraf seçin.",
-    "debtBreakdownTitle": "Bu borcu oluşturan harcamalar",
+    "debtsSimplifiedNote": "Borçlar, en az sayıda transferle kapanacak şekilde sadeleştirildi (kişi başı en fazla bir ödeme). Bu yüzden bir ödeme, tek bir harcamaya değil toplam bakiyeye karşılık gelebilir.",
     "debtsYouAreOwed": "Senin alacağın",
     "debtsYouOwe": "Senin borcun",
     "debtsOthers": "Diğer ev arkadaşları arasında",

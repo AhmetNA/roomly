@@ -6,4 +6,5 @@ export const queryKeys = {
   categories: (householdId: string | undefined) => ['categories', householdId] as const,
   shoppingItems: (householdId: string | undefined) => ['shopping_items', householdId] as const,
   expenses: (householdId: string | undefined) => ['expenses', householdId] as const,
+  settlements: (householdId: string | undefined) => ['settlements', householdId] as const,
 };
