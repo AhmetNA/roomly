@@ -33,6 +33,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "./plugins/with-android-build-memory.js",
       "expo-router",
       [
         "expo-splash-screen",
