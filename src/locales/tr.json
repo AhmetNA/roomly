@@ -97,7 +97,10 @@
     "loadingReceipt": "Fiş yükleniyor…",
     "retryReceipt": "Fişi tekrar yükle",
     "photoFormat": "JPEG, PNG veya WebP biçiminde bir fotoğraf seçin.",
-    "debtBreakdownTitle": "Bu borcu oluşturan harcamalar"
+    "debtBreakdownTitle": "Bu borcu oluşturan harcamalar",
+    "debtsYouAreOwed": "Senin alacağın",
+    "debtsYouOwe": "Senin borcun",
+    "debtsOthers": "Diğer ev arkadaşları arasında"
   },
   "list": {
     "title": "İhtiyaç Listesi",

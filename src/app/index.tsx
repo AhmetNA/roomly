@@ -215,6 +215,7 @@ export default function ExpensesScreen() {
         visible={debtVisible}
         householdId={householdId}
         members={members}
+        currentMemberId={currentMemberId}
         onClose={() => setDebtVisible(false)}
       />
       <StatisticsModal

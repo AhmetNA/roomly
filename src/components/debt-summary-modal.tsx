@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppSymbol } from '@/components/app-symbol';
@@ -9,22 +9,34 @@ import { PrimaryButton } from '@/components/primary-button';
 import { SheetHeader } from '@/components/sheet-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { CardShadow, PopupShadow, Spacing } from '@/constants/theme';
+import { CardShadow, PopupShadow, Spacing, type ThemeColor } from '@/constants/theme';
 import { useExpensesQuery, useSettleDebtMutation } from '@/hooks/use-expenses';
 import { useTheme } from '@/hooks/use-theme';
 import { showAlert } from '@/lib/alert';
 import type { MemberRow } from '@/lib/api/household';
 import { computeDebtBalances, computeDebtBreakdown, type DebtBalance } from '@/lib/debt';
 
+type DebtSection = {
+  key: string;
+  title: string;
+  // Whether the reader is a party to these debts — decides both the colour and
+  // whether the row needs to name both sides or just the other person.
+  mine: boolean;
+  tone: ThemeColor;
+  data: DebtBalance[];
+};
+
 export function DebtSummaryModal({
   visible,
   householdId,
   members,
+  currentMemberId,
   onClose,
 }: {
   visible: boolean;
   householdId: string | undefined;
   members: MemberRow[];
+  currentMemberId: string | undefined;
   onClose: () => void;
 }) {
   const { t, i18n } = useTranslation();
@@ -38,6 +50,40 @@ export function DebtSummaryModal({
 
   const nameById = useMemo(() => new Map(members.map((m) => [m.id, m.name])), [members]);
   const balances = useMemo(() => computeDebtBalances(expenses), [expenses]);
+
+  // Money coming to you and money you owe read as opposites; one flat red list
+  // made the reader work out which was which from the direction of an arrow.
+  const sections = useMemo<DebtSection[]>(() => {
+    const owedToYou = balances.filter((b) => b.toMemberId === currentMemberId);
+    const youOwe = balances.filter((b) => b.fromMemberId === currentMemberId);
+    const others = balances.filter(
+      (b) => b.fromMemberId !== currentMemberId && b.toMemberId !== currentMemberId,
+    );
+
+    return [
+      {
+        key: 'owedToYou',
+        title: t('expenses.debtsYouAreOwed'),
+        mine: true,
+        tone: 'success' as ThemeColor,
+        data: owedToYou,
+      },
+      {
+        key: 'youOwe',
+        title: t('expenses.debtsYouOwe'),
+        mine: true,
+        tone: 'danger' as ThemeColor,
+        data: youOwe,
+      },
+      {
+        key: 'others',
+        title: t('expenses.debtsOthers'),
+        mine: false,
+        tone: 'textSecondary' as ThemeColor,
+        data: others,
+      },
+    ].filter((section) => section.data.length > 0);
+  }, [balances, currentMemberId, t]);
 
   const [settling, setSettling] = useState<DebtBalance | null>(null);
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
@@ -64,11 +110,20 @@ export function DebtSummaryModal({
               </ThemedText>
             </ThemedView>
           ) : (
-            <FlatList
-              data={balances}
+            <SectionList
+              sections={sections}
               keyExtractor={(item) => `${item.fromMemberId}-${item.toMemberId}`}
               contentContainerStyle={styles.listContent}
-              renderItem={({ item }) => {
+              renderSectionHeader={({ section }) => (
+                <ThemedText
+                  type="smallBold"
+                  themeColor={section.tone}
+                  style={styles.sectionHeader}
+                >
+                  {section.title.toUpperCase()}
+                </ThemedText>
+              )}
+              renderItem={({ item, section }) => {
                 const key = `${item.fromMemberId}-${item.toMemberId}`;
                 const expanded = expandedKey === key;
                 // A net balance can be made of expenses running both ways, so
@@ -87,8 +142,13 @@ export function DebtSummaryModal({
                     >
                       <View style={styles.rowTop}>
                         <ThemedText type="default" numberOfLines={1} style={styles.rowNames}>
-                          {nameById.get(item.fromMemberId)} {t('expenses.owesArrow')}{' '}
-                          {nameById.get(item.toMemberId)}
+                          {section.mine
+                            ? nameById.get(
+                                item.fromMemberId === currentMemberId
+                                  ? item.toMemberId
+                                  : item.fromMemberId,
+                              )
+                            : `${nameById.get(item.fromMemberId)} ${t('expenses.owesArrow')} ${nameById.get(item.toMemberId)}`}
                         </ThemedText>
                         <AppSymbol
                           name={
@@ -103,7 +163,7 @@ export function DebtSummaryModal({
                       <View style={styles.rowBottom}>
                         <ThemedText
                           type="smallBold"
-                          themeColor="danger"
+                          themeColor={section.tone}
                           numberOfLines={1}
                           style={styles.rowAmount}
                         >
@@ -280,6 +340,9 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: Spacing.four,
     gap: Spacing.two,
+  },
+  sectionHeader: {
+    marginTop: Spacing.three,
   },
   debtCard: {
     borderRadius: Spacing.three,

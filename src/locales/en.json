@@ -97,7 +97,10 @@
     "loadingReceipt": "Loading receipt…",
     "retryReceipt": "Reload receipt",
     "photoFormat": "Choose a JPEG, PNG or WebP photo.",
-    "debtBreakdownTitle": "Expenses behind this debt"
+    "debtBreakdownTitle": "Expenses behind this debt",
+    "debtsYouAreOwed": "You are owed",
+    "debtsYouOwe": "You owe",
+    "debtsOthers": "Between other housemates"
   },
   "list": {
     "title": "Shopping List",
