@@ -40,21 +40,25 @@ export function useShoppingItemsRealtime(householdId: string | undefined) {
   }, [householdId, queryClient]);
 }
 
-export function useAddShoppingItemMutation(householdId: string | undefined) {
+export function useAddShoppingItemsMutation(householdId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
-      name,
+      names,
       categoryId,
       addedBy,
     }: {
-      name: string;
+      names: string[];
       categoryId: string | null;
       addedBy: string;
-    }) => shoppingApi.addShoppingItemRemote(householdId ?? '', name, categoryId, addedBy),
-    onSuccess: (item) => {
+    }) => shoppingApi.addShoppingItemsRemote(householdId ?? '', names, categoryId, addedBy),
+    onSuccess: (items) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.shoppingItems(householdId) });
-      if (item) notifyHousehold({ kind: 'item_added', entityId: item.id });
+      // One add can insert several rows, but the notify function composes its
+      // text from a single item — pushing per row would fire N notifications
+      // for one action. The last row is the one at the top of their list.
+      const newest = items?.[items.length - 1];
+      if (newest) notifyHousehold({ kind: 'item_added', entityId: newest.id });
     },
   });
 }

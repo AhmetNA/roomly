@@ -12,6 +12,26 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useCategoriesQuery } from '@/hooks/use-categories';
+import { showAlert } from '@/lib/alert';
+
+const MAX_ITEMS = 50;
+const MAX_NAME_LENGTH = 200;
+
+// A shopping list is usually written in one go, so newlines and commas both
+// separate entries. Duplicates within a single add are a typo, not an intent.
+function parseItemNames(input: string) {
+  const seen = new Set<string>();
+  const names: string[] = [];
+  for (const part of input.split(/[\n,]+/)) {
+    const name = part.trim();
+    if (!name) continue;
+    const key = name.toLocaleLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    names.push(name);
+  }
+  return names;
+}
 
 export function AddShoppingItemModal({
   visible,
@@ -22,7 +42,7 @@ export function AddShoppingItemModal({
   visible: boolean;
   householdId: string | undefined;
   onClose: () => void;
-  onSubmit: (name: string, categoryId: string | null) => void;
+  onSubmit: (names: string[], categoryId: string | null) => void;
 }) {
   const { t } = useTranslation();
   const { data: categories = [] } = useCategoriesQuery(householdId);
@@ -31,6 +51,8 @@ export function AddShoppingItemModal({
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [managingCategories, setManagingCategories] = useState(false);
 
+  const names = parseItemNames(name);
+
   function handleClose() {
     setName('');
     setCategoryId(null);
@@ -38,9 +60,12 @@ export function AddShoppingItemModal({
   }
 
   function handleSubmit() {
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    onSubmit(trimmed, categoryId);
+    if (names.length === 0) return;
+    if (names.length > MAX_ITEMS || names.some((item) => item.length > MAX_NAME_LENGTH)) {
+      showAlert(t('list.itemsInvalid'));
+      return;
+    }
+    onSubmit(names, categoryId);
     handleClose();
   }
 
@@ -62,7 +87,13 @@ export function AddShoppingItemModal({
               onChangeText={setName}
               autoCapitalize="sentences"
               autoFocus
+              multiline
+              textAlignVertical="top"
+              style={styles.input}
             />
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('list.multiHint')}
+            </ThemedText>
 
             <ThemedText type="small" themeColor="textSecondary">
               {t('list.categoryLabel')}
@@ -81,9 +112,11 @@ export function AddShoppingItemModal({
             </Pressable>
 
             <PrimaryButton
-              label={t('common.add')}
+              label={
+                names.length > 1 ? t('list.addCount', { count: names.length }) : t('common.add')
+              }
               icon={{ ios: 'plus', android: 'add' }}
-              disabled={!name.trim()}
+              disabled={names.length === 0}
               onPress={handleSubmit}
             />
           </ThemedView>
@@ -106,5 +139,8 @@ const styles = StyleSheet.create({
   form: {
     paddingHorizontal: Spacing.four,
     gap: Spacing.two,
+  },
+  input: {
+    minHeight: 96,
   },
 });

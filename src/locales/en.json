@@ -105,13 +105,16 @@
     "addButton": "Add",
     "addItemTitle": "What's needed?",
     "itemNameLabel": "What's needed",
-    "itemNamePlaceholder": "e.g. Milk",
+    "itemNamePlaceholder": "Milk\nBread\nDetergent",
     "categoryLabel": "Category",
     "noCategory": "Uncategorized",
     "manageCategories": "Manage categories",
     "toBuySection": "To buy",
     "purchasedSection": "Purchased",
-    "deleteItemConfirm": "Delete this item?"
+    "deleteItemConfirm": "Delete this item?",
+    "multiHint": "One per line, or separated by commas — each becomes its own item.",
+    "addCount": "Add {{count}} items",
+    "itemsInvalid": "You can add at most 50 items, and each can be at most 200 characters."
   },
   "statistics": {
     "title": "Statistics",

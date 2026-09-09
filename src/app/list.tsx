@@ -24,7 +24,7 @@ import { useHouseholdQuery, useMembersQuery } from '@/hooks/use-household';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
 import { useSession } from '@/hooks/use-session';
 import {
-  useAddShoppingItemMutation,
+  useAddShoppingItemsMutation,
   useRemoveShoppingItemMutation,
   useShoppingItemsQuery,
   useShoppingItemsRealtime,
@@ -70,7 +70,7 @@ export default function ShoppingListScreen() {
     itemsQuery.refetch,
   ]);
 
-  const addItem = useAddShoppingItemMutation(householdId);
+  const addItems = useAddShoppingItemsMutation(householdId);
   const toggleItem = useToggleShoppingItemMutation(householdId);
   const removeItem = useRemoveShoppingItemMutation(householdId);
 
@@ -287,10 +287,10 @@ export default function ShoppingListScreen() {
         visible={modalVisible}
         householdId={householdId}
         onClose={() => setModalVisible(false)}
-        onSubmit={(name, categoryId) => {
+        onSubmit={(names, categoryId) => {
           const myMember = members.find((member) => member.user_id === session?.user.id);
           if (!householdId || !myMember) return;
-          addItem.mutate({ name, categoryId, addedBy: myMember.id });
+          addItems.mutate({ names, categoryId, addedBy: myMember.id });
         }}
       />
     </ThemedView>

@@ -105,13 +105,16 @@
     "addButton": "Ekle",
     "addItemTitle": "Ne alınacak?",
     "itemNameLabel": "Ne alınacak",
-    "itemNamePlaceholder": "Örn. Süt",
+    "itemNamePlaceholder": "Süt\nEkmek\nDeterjan",
     "categoryLabel": "Kategori",
     "noCategory": "Kategorisiz",
     "manageCategories": "Kategorileri yönet",
     "toBuySection": "Alınacak",
     "purchasedSection": "Alındı",
-    "deleteItemConfirm": "Bu öğeyi silmek istiyor musun?"
+    "deleteItemConfirm": "Bu öğeyi silmek istiyor musun?",
+    "multiHint": "Her satıra bir tane yaz ya da virgülle ayır — hepsi ayrı madde olarak eklenir.",
+    "addCount": "{{count}} madde ekle",
+    "itemsInvalid": "En fazla 50 madde ekleyebilirsin; her madde en fazla 200 karakter olabilir."
   },
   "statistics": {
     "title": "İstatistikler",

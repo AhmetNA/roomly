@@ -7,22 +7,33 @@ export async function fetchShoppingItems(): Promise<ShoppingItemRow[]> {
   const { data, error } = await supabase
     .from('shopping_items')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    // A batch insert stamps every row with the same now(), so created_at alone
+    // leaves their order up to the planner and it can change between refetches.
+    .order('id', { ascending: false });
   if (error) throw error;
   return data;
 }
 
-export async function addShoppingItemRemote(
+// One entry per name: typing a few things at once is the common case, so they
+// go in as a single insert rather than a request per item.
+export async function addShoppingItemsRemote(
   householdId: string,
-  name: string,
+  names: string[],
   categoryId: string | null,
   addedBy: string,
 ) {
   const { data, error } = await supabase
     .from('shopping_items')
-    .insert({ household_id: householdId, name, category_id: categoryId, added_by: addedBy })
-    .select('id')
-    .single();
+    .insert(
+      names.map((name) => ({
+        household_id: householdId,
+        name,
+        category_id: categoryId,
+        added_by: addedBy,
+      })),
+    )
+    .select('id');
   if (error) throw error;
   return data;
 }
