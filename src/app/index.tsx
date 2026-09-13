@@ -76,6 +76,17 @@ export default function ExpensesScreen() {
       }),
     [expenses, i18n.language, t],
   );
+  const [collapsedDayKeys, setCollapsedDayKeys] = useState<Set<string>>(() => new Set());
+  const visibleSections = useMemo(
+    () =>
+      sections.map((section) => ({
+        ...section,
+        itemCount: section.data.length,
+        data: collapsedDayKeys.has(section.key) ? [] : section.data,
+        collapsed: collapsedDayKeys.has(section.key),
+      })),
+    [collapsedDayKeys, sections],
+  );
 
   const [addVisible, setAddVisible] = useState(false);
   const [debtVisible, setDebtVisible] = useState(false);
@@ -141,7 +152,7 @@ export default function ExpensesScreen() {
         </ThemedView>
 
         <SectionList
-          sections={sections}
+          sections={visibleSections}
           keyExtractor={(expense) => expense.id}
           contentContainerStyle={[
             styles.listContent,
@@ -162,9 +173,43 @@ export default function ExpensesScreen() {
             />
           }
           renderSectionHeader={({ section }) => (
-            <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionHeader}>
-              {section.title.toUpperCase()}
-            </ThemedText>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: !section.collapsed }}
+              accessibilityLabel={t('expenses.daySectionAccessibility', {
+                date: section.title,
+                count: section.itemCount,
+              })}
+              onPress={() =>
+                setCollapsedDayKeys((current) => {
+                  const next = new Set(current);
+                  if (next.has(section.key)) next.delete(section.key);
+                  else next.add(section.key);
+                  return next;
+                })
+              }
+              style={({ pressed }) => [
+                styles.sectionHeader,
+                pressed && styles.sectionHeaderPressed,
+              ]}
+            >
+              <ThemedText type="smallBold" themeColor="textSecondary">
+                {section.title.toUpperCase()}
+              </ThemedText>
+              <View style={styles.sectionHeaderMeta}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {section.itemCount}
+                </ThemedText>
+                <AppSymbol
+                  name={{
+                    ios: section.collapsed ? 'chevron.down' : 'chevron.up',
+                    android: section.collapsed ? 'expand_more' : 'expand_less',
+                  }}
+                  size={17}
+                  tintColor={theme.textSecondary}
+                />
+              </View>
+            </Pressable>
           )}
           renderItem={({ item }) => {
             const isSettled = isExpenseFullySettled(item);
@@ -341,9 +386,16 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: Spacing.three,
     marginBottom: Spacing.one,
+    minHeight: 44,
+    paddingVertical: Spacing.one,
   },
+  sectionHeaderMeta: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
+  sectionHeaderPressed: { opacity: 0.65 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

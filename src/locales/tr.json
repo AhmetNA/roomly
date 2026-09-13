@@ -107,7 +107,8 @@
     "editTitle": "Harcamayı Düzenle",
     "editButton": "Düzenle",
     "editSettledError": "Bu harcamanın borcu ödendi olarak işaretlenmiş, artık düzenlenemez. Değiştirmek için silip yeniden ekle.",
-    "receiptLocked": "Fiş fotoğrafı düzenlemede değiştirilemez."
+    "receiptLocked": "Fiş fotoğrafı düzenlemede değiştirilemez.",
+    "daySectionAccessibility": "{{date}}, {{count}} harcama. Aç veya kapat."
   },
   "list": {
     "title": "İhtiyaç Listesi",
@@ -160,6 +161,7 @@
     },
     "totalShare": "Toplam kişisel pay",
     "totalPaid": "Toplam ödediğim",
+    "netBalance": "Net alacağım / borcum",
     "expenses": "Harcama dökümü",
     "expenseTotal": "Toplam",
     "myShare": "Benim payım",

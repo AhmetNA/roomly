@@ -107,7 +107,8 @@
     "editTitle": "Edit Expense",
     "editButton": "Edit",
     "editSettledError": "This expense has been settled, so it can no longer be edited. Delete it and add it again to change it.",
-    "receiptLocked": "The receipt photo cannot be changed while editing."
+    "receiptLocked": "The receipt photo cannot be changed while editing.",
+    "daySectionAccessibility": "{{date}}, {{count}} expenses. Expand or collapse."
   },
   "list": {
     "title": "Shopping List",
@@ -160,6 +161,7 @@
     },
     "totalShare": "My total share",
     "totalPaid": "My total paid",
+    "netBalance": "Net owed to me / I owe",
     "expenses": "Expense breakdown",
     "expenseTotal": "Total",
     "myShare": "My share",

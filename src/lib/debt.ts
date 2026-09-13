@@ -9,6 +9,11 @@ export type DebtBalance = {
   currencyCode: CurrencyCode;
 };
 
+export type MemberCurrencyBalance = {
+  currencyCode: CurrencyCode;
+  amount: number;
+};
+
 // Every member's net position in cents: negative means they owe the household
 // that much, positive means the household owes them. Built from the materialized
 // expense_debts ledger (already proportional across multiple payers — see
@@ -89,6 +94,34 @@ export function computeSimplifiedTransfers(
   }
 
   return transfers;
+}
+
+// Positive means the member should receive money; negative means they owe it.
+// Unlike currencies remain separate and are never netted against each other.
+export function computeMemberCurrencyBalances(
+  transfers: DebtBalance[],
+  memberId: string | undefined,
+): MemberCurrencyBalance[] {
+  if (!memberId) return [];
+  const centsByCurrency = new Map<CurrencyCode, number>();
+  for (const transfer of transfers) {
+    const cents = Math.round(transfer.amount * 100);
+    if (transfer.toMemberId === memberId) {
+      centsByCurrency.set(
+        transfer.currencyCode,
+        (centsByCurrency.get(transfer.currencyCode) ?? 0) + cents,
+      );
+    }
+    if (transfer.fromMemberId === memberId) {
+      centsByCurrency.set(
+        transfer.currencyCode,
+        (centsByCurrency.get(transfer.currencyCode) ?? 0) - cents,
+      );
+    }
+  }
+  return [...centsByCurrency]
+    .filter(([, cents]) => cents !== 0)
+    .map(([currencyCode, cents]) => ({ currencyCode, amount: cents / 100 }));
 }
 
 // An expense with no one still owing anyone else for it reads as "settled" in

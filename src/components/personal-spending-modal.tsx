@@ -11,10 +11,17 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { CardShadow, Spacing } from '@/constants/theme';
 import { useExpensesQuery } from '@/hooks/use-expenses';
+import { useSettlementsQuery } from '@/hooks/use-settlements';
 import { useTheme } from '@/hooks/use-theme';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
 import { computePersonalSpending, type PersonalSpendingPeriod } from '@/lib/personal-spending';
-import { formatMoney, normalizeCurrencyCode, type CurrencyCode } from '@/lib/currency';
+import {
+  CURRENCY_CODES,
+  formatMoney,
+  normalizeCurrencyCode,
+  type CurrencyCode,
+} from '@/lib/currency';
+import { computeMemberCurrencyBalances, computeSimplifiedTransfers } from '@/lib/debt';
 
 export function PersonalSpendingModal({
   visible,
@@ -34,11 +41,33 @@ export function PersonalSpendingModal({
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const expensesQuery = useExpensesQuery(householdId);
+  const settlementsQuery = useSettlementsQuery(householdId);
   const [period, setPeriod] = useState<PersonalSpendingPeriod>('thisMonth');
   const summary = useMemo(
     () => computePersonalSpending(expensesQuery.data ?? [], currentMemberId, period),
     [currentMemberId, expensesQuery.data, period],
   );
+  const netByCurrency = useMemo(
+    () =>
+      new Map(
+        computeMemberCurrencyBalances(
+          computeSimplifiedTransfers(expensesQuery.data ?? [], settlementsQuery.data ?? []),
+          currentMemberId,
+        ).map((balance) => [balance.currencyCode, balance.amount]),
+      ),
+    [currentMemberId, expensesQuery.data, settlementsQuery.data],
+  );
+  const currencySummaries = useMemo(() => {
+    const totals = new Map(summary.totals.map((total) => [total.currencyCode, total]));
+    return CURRENCY_CODES.filter((code) => totals.has(code) || netByCurrency.has(code)).map(
+      (currencyCode) => ({
+        currencyCode,
+        totalShareCents: totals.get(currencyCode)?.totalShareCents ?? 0,
+        totalPaidCents: totals.get(currencyCode)?.totalPaidCents ?? 0,
+        netAmount: netByCurrency.get(currencyCode) ?? 0,
+      }),
+    );
+  }, [netByCurrency, summary.totals]);
   const dateFormatter = useMemo(
     () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }),
     [i18n.language],
@@ -80,14 +109,14 @@ export function PersonalSpendingModal({
             })}
           </View>
 
-          {expensesQuery.isLoading ? (
+          {expensesQuery.isLoading || settlementsQuery.isLoading ? (
             <View style={styles.centered}>
               <ActivityIndicator color={theme.accent} />
               <ThemedText type="small" themeColor="textSecondary">
                 {t('personalSpending.loading')}
               </ThemedText>
             </View>
-          ) : expensesQuery.isError ? (
+          ) : expensesQuery.isError || settlementsQuery.isError ? (
             <View style={styles.centered}>
               <AppSymbol
                 name={{ ios: 'exclamationmark.triangle', android: 'error_outline' }}
@@ -101,7 +130,10 @@ export function PersonalSpendingModal({
                 label={t('common.retry')}
                 variant="secondary"
                 icon={{ ios: 'arrow.clockwise', android: 'refresh' }}
-                onPress={() => expensesQuery.refetch()}
+                onPress={() => {
+                  expensesQuery.refetch();
+                  settlementsQuery.refetch();
+                }}
               />
             </View>
           ) : (
@@ -115,7 +147,7 @@ export function PersonalSpendingModal({
               ]}
               ListHeaderComponent={
                 <View style={styles.summaryList}>
-                  {summary.totals.map((total) => (
+                  {currencySummaries.map((total) => (
                     <View key={total.currencyCode} style={styles.summaryRow}>
                       <ThemedView
                         style={[styles.summaryBlock, { backgroundColor: `${theme.danger}12` }]}
@@ -143,6 +175,29 @@ export function PersonalSpendingModal({
                           style={styles.summaryAmount}
                         >
                           {formatCents(total.totalPaidCents, total.currencyCode)}
+                        </ThemedText>
+                      </ThemedView>
+                      <ThemedView
+                        style={[
+                          styles.summaryBlock,
+                          {
+                            backgroundColor:
+                              total.netAmount >= 0 ? `${theme.success}12` : `${theme.danger}12`,
+                          },
+                        ]}
+                      >
+                        <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+                          {t('personalSpending.netBalance')}
+                        </ThemedText>
+                        <ThemedText
+                          type="subtitle"
+                          themeColor={total.netAmount >= 0 ? 'success' : 'danger'}
+                          style={styles.summaryAmount}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                        >
+                          {total.netAmount > 0 ? '+' : ''}
+                          {formatMoney(total.netAmount, total.currencyCode, i18n.language)}
                         </ThemedText>
                       </ThemedView>
                     </View>
@@ -305,7 +360,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     gap: Spacing.one,
   },
-  summaryAmount: { fontSize: 24, lineHeight: 30 },
+  summaryAmount: { fontSize: 20, lineHeight: 26 },
   sectionTitle: { marginTop: Spacing.two, marginBottom: Spacing.one },
   expenseRow: { borderRadius: Spacing.three, overflow: 'hidden', ...CardShadow },
   expensePressed: { opacity: 0.76 },

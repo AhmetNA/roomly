@@ -60,7 +60,7 @@ export function AddExpenseModal({
   const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false);
   const [payerIds, setPayerIds] = useState<string[]>(currentMemberId ? [currentMemberId] : []);
   const [paidText, setPaidText] = useState<Record<string, string>>({});
-  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<string | null | undefined>(undefined);
   const [splitType, setSplitType] = useState<SplitType>('equal');
   const [participantIds, setParticipantIds] = useState<string[]>(members.map((m) => m.id));
   const [sharesText, setSharesText] = useState<Record<string, string>>({});
@@ -87,6 +87,17 @@ export function AddExpenseModal({
   const fixedMismatch =
     splitType === 'fixed' && isAmountValid && Math.abs(fixedTotal - amount) > 0.01;
 
+  const marketCategoryId = useMemo(
+    () =>
+      categories.find(
+        (category) =>
+          category.icon === 'shopping' || category.name.trim().toLocaleLowerCase('tr') === 'market',
+      )?.id ?? null,
+    [categories],
+  );
+
+  const selectedCategoryId = categoryId === undefined ? marketCategoryId : categoryId;
+
   const canSubmit =
     title.trim().length > 0 &&
     isAmountValid &&
@@ -104,7 +115,7 @@ export function AddExpenseModal({
     setAmountText('');
     setCurrencyCode('TRY');
     setCurrencyMenuOpen(false);
-    setCategoryId(null);
+    setCategoryId(undefined);
     setSplitType('equal');
     setSharesText({});
     setFixedText({});
@@ -163,7 +174,7 @@ export function AddExpenseModal({
       if (editingExpense) {
         await updateExpense.mutateAsync({
           expenseId: editingExpense.id,
-          categoryId,
+          categoryId: selectedCategoryId,
           title: title.trim(),
           totalAmount: Math.round(amount * 100) / 100,
           currencyCode,
@@ -175,7 +186,7 @@ export function AddExpenseModal({
       } else {
         await createExpense.mutateAsync({
           householdId,
-          categoryId,
+          categoryId: selectedCategoryId,
           title: title.trim(),
           totalAmount: Math.round(amount * 100) / 100,
           currencyCode,
@@ -239,6 +250,7 @@ export function AddExpenseModal({
         setPayerIds(currentMemberId ? [currentMemberId] : []);
         setParticipantIds(members.map((m) => m.id));
         setCurrencyCode('TRY');
+        setCategoryId(undefined);
       }}
     >
       <ThemedView style={styles.container}>
@@ -366,7 +378,7 @@ export function AddExpenseModal({
             </ThemedText>
             <CategoryPicker
               categories={categories}
-              selectedId={categoryId}
+              selectedId={selectedCategoryId}
               onSelect={setCategoryId}
               noneLabel={t('list.noCategory')}
             />

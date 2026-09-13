@@ -6,7 +6,7 @@ export function groupByDateSection<T>(
   getDateString: (item: T) => string,
   locale: string,
   labels: { today: string; yesterday: string },
-): { title: string; data: T[] }[] {
+): { key: string; title: string; data: T[] }[] {
   const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const today = startOfDay(new Date());
   const yesterday = new Date(today);
@@ -37,5 +37,5 @@ export function groupByDateSection<T>(
     section.data.push(item);
   }
 
-  return sections.map(({ title, data }) => ({ title, data }));
+  return sections.map(({ key, title, data }) => ({ key: String(key), title, data }));
 }

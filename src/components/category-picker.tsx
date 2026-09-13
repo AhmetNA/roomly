@@ -24,14 +24,6 @@ export function CategoryPicker({
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-      {allowNone && (
-        <Chip
-          label={noneLabel}
-          icon={null}
-          selected={selectedId === null}
-          onPress={() => onSelect(null)}
-        />
-      )}
       {categories.map((category) => (
         <Chip
           key={category.id}
@@ -41,6 +33,14 @@ export function CategoryPicker({
           onPress={() => onSelect(category.id)}
         />
       ))}
+      {allowNone && (
+        <Chip
+          label={noneLabel}
+          icon={null}
+          selected={selectedId === null}
+          onPress={() => onSelect(null)}
+        />
+      )}
     </ScrollView>
   );
 
