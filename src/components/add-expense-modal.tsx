@@ -312,9 +312,6 @@ export function AddExpenseModal({
                       <ThemedText type="default" style={styles.currencyOptionSymbol}>
                         {CURRENCY_SYMBOLS[code]}
                       </ThemedText>
-                      <ThemedText type="small" themeColor="textSecondary">
-                        {code}
-                      </ThemedText>
                     </Pressable>
                   ))}
                 </ThemedView>

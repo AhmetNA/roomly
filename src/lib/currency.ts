@@ -13,10 +13,9 @@ export function normalizeCurrencyCode(value: string | null | undefined): Currenc
 }
 
 export function formatMoney(amount: number, currency: CurrencyCode, locale: string): string {
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency,
+  const value = new Intl.NumberFormat(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+  return `${value} ${CURRENCY_SYMBOLS[currency]}`;
 }
