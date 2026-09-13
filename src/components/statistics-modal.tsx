@@ -12,6 +12,7 @@ import { useTheme } from '@/hooks/use-theme';
 import type { CategoryRow } from '@/lib/api/categories';
 import type { MemberRow } from '@/lib/api/household';
 import { computeStatistics, type StatisticsPeriod } from '@/lib/statistics';
+import { formatMoney, type CurrencyCode } from '@/lib/currency';
 
 export function StatisticsModal({
   visible,
@@ -26,7 +27,7 @@ export function StatisticsModal({
   categories: CategoryRow[];
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const { data: expenses = [] } = useExpensesQuery(householdId);
   const [period, setPeriod] = useState<StatisticsPeriod>('month');
@@ -68,47 +69,64 @@ export function StatisticsModal({
               ))}
             </View>
 
-            <ThemedView style={[styles.totalCard, { backgroundColor: `${theme.accent}17` }]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                {t('statistics.totalLabel')}
-              </ThemedText>
-              <ThemedText type="title" themeColor="accent" style={styles.totalAmount}>
-                {stats.totalAmount.toFixed(2)}
-              </ThemedText>
-            </ThemedView>
-
-            {stats.totalAmount === 0 ? (
+            {stats.length === 0 ? (
               <ThemedText type="default" themeColor="textSecondary" style={styles.empty}>
                 {t('statistics.empty')}
               </ThemedText>
             ) : (
-              <>
-                <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
-                  {t('statistics.byMemberTitle').toUpperCase()}
-                </ThemedText>
-                {[...stats.byMember.entries()]
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([memberId, amount]) => (
-                    <StatRow key={memberId} label={nameById.get(memberId) ?? '—'} amount={amount} />
-                  ))}
+              stats.map((group) => (
+                <View key={group.currencyCode} style={styles.currencyGroup}>
+                  <ThemedView style={[styles.totalCard, { backgroundColor: `${theme.accent}17` }]}>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {t('statistics.totalLabel')}
+                    </ThemedText>
+                    <ThemedText type="title" themeColor="accent" style={styles.totalAmount}>
+                      {formatMoney(group.totalAmount, group.currencyCode, i18n.language)}
+                    </ThemedText>
+                  </ThemedView>
+                  <ThemedText
+                    type="smallBold"
+                    themeColor="textSecondary"
+                    style={styles.sectionTitle}
+                  >
+                    {t('statistics.byMemberTitle').toUpperCase()}
+                  </ThemedText>
+                  {[...group.byMember.entries()]
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([memberId, amount]) => (
+                      <StatRow
+                        key={memberId}
+                        label={nameById.get(memberId) ?? '—'}
+                        amount={amount}
+                        currencyCode={group.currencyCode}
+                        locale={i18n.language}
+                      />
+                    ))}
 
-                <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
-                  {t('statistics.byCategoryTitle').toUpperCase()}
-                </ThemedText>
-                {[...stats.byCategory.entries()]
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([categoryId, amount]) => (
-                    <StatRow
-                      key={categoryId ?? 'none'}
-                      label={
-                        categoryId
-                          ? (categoryNameById.get(categoryId) ?? '—')
-                          : t('statistics.uncategorized')
-                      }
-                      amount={amount}
-                    />
-                  ))}
-              </>
+                  <ThemedText
+                    type="smallBold"
+                    themeColor="textSecondary"
+                    style={styles.sectionTitle}
+                  >
+                    {t('statistics.byCategoryTitle').toUpperCase()}
+                  </ThemedText>
+                  {[...group.byCategory.entries()]
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([categoryId, amount]) => (
+                      <StatRow
+                        key={categoryId ?? 'none'}
+                        label={
+                          categoryId
+                            ? (categoryNameById.get(categoryId) ?? '—')
+                            : t('statistics.uncategorized')
+                        }
+                        amount={amount}
+                        currencyCode={group.currencyCode}
+                        locale={i18n.language}
+                      />
+                    ))}
+                </View>
+              ))
             )}
           </ScrollView>
         </SafeAreaView>
@@ -117,11 +135,21 @@ export function StatisticsModal({
   );
 }
 
-function StatRow({ label, amount }: { label: string; amount: number }) {
+function StatRow({
+  label,
+  amount,
+  currencyCode,
+  locale,
+}: {
+  label: string;
+  amount: number;
+  currencyCode: CurrencyCode;
+  locale: string;
+}) {
   return (
     <ThemedView type="backgroundElement" style={styles.row}>
       <ThemedText type="default">{label}</ThemedText>
-      <ThemedText type="smallBold">{amount.toFixed(2)}</ThemedText>
+      <ThemedText type="smallBold">{formatMoney(amount, currencyCode, locale)}</ThemedText>
     </ThemedView>
   );
 }
@@ -152,6 +180,7 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
     marginTop: Spacing.two,
   },
+  currencyGroup: { gap: Spacing.two },
   totalAmount: {
     fontSize: 36,
     lineHeight: 42,

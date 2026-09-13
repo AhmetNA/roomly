@@ -20,6 +20,9 @@
       "generic": "Something went wrong, please try again"
     }
   },
+  "household": {
+    "loadError": "Household details couldn't be loaded. Check your connection and try again."
+  },
   "onboarding": {
     "title": "Set Up Household",
     "subtitle": "Share expenses and a shopping list with your roommates",
@@ -58,6 +61,7 @@
     "titlePlaceholder": "e.g. Groceries",
     "amountLabel": "Total amount",
     "amountPlaceholder": "0.00",
+    "currencyLabel": "Currency",
     "paidByLabel": "Paid by",
     "categoryLabel": "Category",
     "splitTypeLabel": "Split type",
@@ -97,7 +101,6 @@
     "loadingReceipt": "Loading receipt…",
     "retryReceipt": "Reload receipt",
     "photoFormat": "Choose a JPEG, PNG or WebP photo.",
-    "debtsSimplifiedNote": "Debts are simplified into the fewest transfers that clear them (at most one payment per person). A payment may therefore settle your overall balance rather than one specific expense.",
     "debtsYouAreOwed": "You are owed",
     "debtsYouOwe": "You owe",
     "debtsOthers": "Between other housemates",
@@ -124,7 +127,16 @@
     "addCount": "Add {{count}} items",
     "itemsInvalid": "You can add at most 50 items, and each can be at most 200 characters.",
     "editItemTitle": "Edit Item",
-    "editItemHint": "Long-press an item to edit it"
+    "editItemHint": "Long-press an item to edit it",
+    "shared": "Shared",
+    "myList": "My list — {{name}}",
+    "personalListName": "{{name}}'s list",
+    "formerMemberList": "Former member {{number}}",
+    "forWhom": "Who is it for?",
+    "scopeLockedHint": "The list owner cannot be changed while editing.",
+    "personalEmpty": "This personal list is empty",
+    "personalEmptyHint": "Items this user adds to their own list will appear here.",
+    "addedBy": "Added by {{name}}"
   },
   "statistics": {
     "title": "Statistics",
@@ -136,6 +148,28 @@
     "byCategoryTitle": "By Category",
     "uncategorized": "Uncategorized",
     "empty": "No expenses in this period"
+  },
+  "personalSpending": {
+    "open": "Where did my money go?",
+    "openHint": "See your shares and the payments you made",
+    "title": "Where did my money go?",
+    "period": {
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "all": "All Time"
+    },
+    "totalShare": "My total share",
+    "totalPaid": "My total paid",
+    "expenses": "Expense breakdown",
+    "expenseTotal": "Total",
+    "myShare": "My share",
+    "myPaid": "I paid",
+    "loading": "Loading your expense breakdown…",
+    "error": "Your expense breakdown could not be loaded. Check your connection and try again.",
+    "empty": "No personal expenses in this period",
+    "emptyHint": "Expenses you shared or paid for will appear here.",
+    "openExpense": "Open details for {{title}}",
+    "expenseAccessibilityLabel": "{{title}}, {{date}}. Total {{total}}. My share {{share}}. I paid {{paid}}. Open details."
   },
   "categories": {
     "title": "Categories",
@@ -173,6 +207,7 @@
     "comingSoon": "Coming soon",
     "today": "Today",
     "yesterday": "Yesterday",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "retry": "Try again"
   }
 }

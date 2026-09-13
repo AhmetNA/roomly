@@ -16,6 +16,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { showAlert } from '@/lib/alert';
 import type { MemberRow } from '@/lib/api/household';
 import { computeSimplifiedTransfers, type DebtBalance } from '@/lib/debt';
+import { formatMoney } from '@/lib/currency';
 
 type DebtSection = {
   key: string;
@@ -33,14 +34,18 @@ export function DebtSummaryModal({
   members,
   currentMemberId,
   onClose,
+  onDismiss,
+  onOpenPersonalSpending,
 }: {
   visible: boolean;
   householdId: string | undefined;
   members: MemberRow[];
   currentMemberId: string | undefined;
   onClose: () => void;
+  onDismiss?: () => void;
+  onOpenPersonalSpending: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const { data: expenses = [] } = useExpensesQuery(householdId);
   const { data: settlements = [] } = useSettlementsQuery(householdId);
@@ -93,6 +98,7 @@ export function DebtSummaryModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={onClose}
+      onDismiss={onDismiss}
     >
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.container}>
@@ -107,23 +113,18 @@ export function DebtSummaryModal({
               <ThemedText type="default" themeColor="textSecondary" style={styles.emptyText}>
                 {t('expenses.noDebts')}
               </ThemedText>
+              <PersonalSpendingEntry onPress={onOpenPersonalSpending} />
             </ThemedView>
           ) : (
             <SectionList
               sections={sections}
-              keyExtractor={(item) => `${item.fromMemberId}-${item.toMemberId}`}
-              contentContainerStyle={styles.listContent}
-              ListHeaderComponent={
-                <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
-                  {t('expenses.debtsSimplifiedNote')}
-                </ThemedText>
+              keyExtractor={(item) =>
+                `${item.fromMemberId}-${item.toMemberId}-${item.currencyCode}`
               }
+              contentContainerStyle={styles.listContent}
+              ListFooterComponent={<PersonalSpendingEntry onPress={onOpenPersonalSpending} />}
               renderSectionHeader={({ section }) => (
-                <ThemedText
-                  type="smallBold"
-                  themeColor={section.tone}
-                  style={styles.sectionHeader}
-                >
+                <ThemedText type="smallBold" themeColor={section.tone} style={styles.sectionHeader}>
                   {section.title.toUpperCase()}
                 </ThemedText>
               )}
@@ -148,7 +149,7 @@ export function DebtSummaryModal({
                         numberOfLines={1}
                         style={styles.rowAmount}
                       >
-                        {item.amount.toFixed(2)}
+                        {formatMoney(item.amount, item.currencyCode, i18n.language)}
                       </ThemedText>
                       <Pressable
                         onPress={() => setSettling(item)}
@@ -185,6 +186,43 @@ export function DebtSummaryModal({
   );
 }
 
+function PersonalSpendingEntry({ onPress }: { onPress: () => void }) {
+  const { t } = useTranslation();
+  const theme = useTheme();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={t('personalSpending.open')}
+      style={styles.personalSpendingEntryPressable}
+    >
+      <ThemedView type="backgroundElement" style={styles.personalSpendingEntry}>
+        <View style={[styles.personalSpendingIcon, { backgroundColor: `${theme.accent}17` }]}>
+          <AppSymbol
+            name={{ ios: 'wallet.bifold', android: 'account_balance_wallet' }}
+            size={22}
+            tintColor={theme.accent}
+          />
+        </View>
+        <View style={styles.personalSpendingCopy}>
+          <ThemedText type="default" style={styles.personalSpendingTitle}>
+            {t('personalSpending.open')}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {t('personalSpending.openHint')}
+          </ThemedText>
+        </View>
+        <AppSymbol
+          name={{ ios: 'chevron.right', android: 'chevron_right' }}
+          size={18}
+          tintColor={theme.textSecondary}
+        />
+      </ThemedView>
+    </Pressable>
+  );
+}
+
 // Settling a debt is usually the moment someone's about to actually transfer
 // the money — showing the recipient's IBAN right here (copyable) means they
 // don't have to leave this screen and go find it on the People tab first.
@@ -203,7 +241,7 @@ function SettleConfirmModal({
   householdId: string | undefined;
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const recordSettlement = useRecordSettlementMutation(householdId);
 
@@ -219,6 +257,7 @@ function SettleConfirmModal({
       fromMemberId: balance.fromMemberId,
       toMemberId: balance.toMemberId,
       amount: balance.amount,
+      currencyCode: balance.currencyCode,
     });
     onClose();
   }
@@ -232,7 +271,7 @@ function SettleConfirmModal({
               {fromName} {t('expenses.owesArrow')} {toName}
             </ThemedText>
             <ThemedText type="title" themeColor="danger" style={styles.cardAmount}>
-              {balance.amount.toFixed(2)}
+              {formatMoney(balance.amount, balance.currencyCode, i18n.language)}
             </ThemedText>
 
             {toMember?.iban ? (
@@ -292,16 +331,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.two,
+    paddingHorizontal: Spacing.four,
   },
+  personalSpendingEntryPressable: { width: '100%', marginTop: Spacing.three },
+  personalSpendingEntry: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    padding: Spacing.three,
+    borderRadius: Spacing.three,
+    ...CardShadow,
+  },
+  personalSpendingIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  personalSpendingCopy: { flex: 1, gap: Spacing.half },
+  personalSpendingTitle: { fontWeight: '600' },
   emptyText: {
     textAlign: 'center',
   },
   listContent: {
     paddingHorizontal: Spacing.four,
     gap: Spacing.two,
-  },
-  note: {
-    marginTop: Spacing.three,
   },
   sectionHeader: {
     marginTop: Spacing.three,

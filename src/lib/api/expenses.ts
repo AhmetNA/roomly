@@ -1,4 +1,5 @@
 import { uploadReceipt, type ReceiptPhoto } from '@/lib/api/receipts';
+import type { CurrencyCode } from '@/lib/currency';
 import { supabase } from '@/lib/supabase';
 import type { Tables } from '@/types/database';
 
@@ -39,6 +40,7 @@ export async function createExpenseRemote(input: {
   categoryId: string | null;
   title: string;
   totalAmount: number;
+  currencyCode: CurrencyCode;
   splitType: 'equal' | 'shares' | 'fixed';
   splits: SplitInput[];
   payments: PaymentInput[];
@@ -49,6 +51,7 @@ export async function createExpenseRemote(input: {
     ? await uploadReceipt(input.householdId, input.receipt)
     : undefined;
   const { data, error } = await supabase.rpc('create_expense_with_details', {
+    p_currency_code: input.currencyCode,
     p_items: input.items ?? [],
     p_receipt_path: receiptPath,
     p_household_id: input.householdId,
@@ -82,12 +85,14 @@ export async function updateExpenseRemote(input: {
   categoryId: string | null;
   title: string;
   totalAmount: number;
+  currencyCode: CurrencyCode;
   splitType: 'equal' | 'shares' | 'fixed';
   splits: SplitInput[];
   payments: PaymentInput[];
   items?: string[];
 }) {
   const { data, error } = await supabase.rpc('update_expense_with_details', {
+    p_currency_code: input.currencyCode,
     p_expense_id: input.expenseId,
     p_category_id: input.categoryId,
     p_title: input.title,

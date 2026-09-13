@@ -11,10 +11,12 @@
   - Sabit tutarlarla bölüşüm (örn. "sen 50 TL, ben 100 TL öde" gibi kişi başı manuel tutar)
   - Sadece belirli kişiler arasında bölüşüm (herkes değil, seçilenler) — eşit ve hisse bazlı bölüşümle birlikte kullanılabilir
 - Harcamaya kategori atanabilir (bkz. "Kategoriler" — ihtiyaç listesiyle aynı dinamik kategori sistemi kullanılır).
+- Her harcamanın para birimi `₺` (varsayılan), `$` veya `€` olarak seçilir ve tutarla birlikte saklanıp gösterilir.
 - Her kullanıcı için özet: "kime ne kadar borçlusun", "kimden ne kadar alacaklısın".
 - **Kolay borç kapatma**: bir borcu tek dokunuşla "ödendi" işaretleme (gerçek para transferi yapılmaz, sadece kayıt — gerçek ödeme IBAN üzerinden kullanıcıların kendi arasında yapılır).
 - Basitleştirilmiş borç kapatma önerisi (A, B'ye borçlu; B, C'ye borçlu ise sistem A→C şeklinde öneri sunabilir — Splitwise'daki "simplify debts" mantığı) — MVP sonrası.
 - Harcama geçmişi listesi.
+- **Param nereye gitti?** dökümü: Bu ay / geçen ay / tüm zamanlar için kullanıcının harcamalardaki kişisel payını ve harcama sırasında ödediği tutarı ayrı toplamlar ve harcama satırları halinde gösterir. Borç kapatma kayıtları bu döküme harcama olarak eklenmez.
 
 ## 2. İstatistikler
 
@@ -25,7 +27,9 @@
 
 ## 3. İhtiyaç / Alışveriş Listesi
 
-- Ortak liste: herkes ekleyebilir, görebilir, işaretleyebilir.
+- Ortak liste ve kullanıcı bazlı kişisel listeler bulunur. Kişisel listeler gizli değildir; evdeki herkes bütün listeleri görebilir, işaretleyebilir, düzenleyebilir ve silebilir.
+- Yeni ürün varsayılan olarak Ortak listeye eklenir; kullanıcı isterse kendi listesini seçer. Kullanıcı başka bir kişi adına kişisel ürün oluşturamaz.
+- Ürünü ekleyen kişi ile ürünün ait olduğu liste ayrı tutulur ve arayüzde ekleyen kişinin adı gösterilir.
 - Bir öğe eklenir (örn. "bulaşık deterjanı") → herkesin ekranında anlık görünür.
 - Her öğeye **kategori** atanabilir (bkz. "Kategoriler").
 - Biri alınca "alındı" olarak işaretler, listeden kalkar veya geçmişe düşer.
@@ -64,7 +68,6 @@
 - Gerçek para transferi / ödeme entegrasyonu (Papara, IBAN üzerinden otomatik transfer vb.) — uygulama sadece IBAN'ı gösterir ve kaydı tutar, gerçek ödeme kullanıcıların kendi bankacılık uygulaması üzerinden yapılır.
 - Çoklu ev / çoklu kullanıcı-ev ilişkisi yönetimi.
 - Borç hatırlatma bildirimleri.
-- Çoklu para birimi desteği.
 - Web arayüzü (öncelik mobil; web daha sonra değerlendirilebilir).
 
 ## MVP Sırası (öneri)

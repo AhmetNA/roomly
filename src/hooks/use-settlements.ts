@@ -47,11 +47,13 @@ export function useRecordSettlementMutation(householdId: string | undefined) {
       fromMemberId,
       toMemberId,
       amount,
+      currencyCode,
     }: {
       fromMemberId: string;
       toMemberId: string;
       amount: number;
-    }) => settlementsApi.recordSettlementRemote(fromMemberId, toMemberId, amount),
+      currencyCode: import('@/lib/currency').CurrencyCode;
+    }) => settlementsApi.recordSettlementRemote(fromMemberId, toMemberId, amount, currencyCode),
     onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.settlements(householdId) });
       notifyHousehold({ kind: 'debt_settled', memberId: variables.toMemberId });

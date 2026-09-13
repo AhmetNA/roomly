@@ -18,6 +18,7 @@ Harcamalar (Tab, başlangıç ekranı)
   ├─ Harcama Detayı
   ├─ Harcama Ekle / Düzenle
   ├─ Borç Özeti
+  │  └─ Param Nereye Gitti?
   └─ İstatistikler
 
 Liste (Tab)
@@ -46,14 +47,14 @@ Kişiler (Tab)
 
 - Uygulama açılınca gelen ilk ekran.
 - Tüm harcamaların kronolojik listesi (en yeni üstte).
-- Her satırda: açıklama, tutar, kim ödedi, kategori ikonu/etiketi, tarih.
+- Her satırda: açıklama, para birimi simgesiyle tutar, kim ödedi, kategori ikonu/etiketi, tarih.
 - Filtreleme: kategoriye göre, tarihe göre (bu ay / bu yıl / tüm zamanlar).
 - "+" butonu ile yeni harcama ekleme.
 - Borç Özeti ve İstatistikler'e üstten kısayol (sekme veya buton).
 
 ## 4. Harcama Detayı
 
-- Harcama bilgileri: açıklama, toplam tutar, kim ödedi, tarih, kategori.
+- Harcama bilgileri: açıklama, seçilen para birimi simgesiyle toplam tutar, kim ödedi, tarih, kategori.
 - Varsa kalem kalem liste (örn. Market → süt, ekmek, deterjan).
 - Varsa fiş fotoğrafı (büyütülebilir görüntüleme).
 - Bölüşüm detayı: kim ne kadar borçlu/alacaklı bu harcamadan.
@@ -61,7 +62,7 @@ Kişiler (Tab)
 
 ## 5. Harcama Ekle / Düzenle
 
-- Açıklama, toplam tutar, kim ödedi (varsayılan: ben), tarih, kategori seçimi.
+- Açıklama, toplam tutar ve kompakt `₺ / $ / €` seçimi (varsayılan: `₺`), kim ödedi (varsayılan: ben), tarih, kategori seçimi.
 - Kalem kalem liste ekleme (opsiyonel, satır satır ürün + tutar).
 - Fiş fotoğrafı ekleme (kamera / galeri).
 - Bölüşüm tipi seçimi: Eşit / Hisse bazlı / Sabit tutar.
@@ -83,11 +84,22 @@ Kişiler (Tab)
 - Kişi bazlı toplam harcama (kim ne kadar ödedi) — liste veya basit çubuk grafik.
 - Kategori bazlı kırılım (hangi kategoriye ne kadar gitti) — liste veya basit grafik.
 
+## 7.1 Param Nereye Gitti?
+
+- Borç Özeti'nin altındaki girişten açılır; kapanmamış borç bulunmadığında da erişilebilir.
+- Zaman filtresi: Bu Ay / Geçen Ay / Tüm Zamanlar.
+- Seçili dönem için toplam kişisel pay ve toplam ödenen tutarı ayrı gösterir.
+- Kullanıcının payının veya ödemesinin bulunduğu her harcamada toplam tutar, kişisel pay ve kullanıcının ödediği tutar görünür.
+- Harcama satırına dokununca mevcut Harcama Detayı açılır.
+- Borç kapatma kayıtları ve eski ödendi durumu kişisel harcama tutarlarını değiştirmez.
+
 ## 8. İhtiyaç Listesi
 
+- Üstte Ortak ve eve katılmış kullanıcıların adlarıyla liste seçimi; tüm kullanıcı listeleri evdeki herkese görünür.
 - Aktif öğelerin listesi: isim, kategori, ekleyen kişi.
 - Kategoriye göre gruplama veya filtreleme.
 - Öğe ekleme (isim + kategori seçimi, hızlı ekleme için kategori zorunlu değil).
+- Ekleme formunda “Kimin için?” seçimi: varsayılan Ortak veya kullanıcının kendi listesi. Toplu eklemede seçim tüm satırlara uygulanır.
 - Öğeyi "alındı" olarak işaretleme → listeden kalkar, geçmişe düşer.
 - Alınan öğe(ler)i seçip "Harcama olarak ekle" aksiyonu (Harcama Ekle ekranına kalem kalem liste önceden dolu şekilde geçiş).
 - Geçmiş (alınmış öğeler) görünümü — opsiyonel sekme.

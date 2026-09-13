@@ -1,10 +1,12 @@
 import type { SettlementRow } from '@/lib/api/settlements';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
+import { normalizeCurrencyCode, type CurrencyCode } from '@/lib/currency';
 
 export type DebtBalance = {
   fromMemberId: string;
   toMemberId: string;
   amount: number;
+  currencyCode: CurrencyCode;
 };
 
 // Every member's net position in cents: negative means they owe the household
@@ -17,28 +19,33 @@ export type DebtBalance = {
 function computeNetCents(
   expenses: ExpenseWithSplits[],
   settlements: SettlementRow[],
-): Map<string, number> {
-  const net = new Map<string, number>();
-  const add = (memberId: string, cents: number) =>
+): Map<CurrencyCode, Map<string, number>> {
+  const nets = new Map<CurrencyCode, Map<string, number>>();
+  const add = (currency: CurrencyCode, memberId: string, cents: number) => {
+    const net = nets.get(currency) ?? new Map<string, number>();
     net.set(memberId, (net.get(memberId) ?? 0) + cents);
+    nets.set(currency, net);
+  };
 
   for (const expense of expenses) {
     for (const debt of expense.expense_debts) {
       if (debt.is_settled) continue;
       const cents = Math.round(debt.amount * 100);
-      add(debt.from_member_id, -cents);
-      add(debt.to_member_id, cents);
+      const currency = normalizeCurrencyCode(expense.currency_code);
+      add(currency, debt.from_member_id, -cents);
+      add(currency, debt.to_member_id, cents);
     }
   }
 
   for (const settlement of settlements) {
     const cents = Math.round(settlement.amount * 100);
     // Paying money out settles what you owed: your net moves up.
-    add(settlement.from_member_id, cents);
-    add(settlement.to_member_id, -cents);
+    const currency = normalizeCurrencyCode(settlement.currency_code);
+    add(currency, settlement.from_member_id, cents);
+    add(currency, settlement.to_member_id, -cents);
   }
 
-  return net;
+  return nets;
 }
 
 // Reduce every net position to the fewest transfers that clear them: repeatedly
@@ -49,37 +56,36 @@ export function computeSimplifiedTransfers(
   expenses: ExpenseWithSplits[],
   settlements: SettlementRow[],
 ): DebtBalance[] {
-  const net = computeNetCents(expenses, settlements);
-
-  const debtors: { memberId: string; cents: number }[] = [];
-  const creditors: { memberId: string; cents: number }[] = [];
-  for (const [memberId, cents] of net) {
-    if (cents < 0) debtors.push({ memberId, cents: -cents });
-    else if (cents > 0) creditors.push({ memberId, cents });
-  }
-
-  // Deterministic order so the same balances always yield the same transfers.
-  debtors.sort((a, b) => b.cents - a.cents || a.memberId.localeCompare(b.memberId));
-  creditors.sort((a, b) => b.cents - a.cents || a.memberId.localeCompare(b.memberId));
-
+  const nets = computeNetCents(expenses, settlements);
   const transfers: DebtBalance[] = [];
-  let i = 0;
-  let j = 0;
-  while (i < debtors.length && j < creditors.length) {
-    const pay = Math.min(debtors[i].cents, creditors[j].cents);
-    // Rounding in the ledger can leave a stray kuruş with no real counterpart;
-    // a sub-kuruş transfer is noise, not a debt.
-    if (pay > 0) {
-      transfers.push({
-        fromMemberId: debtors[i].memberId,
-        toMemberId: creditors[j].memberId,
-        amount: pay / 100,
-      });
+  for (const [currencyCode, net] of nets) {
+    const debtors: { memberId: string; cents: number }[] = [];
+    const creditors: { memberId: string; cents: number }[] = [];
+    for (const [memberId, cents] of net) {
+      if (cents < 0) debtors.push({ memberId, cents: -cents });
+      else if (cents > 0) creditors.push({ memberId, cents });
     }
-    debtors[i].cents -= pay;
-    creditors[j].cents -= pay;
-    if (debtors[i].cents === 0) i += 1;
-    if (creditors[j].cents === 0) j += 1;
+    debtors.sort((a, b) => b.cents - a.cents || a.memberId.localeCompare(b.memberId));
+    creditors.sort((a, b) => b.cents - a.cents || a.memberId.localeCompare(b.memberId));
+    let i = 0;
+    let j = 0;
+    while (i < debtors.length && j < creditors.length) {
+      const pay = Math.min(debtors[i].cents, creditors[j].cents);
+      // Rounding in the ledger can leave a stray kuruş with no real counterpart;
+      // a sub-kuruş transfer is noise, not a debt.
+      if (pay > 0) {
+        transfers.push({
+          fromMemberId: debtors[i].memberId,
+          toMemberId: creditors[j].memberId,
+          amount: pay / 100,
+          currencyCode,
+        });
+      }
+      debtors[i].cents -= pay;
+      creditors[j].cents -= pay;
+      if (debtors[i].cents === 0) i += 1;
+      if (creditors[j].cents === 0) j += 1;
+    }
   }
 
   return transfers;

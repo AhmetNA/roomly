@@ -205,6 +205,7 @@ export type Database = {
         Row: {
           category_id: string | null;
           created_at: string;
+          currency_code: string;
           household_id: string;
           id: string;
           receipt_photo_url: string | null;
@@ -215,6 +216,7 @@ export type Database = {
         Insert: {
           category_id?: string | null;
           created_at?: string;
+          currency_code?: string;
           household_id: string;
           id?: string;
           receipt_photo_url?: string | null;
@@ -225,6 +227,7 @@ export type Database = {
         Update: {
           category_id?: string | null;
           created_at?: string;
+          currency_code?: string;
           household_id?: string;
           id?: string;
           receipt_photo_url?: string | null;
@@ -309,6 +312,7 @@ export type Database = {
         Row: {
           amount: number;
           created_at: string;
+          currency_code: string;
           from_member_id: string;
           household_id: string;
           id: string;
@@ -317,6 +321,7 @@ export type Database = {
         Insert: {
           amount: number;
           created_at?: string;
+          currency_code?: string;
           from_member_id: string;
           household_id: string;
           id?: string;
@@ -325,6 +330,7 @@ export type Database = {
         Update: {
           amount?: number;
           created_at?: string;
+          currency_code?: string;
           from_member_id?: string;
           household_id?: string;
           id?: string;
@@ -386,6 +392,7 @@ export type Database = {
           household_id: string;
           id: string;
           is_purchased: boolean;
+          list_owner_user_id: string | null;
           name: string;
           purchased_at: string | null;
           purchased_by: string | null;
@@ -397,6 +404,7 @@ export type Database = {
           household_id: string;
           id?: string;
           is_purchased?: boolean;
+          list_owner_user_id?: string | null;
           name: string;
           purchased_at?: string | null;
           purchased_by?: string | null;
@@ -408,6 +416,7 @@ export type Database = {
           household_id?: string;
           id?: string;
           is_purchased?: boolean;
+          list_owner_user_id?: string | null;
           name?: string;
           purchased_at?: string | null;
           purchased_by?: string | null;
@@ -495,6 +504,7 @@ export type Database = {
       create_expense_with_details: {
         Args: {
           p_category_id: string | null;
+          p_currency_code: string;
           p_household_id: string;
           p_items?: Json;
           p_payments: Json;
@@ -507,6 +517,7 @@ export type Database = {
         Returns: {
           category_id: string | null;
           created_at: string;
+          currency_code: string;
           household_id: string;
           id: string;
           receipt_photo_url: string | null;
@@ -578,6 +589,7 @@ export type Database = {
       update_expense_with_details: {
         Args: {
           p_category_id: string | null;
+          p_currency_code: string;
           p_expense_id: string;
           p_items?: Json;
           p_payments: Json;
@@ -589,6 +601,7 @@ export type Database = {
         Returns: {
           category_id: string | null;
           created_at: string;
+          currency_code: string;
           household_id: string;
           id: string;
           receipt_photo_url: string | null;
@@ -604,10 +617,16 @@ export type Database = {
         };
       };
       record_settlement: {
-        Args: { p_amount: number; p_from_member_id: string; p_to_member_id: string };
+        Args: {
+          p_amount: number;
+          p_currency_code?: string;
+          p_from_member_id: string;
+          p_to_member_id: string;
+        };
         Returns: {
           amount: number;
           created_at: string;
+          currency_code: string;
           from_member_id: string;
           household_id: string;
           id: string;

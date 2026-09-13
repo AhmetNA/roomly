@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, StyleSheet } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CategoryManagerModal } from '@/components/category-manager-modal';
@@ -12,6 +12,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useCategoriesQuery } from '@/hooks/use-categories';
+import { useTheme } from '@/hooks/use-theme';
 import { showAlert } from '@/lib/alert';
 import type { ShoppingItemRow } from '@/lib/api/shopping-items';
 
@@ -38,6 +39,9 @@ export function AddShoppingItemModal({
   visible,
   householdId,
   editingItem,
+  currentUserId,
+  currentUserName,
+  editingOwnerName,
   onClose,
   onSubmit,
   onUpdate,
@@ -46,15 +50,28 @@ export function AddShoppingItemModal({
   householdId: string | undefined;
   editingItem: ShoppingItemRow | null;
   onClose: () => void;
-  onSubmit: (names: string[], categoryId: string | null) => void;
+  currentUserId: string | undefined;
+  currentUserName: string | undefined;
+  editingOwnerName: string | undefined;
+  onSubmit: (names: string[], categoryId: string | null, listOwnerUserId: string | null) => void;
   onUpdate: (id: string, name: string, categoryId: string | null) => void;
 }) {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { data: categories = [] } = useCategoriesQuery(householdId);
 
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [managingCategories, setManagingCategories] = useState(false);
+  const [personal, setPersonal] = useState(false);
+
+  const defaultCategoryId =
+    categories.find((category) => category.name.trim().toLocaleLowerCase('tr-TR') === 'market')
+      ?.id ??
+    categories[0]?.id ??
+    null;
+
+  const effectiveCategoryId = categoryId ?? defaultCategoryId;
 
   const editing = editingItem !== null;
   // Editing touches one row, so the multi-entry parsing is off here: a comma in
@@ -64,17 +81,18 @@ export function AddShoppingItemModal({
   function handleClose() {
     setName('');
     setCategoryId(null);
+    setPersonal(false);
     onClose();
   }
 
   function handleSubmit() {
-    if (names.length === 0) return;
+    if (names.length === 0 || effectiveCategoryId === null) return;
     if (names.length > MAX_ITEMS || names.some((item) => item.length > MAX_NAME_LENGTH)) {
       showAlert(t('list.itemsInvalid'));
       return;
     }
-    if (editingItem) onUpdate(editingItem.id, names[0], categoryId);
-    else onSubmit(names, categoryId);
+    if (editingItem) onUpdate(editingItem.id, names[0], effectiveCategoryId);
+    else onSubmit(names, effectiveCategoryId, personal ? (currentUserId ?? null) : null);
     handleClose();
   }
 
@@ -87,6 +105,7 @@ export function AddShoppingItemModal({
       onShow={() => {
         setName(editingItem?.name ?? '');
         setCategoryId(editingItem?.category_id ?? null);
+        setPersonal(editingItem?.list_owner_user_id != null);
       }}
     >
       <ThemedView style={styles.container}>
@@ -114,13 +133,58 @@ export function AddShoppingItemModal({
             )}
 
             <ThemedText type="small" themeColor="textSecondary">
+              {t('list.forWhom')}
+            </ThemedText>
+            {editing ? (
+              <ThemedView type="backgroundElement" style={styles.scopeSummary}>
+                <ThemedText type="default">
+                  {personal
+                    ? t('list.personalListName', { name: editingOwnerName ?? '—' })
+                    : t('list.shared')}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('list.scopeLockedHint')}
+                </ThemedText>
+              </ThemedView>
+            ) : (
+              <View style={styles.scopeRow} accessibilityRole="tablist">
+                {([false, true] as const).map((isPersonal) => {
+                  const selected = personal === isPersonal;
+                  return (
+                    <Pressable
+                      key={String(isPersonal)}
+                      accessibilityRole="tab"
+                      accessibilityState={{ selected }}
+                      disabled={isPersonal && !currentUserId}
+                      onPress={() => setPersonal(isPersonal)}
+                      style={[
+                        styles.scopeOption,
+                        {
+                          backgroundColor: selected ? theme.accent : theme.backgroundElement,
+                          opacity: isPersonal && !currentUserId ? 0.5 : 1,
+                        },
+                      ]}
+                    >
+                      <ThemedText type="smallBold" themeColor={selected ? 'onAccent' : undefined}>
+                        {isPersonal
+                          ? t('list.myList', { name: currentUserName ?? t('people.you') })
+                          : t('list.shared')}
+                      </ThemedText>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
+
+            <ThemedText type="small" themeColor="textSecondary">
               {t('list.categoryLabel')}
             </ThemedText>
             <CategoryPicker
               categories={categories}
-              selectedId={categoryId}
+              selectedId={effectiveCategoryId}
               onSelect={setCategoryId}
               noneLabel={t('list.noCategory')}
+              allowNone={false}
             />
 
             <Pressable onPress={() => setManagingCategories(true)} hitSlop={8}>
@@ -138,11 +202,9 @@ export function AddShoppingItemModal({
                     : t('common.add')
               }
               icon={
-                editing
-                  ? { ios: 'checkmark', android: 'check' }
-                  : { ios: 'plus', android: 'add' }
+                editing ? { ios: 'checkmark', android: 'check' } : { ios: 'plus', android: 'add' }
               }
-              disabled={names.length === 0}
+              disabled={names.length === 0 || effectiveCategoryId === null}
               onPress={handleSubmit}
             />
           </ThemedView>
@@ -168,5 +230,22 @@ const styles = StyleSheet.create({
   },
   input: {
     minHeight: 96,
+  },
+  scopeRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  scopeOption: {
+    flex: 1,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.two,
+  },
+  scopeSummary: {
+    padding: Spacing.three,
+    borderRadius: Spacing.three,
+    gap: Spacing.half,
   },
 });

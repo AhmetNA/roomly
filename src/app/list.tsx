@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Pressable,
   RefreshControl,
+  ScrollView,
   SectionList,
   StyleSheet,
   View,
@@ -37,6 +38,7 @@ import type { ShoppingItemRow } from '@/lib/api/shopping-items';
 
 const UNCATEGORIZED_KEY = 'uncategorized';
 const PURCHASED_KEY = 'purchased';
+const SHARED_SCOPE = 'shared';
 
 type ListSection = {
   key: string;
@@ -79,6 +81,7 @@ export default function ShoppingListScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<ShoppingItemRow | null>(null);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [selectedScope, setSelectedScope] = useState<string>(SHARED_SCOPE);
 
   const currentMemberId = members.find((member) => member.user_id === session?.user.id)?.id;
 
@@ -99,15 +102,39 @@ export default function ShoppingListScreen() {
     [i18n.language],
   );
 
+  const claimedMembers = useMemo(
+    () => members.filter((member) => member.user_id !== null),
+    [members],
+  );
+  const orphanedOwnerIds = useMemo(() => {
+    const claimedOwnerIds = new Set(claimedMembers.map((member) => member.user_id));
+    return Array.from(
+      new Set(
+        items
+          .map((item) => item.list_owner_user_id)
+          .filter(
+            (ownerId): ownerId is string => ownerId !== null && !claimedOwnerIds.has(ownerId),
+          ),
+      ),
+    );
+  }, [claimedMembers, items]);
+  const filteredItems = useMemo(
+    () =>
+      items.filter((item) =>
+        selectedScope === SHARED_SCOPE
+          ? item.list_owner_user_id === null
+          : item.list_owner_user_id === selectedScope,
+      ),
+    [items, selectedScope],
+  );
+
   const sections = useMemo<ListSection[]>(() => {
-    const toBuy = items.filter((item) => !item.is_purchased);
-    const purchased = items.filter((item) => item.is_purchased);
+    const toBuy = filteredItems.filter((item) => !item.is_purchased);
+    const purchased = filteredItems.filter((item) => item.is_purchased);
 
     // Sections come from the items, not from the category list: otherwise every
     // unused category would render an empty dropdown.
-    const keys = Array.from(
-      new Set(toBuy.map((item) => item.category_id ?? UNCATEGORIZED_KEY)),
-    );
+    const keys = Array.from(new Set(toBuy.map((item) => item.category_id ?? UNCATEGORIZED_KEY)));
 
     const categorySections = keys
       .map((key) => {
@@ -137,7 +164,7 @@ export default function ShoppingListScreen() {
         data: purchased,
       },
     ];
-  }, [items, categoryById, t, i18n.language]);
+  }, [filteredItems, categoryById, t, i18n.language]);
 
   // Collapsing only empties a section's data so its header stays visible.
   const visibleSections = useMemo(
@@ -180,12 +207,41 @@ export default function ShoppingListScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScreenHeader title={t('list.title')} refreshing={refreshing} onRefresh={onRefresh} />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.scopeTabsViewport}
+          contentContainerStyle={styles.scopeTabs}
+          accessibilityRole="tablist"
+        >
+          <ScopeTab
+            label={t('list.shared')}
+            selected={selectedScope === SHARED_SCOPE}
+            onPress={() => setSelectedScope(SHARED_SCOPE)}
+          />
+          {claimedMembers.map((member) => (
+            <ScopeTab
+              key={member.id}
+              label={member.name}
+              selected={selectedScope === member.user_id}
+              onPress={() => setSelectedScope(member.user_id!)}
+            />
+          ))}
+          {orphanedOwnerIds.map((ownerId, index) => (
+            <ScopeTab
+              key={ownerId}
+              label={t('list.formerMemberList', { number: index + 1 })}
+              selected={selectedScope === ownerId}
+              onPress={() => setSelectedScope(ownerId)}
+            />
+          ))}
+        </ScrollView>
         <SectionList
           sections={visibleSections}
           keyExtractor={(item) => item.id}
           contentContainerStyle={[
             styles.listContent,
-            items.length === 0 && styles.listContentEmpty,
+            filteredItems.length === 0 && styles.listContentEmpty,
           ]}
           refreshControl={
             <RefreshControl
@@ -197,8 +253,8 @@ export default function ShoppingListScreen() {
           ListEmptyComponent={
             <EmptyState
               icon={{ ios: 'cart', android: 'shopping_cart' }}
-              title={t('list.empty')}
-              hint={t('list.emptyHint')}
+              title={t(selectedScope === SHARED_SCOPE ? 'list.empty' : 'list.personalEmpty')}
+              hint={t(selectedScope === SHARED_SCOPE ? 'list.emptyHint' : 'list.personalEmptyHint')}
             />
           }
           renderSectionHeader={({ section }) => {
@@ -215,11 +271,7 @@ export default function ShoppingListScreen() {
                 {section.icon && (
                   <AppSymbol name={section.icon} size={16} tintColor={theme.textSecondary} />
                 )}
-                <ThemedText
-                  type="smallBold"
-                  themeColor="textSecondary"
-                  style={styles.sectionTitle}
-                >
+                <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
                   {section.title.toUpperCase()}
                 </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
@@ -270,6 +322,11 @@ export default function ShoppingListScreen() {
                     >
                       {item.name}
                     </ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {t('list.addedBy', {
+                        name: item.added_by ? (memberNameById.get(item.added_by) ?? '—') : '—',
+                      })}
+                    </ThemedText>
                     {item.is_purchased && category && categoryIcon && (
                       <View style={styles.categoryRow}>
                         <AppSymbol
@@ -304,18 +361,50 @@ export default function ShoppingListScreen() {
         visible={modalVisible}
         householdId={householdId}
         editingItem={editingItem}
+        currentUserId={session?.user.id}
+        currentUserName={members.find((member) => member.user_id === session?.user.id)?.name}
+        editingOwnerName={
+          members.find((member) => member.user_id === editingItem?.list_owner_user_id)?.name
+        }
         onClose={() => {
           setModalVisible(false);
           setEditingItem(null);
         }}
         onUpdate={(id, name, categoryId) => updateItem.mutate({ id, name, categoryId })}
-        onSubmit={(names, categoryId) => {
+        onSubmit={(names, categoryId, listOwnerUserId) => {
           const myMember = members.find((member) => member.user_id === session?.user.id);
           if (!householdId || !myMember) return;
-          addItems.mutate({ names, categoryId, addedBy: myMember.id });
+          addItems.mutate({ names, categoryId, addedBy: myMember.id, listOwnerUserId });
         }}
       />
     </ThemedView>
+  );
+}
+
+function ScopeTab({
+  label,
+  selected,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="tab"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={[
+        styles.scopeTab,
+        { backgroundColor: selected ? theme.accent : theme.backgroundElement },
+      ]}
+    >
+      <ThemedText type="smallBold" themeColor={selected ? 'onAccent' : undefined}>
+        {label}
+      </ThemedText>
+    </Pressable>
   );
 }
 
@@ -329,6 +418,22 @@ const styles = StyleSheet.create({
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  scopeTabs: {
+    alignItems: 'center',
+    paddingHorizontal: Spacing.four,
+    paddingBottom: Spacing.two,
+    gap: Spacing.two,
+  },
+  scopeTabsViewport: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
+  scopeTab: {
+    height: 40,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.three,
+    borderRadius: 20,
   },
   listContent: {
     paddingHorizontal: Spacing.four,
@@ -357,6 +462,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.two,
   },
   itemInfo: {
+    flex: 1,
     gap: Spacing.half,
   },
   categoryRow: {

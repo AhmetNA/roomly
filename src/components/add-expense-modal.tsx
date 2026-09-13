@@ -13,6 +13,12 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { CardShadow, Spacing } from '@/constants/theme';
+import {
+  CURRENCY_CODES,
+  CURRENCY_SYMBOLS,
+  normalizeCurrencyCode,
+  type CurrencyCode,
+} from '@/lib/currency';
 import { useCategoriesQuery } from '@/hooks/use-categories';
 import { useCreateExpenseMutation, useUpdateExpenseMutation } from '@/hooks/use-expenses';
 import { useTheme } from '@/hooks/use-theme';
@@ -50,6 +56,8 @@ export function AddExpenseModal({
   const [itemsText, setItemsText] = useState('');
   const [receipt, setReceipt] = useState<ReceiptPhoto | null>(null);
   const [amountText, setAmountText] = useState('');
+  const [currencyCode, setCurrencyCode] = useState<CurrencyCode>('TRY');
+  const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false);
   const [payerIds, setPayerIds] = useState<string[]>(currentMemberId ? [currentMemberId] : []);
   const [paidText, setPaidText] = useState<Record<string, string>>({});
   const [categoryId, setCategoryId] = useState<string | null>(null);
@@ -94,6 +102,8 @@ export function AddExpenseModal({
     setReceipt(null);
     setTitle('');
     setAmountText('');
+    setCurrencyCode('TRY');
+    setCurrencyMenuOpen(false);
     setCategoryId(null);
     setSplitType('equal');
     setSharesText({});
@@ -156,6 +166,7 @@ export function AddExpenseModal({
           categoryId,
           title: title.trim(),
           totalAmount: Math.round(amount * 100) / 100,
+          currencyCode,
           splitType,
           splits,
           payments,
@@ -167,6 +178,7 @@ export function AddExpenseModal({
           categoryId,
           title: title.trim(),
           totalAmount: Math.round(amount * 100) / 100,
+          currencyCode,
           splitType,
           splits,
           payments,
@@ -192,6 +204,7 @@ export function AddExpenseModal({
         if (editingExpense) {
           setTitle(editingExpense.title);
           setAmountText(String(editingExpense.total_amount));
+          setCurrencyCode(normalizeCurrencyCode(editingExpense.currency_code));
           setCategoryId(editingExpense.category_id);
           setSplitType(editingExpense.split_type as SplitType);
           setPayerIds(editingExpense.expense_payments.map((p) => p.member_id));
@@ -225,6 +238,7 @@ export function AddExpenseModal({
         }
         setPayerIds(currentMemberId ? [currentMemberId] : []);
         setParticipantIds(members.map((m) => m.id));
+        setCurrencyCode('TRY');
       }}
     >
       <ThemedView style={styles.container}>
@@ -241,13 +255,71 @@ export function AddExpenseModal({
               onChangeText={setTitle}
               autoCapitalize="sentences"
             />
-            <TextField
-              label={t('expenses.amountLabel')}
-              placeholder={t('expenses.amountPlaceholder')}
-              value={amountText}
-              onChangeText={setAmountText}
-              keyboardType="decimal-pad"
-            />
+            <View style={styles.amountField}>
+              <ThemedText type="small" themeColor="textSecondary">
+                {t('expenses.amountLabel')}
+              </ThemedText>
+              <View style={styles.amountControl}>
+                <TextInput
+                  placeholder={t('expenses.amountPlaceholder')}
+                  placeholderTextColor={theme.textSecondary}
+                  value={amountText}
+                  onChangeText={setAmountText}
+                  keyboardType="decimal-pad"
+                  style={[
+                    styles.amountInput,
+                    {
+                      color: theme.text,
+                      backgroundColor: theme.backgroundElement,
+                      borderColor: theme.border,
+                    },
+                  ]}
+                />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('expenses.currencyLabel')}
+                  accessibilityValue={{ text: currencyCode }}
+                  accessibilityState={{ expanded: currencyMenuOpen }}
+                  onPress={() => setCurrencyMenuOpen((open) => !open)}
+                  style={[styles.currencyButton, { backgroundColor: theme.backgroundElement }]}
+                >
+                  <ThemedText type="default" style={styles.currencySymbol}>
+                    {CURRENCY_SYMBOLS[currencyCode]}
+                  </ThemedText>
+                  <AppSymbol
+                    name={{ ios: 'chevron.down', android: 'arrow_drop_down' }}
+                    size={14}
+                    tintColor={theme.textSecondary}
+                  />
+                </Pressable>
+              </View>
+              {currencyMenuOpen && (
+                <ThemedView type="backgroundElement" style={styles.currencyMenu}>
+                  {CURRENCY_CODES.map((code) => (
+                    <Pressable
+                      key={code}
+                      accessibilityRole="menuitem"
+                      accessibilityState={{ selected: currencyCode === code }}
+                      onPress={() => {
+                        setCurrencyCode(code);
+                        setCurrencyMenuOpen(false);
+                      }}
+                      style={[
+                        styles.currencyOption,
+                        currencyCode === code && { backgroundColor: theme.backgroundSelected },
+                      ]}
+                    >
+                      <ThemedText type="default" style={styles.currencyOptionSymbol}>
+                        {CURRENCY_SYMBOLS[code]}
+                      </ThemedText>
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {code}
+                      </ThemedText>
+                    </Pressable>
+                  ))}
+                </ThemedView>
+              )}
+            </View>
 
             <ThemedText type="small" themeColor="textSecondary">
               {t('expenses.paidByLabel')}
@@ -418,7 +490,9 @@ export function AddExpenseModal({
             />
             <PrimaryButton
               label={editing ? t('common.save') : t('common.add')}
-              icon={editing ? { ios: 'checkmark', android: 'check' } : { ios: 'plus', android: 'add' }}
+              icon={
+                editing ? { ios: 'checkmark', android: 'check' } : { ios: 'plus', android: 'add' }
+              }
               disabled={!canSubmit || pending}
               onPress={handleSubmit}
             />
@@ -487,6 +561,45 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.six,
     gap: Spacing.two,
   },
+  amountField: { gap: Spacing.one, zIndex: 2 },
+  amountControl: { flexDirection: 'row', gap: Spacing.two, alignItems: 'stretch' },
+  amountInput: {
+    flex: 1,
+    minWidth: 0,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Spacing.three,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    fontSize: 16,
+  },
+  currencyButton: {
+    width: 64,
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.half,
+    borderRadius: Spacing.three,
+  },
+  currencySymbol: { fontWeight: '700' },
+  currencyMenu: {
+    position: 'absolute',
+    right: 0,
+    top: 72,
+    width: 112,
+    borderRadius: Spacing.three,
+    padding: Spacing.one,
+    ...CardShadow,
+  },
+  currencyOption: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.two,
+    borderRadius: Spacing.two,
+  },
+  currencyOptionSymbol: { width: 20, textAlign: 'center', fontWeight: '700' },
   chipRow: {
     flexDirection: 'row',
     marginBottom: Spacing.one,

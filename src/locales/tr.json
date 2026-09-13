@@ -20,6 +20,9 @@
       "generic": "Bir şeyler ters gitti, tekrar dene"
     }
   },
+  "household": {
+    "loadError": "Ev bilgileri yüklenemedi. İnternet bağlantını kontrol edip tekrar dene."
+  },
   "onboarding": {
     "title": "Ev Kur",
     "subtitle": "Ev arkadaşlarınla harcamaları ve ihtiyaç listesini paylaş",
@@ -58,6 +61,7 @@
     "titlePlaceholder": "Örn. Market",
     "amountLabel": "Toplam tutar",
     "amountPlaceholder": "0.00",
+    "currencyLabel": "Para birimi",
     "paidByLabel": "Kim ödedi",
     "categoryLabel": "Kategori",
     "splitTypeLabel": "Bölüşüm tipi",
@@ -97,7 +101,6 @@
     "loadingReceipt": "Fiş yükleniyor…",
     "retryReceipt": "Fişi tekrar yükle",
     "photoFormat": "JPEG, PNG veya WebP biçiminde bir fotoğraf seçin.",
-    "debtsSimplifiedNote": "Borçlar, en az sayıda transferle kapanacak şekilde sadeleştirildi (kişi başı en fazla bir ödeme). Bu yüzden bir ödeme, tek bir harcamaya değil toplam bakiyeye karşılık gelebilir.",
     "debtsYouAreOwed": "Senin alacağın",
     "debtsYouOwe": "Senin borcun",
     "debtsOthers": "Diğer ev arkadaşları arasında",
@@ -124,7 +127,16 @@
     "addCount": "{{count}} madde ekle",
     "itemsInvalid": "En fazla 50 madde ekleyebilirsin; her madde en fazla 200 karakter olabilir.",
     "editItemTitle": "Öğeyi Düzenle",
-    "editItemHint": "Düzenlemek için bir öğeye uzun bas"
+    "editItemHint": "Düzenlemek için bir öğeye uzun bas",
+    "shared": "Ortak",
+    "myList": "Benim listem — {{name}}",
+    "personalListName": "{{name}} listesi",
+    "formerMemberList": "Ayrılan üye {{number}}",
+    "forWhom": "Kimin için?",
+    "scopeLockedHint": "Listenin sahibi düzenleme sırasında değiştirilemez.",
+    "personalEmpty": "Bu kişisel liste boş",
+    "personalEmptyHint": "Bu kullanıcı kendi listesinden ürün eklediğinde burada görünür.",
+    "addedBy": "{{name}} ekledi"
   },
   "statistics": {
     "title": "İstatistikler",
@@ -136,6 +148,28 @@
     "byCategoryTitle": "Kategori Bazlı",
     "uncategorized": "Kategorisiz",
     "empty": "Bu dönemde harcama yok"
+  },
+  "personalSpending": {
+    "open": "Param nereye gitti?",
+    "openHint": "Kişisel paylarını ve yaptığın ödemeleri gör",
+    "title": "Param nereye gitti?",
+    "period": {
+      "thisMonth": "Bu Ay",
+      "lastMonth": "Geçen Ay",
+      "all": "Tüm Zamanlar"
+    },
+    "totalShare": "Toplam kişisel pay",
+    "totalPaid": "Toplam ödediğim",
+    "expenses": "Harcama dökümü",
+    "expenseTotal": "Toplam",
+    "myShare": "Benim payım",
+    "myPaid": "Benim ödediğim",
+    "loading": "Harcama dökümü yükleniyor…",
+    "error": "Harcama dökümü yüklenemedi. Bağlantını kontrol edip tekrar dene.",
+    "empty": "Bu dönemde kişisel harcama yok",
+    "emptyHint": "Payının olduğu veya ödeme yaptığın harcamalar burada görünür.",
+    "openExpense": "{{title}} harcamasının detayını aç",
+    "expenseAccessibilityLabel": "{{title}}, {{date}}. Toplam {{total}}. Benim payım {{share}}. Benim ödediğim {{paid}}. Detayı aç."
   },
   "categories": {
     "title": "Kategoriler",
@@ -173,6 +207,7 @@
     "comingSoon": "Yakında",
     "today": "Bugün",
     "yesterday": "Dün",
-    "refresh": "Yenile"
+    "refresh": "Yenile",
+    "retry": "Tekrar dene"
   }
 }

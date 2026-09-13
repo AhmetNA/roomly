@@ -47,11 +47,20 @@ export function useAddShoppingItemsMutation(householdId: string | undefined) {
       names,
       categoryId,
       addedBy,
+      listOwnerUserId,
     }: {
       names: string[];
       categoryId: string | null;
       addedBy: string;
-    }) => shoppingApi.addShoppingItemsRemote(householdId ?? '', names, categoryId, addedBy),
+      listOwnerUserId: string | null;
+    }) =>
+      shoppingApi.addShoppingItemsRemote(
+        householdId ?? '',
+        names,
+        categoryId,
+        addedBy,
+        listOwnerUserId,
+      ),
     onSuccess: (items) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.shoppingItems(householdId) });
       // One add can insert several rows, but the notify function composes its

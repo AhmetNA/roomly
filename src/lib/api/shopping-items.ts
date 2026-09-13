@@ -22,6 +22,7 @@ export async function addShoppingItemsRemote(
   names: string[],
   categoryId: string | null,
   addedBy: string,
+  listOwnerUserId: string | null,
 ) {
   const { data, error } = await supabase
     .from('shopping_items')
@@ -31,6 +32,7 @@ export async function addShoppingItemsRemote(
         name,
         category_id: categoryId,
         added_by: addedBy,
+        list_owner_user_id: listOwnerUserId,
       })),
     )
     .select('id');

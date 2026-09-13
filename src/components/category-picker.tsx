@@ -12,22 +12,26 @@ export function CategoryPicker({
   selectedId,
   onSelect,
   noneLabel,
+  allowNone = true,
 }: {
   categories: CategoryRow[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   noneLabel: string;
+  allowNone?: boolean;
 }) {
   const theme = useTheme();
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-      <Chip
-        label={noneLabel}
-        icon={null}
-        selected={selectedId === null}
-        onPress={() => onSelect(null)}
-      />
+      {allowNone && (
+        <Chip
+          label={noneLabel}
+          icon={null}
+          selected={selectedId === null}
+          onPress={() => onSelect(null)}
+        />
+      )}
       {categories.map((category) => (
         <Chip
           key={category.id}

@@ -30,13 +30,15 @@ Supabase MCP ile canlı proje `roomly` (`vigmiiiwyliqslbwuzet`) üzerinde kuruld
 households (id, name, invite_code, created_at)
 household_members (id, household_id, user_id, name, iban, created_at)
 categories (id, household_id, name, icon, sort_order, created_at)
-expenses (id, household_id, category_id, title, total_amount, split_type, receipt_photo_url, created_at)
+expenses (id, household_id, category_id, title, total_amount, currency_code, split_type, receipt_photo_url, created_at)
 expense_line_items (id, expense_id, name, amount)
 expense_splits (id, expense_id, member_id, shares, amount_owed)
 expense_payments (id, expense_id, member_id, amount_paid)
 expense_debts (id, expense_id, from_member_id, to_member_id, amount, is_settled)
-shopping_items (id, household_id, category_id, name, added_by, is_purchased, created_at)
+shopping_items (id, household_id, category_id, name, added_by, list_owner_user_id, is_purchased, created_at)
 ```
+
+`shopping_items.list_owner_user_id` nullable kullanıcı sahipliğidir: `null` Ortak listeyi, bir `auth.users.id` değeri görünür kişisel listeyi ifade eder. Kişisel listeler gizli değildir; aynı evdeki herkes okuyup yönetebilir. Kullanıcı eklerken yalnızca Ortak veya kendi hesabını seçebilir; sahiplik sonradan değiştirilemez. `added_by` ürünü ekleyen üyeyi ayrı olarak tutmaya devam eder.
 
 Her tabloda RLS açık, `get_my_household_id()` (security definer) helper'ı ile `household_id = get_my_household_id()` şeklinde kapsanıyor. Client-side RLS'in tek başına çözemediği (chicken-and-egg / atomiklik gereken) akışlar **security-definer RPC** olarak yazıldı:
 

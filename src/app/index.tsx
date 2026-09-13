@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Platform,
   ActivityIndicator,
   Pressable,
   RefreshControl,
@@ -16,6 +17,7 @@ import { DebtSummaryModal } from '@/components/debt-summary-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ExpenseDetailModal } from '@/components/expense-detail-modal';
 import { FloatingActionButton } from '@/components/floating-action-button';
+import { PersonalSpendingModal } from '@/components/personal-spending-modal';
 import { RefreshAction } from '@/components/refresh-action';
 import { StatisticsModal } from '@/components/statistics-modal';
 import { ThemedText } from '@/components/themed-text';
@@ -36,6 +38,7 @@ import { showAlert } from '@/lib/alert';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
 import { groupByDateSection } from '@/lib/date-sections';
 import { isExpenseFullySettled } from '@/lib/debt';
+import { formatMoney, normalizeCurrencyCode } from '@/lib/currency';
 
 export default function ExpensesScreen() {
   const { t, i18n } = useTranslation();
@@ -77,6 +80,11 @@ export default function ExpensesScreen() {
   const [addVisible, setAddVisible] = useState(false);
   const [debtVisible, setDebtVisible] = useState(false);
   const [statsVisible, setStatsVisible] = useState(false);
+  const [personalSpendingVisible, setPersonalSpendingVisible] = useState(false);
+  const [openPersonalAfterDismiss, setOpenPersonalAfterDismiss] = useState(false);
+  const [expenseAfterDismiss, setExpenseAfterDismiss] = useState<ExpenseWithSplits | null>(null);
+  const [detailOpenedFromPersonal, setDetailOpenedFromPersonal] = useState(false);
+  const [reopenPersonalAfterDetailDismiss, setReopenPersonalAfterDetailDismiss] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<ExpenseWithSplits | null>(null);
   const [editingExpense, setEditingExpense] = useState<ExpenseWithSplits | null>(null);
 
@@ -164,7 +172,12 @@ export default function ExpensesScreen() {
               new Date(item.created_at),
             );
             return (
-              <Pressable onPress={() => setSelectedExpense(item)}>
+              <Pressable
+                onPress={() => {
+                  setDetailOpenedFromPersonal(false);
+                  setSelectedExpense(item);
+                }}
+              >
                 <ThemedView type="backgroundElement" style={styles.row}>
                   <AppSymbol
                     name={
@@ -193,7 +206,11 @@ export default function ExpensesScreen() {
                     </ThemedText>
                   </View>
                   <ThemedText type="smallBold" themeColor={isSettled ? 'textSecondary' : undefined}>
-                    {item.total_amount.toFixed(2)}
+                    {formatMoney(
+                      item.total_amount,
+                      normalizeCurrencyCode(item.currency_code),
+                      i18n.language,
+                    )}
                   </ThemedText>
                 </ThemedView>
               </Pressable>
@@ -224,6 +241,33 @@ export default function ExpensesScreen() {
         members={members}
         currentMemberId={currentMemberId}
         onClose={() => setDebtVisible(false)}
+        onDismiss={() => {
+          if (!openPersonalAfterDismiss) return;
+          setOpenPersonalAfterDismiss(false);
+          setPersonalSpendingVisible(true);
+        }}
+        onOpenPersonalSpending={() => {
+          setDebtVisible(false);
+          if (Platform.OS === 'ios') setOpenPersonalAfterDismiss(true);
+          else setPersonalSpendingVisible(true);
+        }}
+      />
+      <PersonalSpendingModal
+        visible={personalSpendingVisible}
+        householdId={householdId}
+        currentMemberId={currentMemberId}
+        onClose={() => setPersonalSpendingVisible(false)}
+        onDismiss={() => {
+          if (!expenseAfterDismiss) return;
+          setSelectedExpense(expenseAfterDismiss);
+          setExpenseAfterDismiss(null);
+        }}
+        onSelectExpense={(expense) => {
+          setDetailOpenedFromPersonal(true);
+          setPersonalSpendingVisible(false);
+          if (Platform.OS === 'ios') setExpenseAfterDismiss(expense);
+          else setSelectedExpense(expense);
+        }}
       />
       <StatisticsModal
         visible={statsVisible}
@@ -236,11 +280,23 @@ export default function ExpensesScreen() {
         expense={selectedExpense}
         members={members}
         categories={categories}
-        onClose={() => setSelectedExpense(null)}
+        onClose={() => {
+          setSelectedExpense(null);
+          if (!detailOpenedFromPersonal) return;
+          setDetailOpenedFromPersonal(false);
+          if (Platform.OS === 'ios') setReopenPersonalAfterDetailDismiss(true);
+          else setPersonalSpendingVisible(true);
+        }}
+        onDismiss={() => {
+          if (!reopenPersonalAfterDetailDismiss) return;
+          setReopenPersonalAfterDetailDismiss(false);
+          setPersonalSpendingVisible(true);
+        }}
         onEdit={(expense) => {
           // Close the detail sheet first: two page sheets stacked on top of each
           // other leaves the form behind an overlay on iOS.
           setSelectedExpense(null);
+          setDetailOpenedFromPersonal(false);
           setEditingExpense(expense);
           setAddVisible(true);
         }}

@@ -13,12 +13,14 @@ import { getReceiptUrl } from '@/lib/api/receipts';
 import type { CategoryRow } from '@/lib/api/categories';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
 import type { MemberRow } from '@/lib/api/household';
+import { formatMoney, normalizeCurrencyCode } from '@/lib/currency';
 
 export function ExpenseDetailModal({
   expense,
   members,
   categories,
   onClose,
+  onDismiss,
   onEdit,
   onDelete,
 }: {
@@ -26,10 +28,11 @@ export function ExpenseDetailModal({
   members: MemberRow[];
   categories: CategoryRow[];
   onClose: () => void;
+  onDismiss?: () => void;
   onEdit: (expense: ExpenseWithSplits) => void;
   onDelete: (expense: ExpenseWithSplits) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const nameById = new Map(members.map((m) => [m.id, m.name]));
   const categoryById = new Map(categories.map((c) => [c.id, c.name]));
@@ -40,6 +43,7 @@ export function ExpenseDetailModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={onClose}
+      onDismiss={onDismiss}
     >
       {expense && (
         <ThemedView style={styles.container}>
@@ -48,7 +52,11 @@ export function ExpenseDetailModal({
             <ScrollView contentContainerStyle={styles.content}>
               <ThemedView style={styles.hero}>
                 <ThemedText type="title" style={styles.amount}>
-                  {expense.total_amount.toFixed(2)}
+                  {formatMoney(
+                    expense.total_amount,
+                    normalizeCurrencyCode(expense.currency_code),
+                    i18n.language,
+                  )}
                 </ThemedText>
                 <ThemedText type="subtitle" style={styles.heroTitle}>
                   {expense.title}
@@ -67,7 +75,13 @@ export function ExpenseDetailModal({
               {expense.expense_payments.map((payment) => (
                 <ThemedView key={payment.id} type="backgroundElement" style={styles.splitRow}>
                   <ThemedText type="default">{nameById.get(payment.member_id) ?? '—'}</ThemedText>
-                  <ThemedText type="smallBold">{payment.amount_paid.toFixed(2)}</ThemedText>
+                  <ThemedText type="smallBold">
+                    {formatMoney(
+                      payment.amount_paid,
+                      normalizeCurrencyCode(expense.currency_code),
+                      i18n.language,
+                    )}
+                  </ThemedText>
                 </ThemedView>
               ))}
 
@@ -77,7 +91,13 @@ export function ExpenseDetailModal({
               {expense.expense_splits.map((split) => (
                 <ThemedView key={split.id} type="backgroundElement" style={styles.splitRow}>
                   <ThemedText type="default">{nameById.get(split.member_id) ?? '—'}</ThemedText>
-                  <ThemedText type="smallBold">{split.amount_owed.toFixed(2)}</ThemedText>
+                  <ThemedText type="smallBold">
+                    {formatMoney(
+                      split.amount_owed,
+                      normalizeCurrencyCode(expense.currency_code),
+                      i18n.language,
+                    )}
+                  </ThemedText>
                 </ThemedView>
               ))}
 
@@ -96,7 +116,13 @@ export function ExpenseDetailModal({
                         {nameById.get(debt.from_member_id) ?? '—'} {t('expenses.owesArrow')}{' '}
                         {nameById.get(debt.to_member_id) ?? '—'}
                       </ThemedText>
-                      <ThemedText type="smallBold">{debt.amount.toFixed(2)}</ThemedText>
+                      <ThemedText type="smallBold">
+                        {formatMoney(
+                          debt.amount,
+                          normalizeCurrencyCode(expense.currency_code),
+                          i18n.language,
+                        )}
+                      </ThemedText>
                     </ThemedView>
                   ))}
                 </>
