@@ -1,6 +1,14 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Modal, Pressable, SectionList, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  SectionList,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppSymbol } from '@/components/app-symbol';
@@ -40,6 +48,9 @@ export function PersonalSpendingModal({
 }) {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const { width, fontScale } = useWindowDimensions();
+  const [sheetWidth, setSheetWidth] = useState<number>();
+  const compact = (sheetWidth ?? width) / fontScale < 380;
   const expensesQuery = useExpensesQuery(householdId);
   const settlementsQuery = useSettlementsQuery(householdId);
   const [period, setPeriod] = useState<PersonalSpendingPeriod>('thisMonth');
@@ -83,7 +94,10 @@ export function PersonalSpendingModal({
       onRequestClose={onClose}
       onDismiss={onDismiss}
     >
-      <ThemedView style={styles.container}>
+      <ThemedView
+        style={styles.container}
+        onLayout={(event) => setSheetWidth(event.nativeEvent.layout.width)}
+      >
         <SafeAreaView style={styles.container}>
           <SheetHeader title={t('personalSpending.title')} onClose={onClose} />
 
@@ -101,7 +115,11 @@ export function PersonalSpendingModal({
                     { backgroundColor: selected ? theme.accent : theme.backgroundElement },
                   ]}
                 >
-                  <ThemedText type="small" themeColor={selected ? 'onAccent' : undefined}>
+                  <ThemedText
+                    type="small"
+                    themeColor={selected ? 'onAccent' : undefined}
+                    style={styles.segmentLabel}
+                  >
                     {t(`personalSpending.period.${item}`)}
                   </ThemedText>
                 </Pressable>
@@ -150,7 +168,14 @@ export function PersonalSpendingModal({
                   {currencySummaries.map((total) => (
                     <View key={total.currencyCode} style={styles.summaryRow}>
                       <ThemedView
-                        style={[styles.summaryBlock, { backgroundColor: `${theme.danger}12` }]}
+                        style={[
+                          styles.summaryBlock,
+                          (compact ||
+                            formatCents(total.totalShareCents, total.currencyCode).length > 12 ||
+                            formatCents(total.totalPaidCents, total.currencyCode).length > 12) &&
+                            styles.netBlock,
+                          { backgroundColor: `${theme.danger}12` },
+                        ]}
                       >
                         <ThemedText type="small" themeColor="textSecondary">
                           {t('personalSpending.totalShare')}
@@ -159,12 +184,22 @@ export function PersonalSpendingModal({
                           type="subtitle"
                           themeColor="danger"
                           style={styles.summaryAmount}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.75}
                         >
                           {formatCents(total.totalShareCents, total.currencyCode)}
                         </ThemedText>
                       </ThemedView>
                       <ThemedView
-                        style={[styles.summaryBlock, { backgroundColor: `${theme.accent}12` }]}
+                        style={[
+                          styles.summaryBlock,
+                          (compact ||
+                            formatCents(total.totalShareCents, total.currencyCode).length > 12 ||
+                            formatCents(total.totalPaidCents, total.currencyCode).length > 12) &&
+                            styles.netBlock,
+                          { backgroundColor: `${theme.accent}12` },
+                        ]}
                       >
                         <ThemedText type="small" themeColor="textSecondary">
                           {t('personalSpending.totalPaid')}
@@ -173,6 +208,9 @@ export function PersonalSpendingModal({
                           type="subtitle"
                           themeColor="accent"
                           style={styles.summaryAmount}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.75}
                         >
                           {formatCents(total.totalPaidCents, total.currencyCode)}
                         </ThemedText>
@@ -180,13 +218,14 @@ export function PersonalSpendingModal({
                       <ThemedView
                         style={[
                           styles.summaryBlock,
+                          styles.netBlock,
                           {
                             backgroundColor:
                               total.netAmount >= 0 ? `${theme.success}12` : `${theme.danger}12`,
                           },
                         ]}
                       >
-                        <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+                        <ThemedText type="small" themeColor="textSecondary">
                           {t('personalSpending.netBalance')}
                         </ThemedText>
                         <ThemedText
@@ -195,6 +234,7 @@ export function PersonalSpendingModal({
                           style={styles.summaryAmount}
                           numberOfLines={1}
                           adjustsFontSizeToFit
+                          minimumFontScale={0.75}
                         >
                           {total.netAmount > 0 ? '+' : ''}
                           {formatMoney(total.netAmount, total.currencyCode, i18n.language)}
@@ -208,7 +248,6 @@ export function PersonalSpendingModal({
                 <EmptyState
                   icon={{ ios: 'tray', android: 'inbox' }}
                   title={t('personalSpending.empty')}
-                  hint={t('personalSpending.emptyHint')}
                 />
               }
               renderSectionHeader={({ section }) =>
@@ -225,6 +264,12 @@ export function PersonalSpendingModal({
               renderItem={({ item }) =>
                 (() => {
                   const currency = normalizeCurrencyCode(item.expense.currency_code);
+                  const stackedAmounts =
+                    compact ||
+                    Math.max(
+                      formatCents(item.shareCents, currency).length,
+                      formatCents(item.paidCents, currency).length,
+                    ) > 14;
                   return (
                     <Pressable
                       onPress={() => onSelectExpense(item.expense)}
@@ -239,7 +284,9 @@ export function PersonalSpendingModal({
                       style={({ pressed }) => pressed && styles.expensePressed}
                     >
                       <ThemedView type="backgroundElement" style={styles.expenseRow}>
-                        <View style={styles.expenseHeader}>
+                        <View
+                          style={[styles.expenseHeader, compact && styles.expenseHeaderCompact]}
+                        >
                           <View style={styles.expenseIdentity}>
                             <ThemedText
                               type="default"
@@ -255,18 +302,25 @@ export function PersonalSpendingModal({
                           <View
                             style={[
                               styles.totalGroup,
+                              compact && styles.totalGroupCompact,
                               { backgroundColor: theme.backgroundSelected },
                             ]}
                           >
                             <ThemedText type="small" themeColor="textSecondary">
                               {t('personalSpending.expenseTotal')}
                             </ThemedText>
-                            <ThemedText type="smallBold">
+                            <ThemedText
+                              type="smallBold"
+                              numberOfLines={1}
+                              adjustsFontSizeToFit
+                              minimumFontScale={0.75}
+                              style={styles.money}
+                            >
                               {formatMoney(item.expense.total_amount, currency, i18n.language)}
                             </ThemedText>
                           </View>
                         </View>
-                        <View style={[styles.amountRow, { borderTopColor: theme.border }]}>
+                        <View style={[styles.amountRow, stackedAmounts && styles.amountRowCompact]}>
                           <Amount
                             label={t('personalSpending.myShare')}
                             value={formatCents(item.shareCents, currency)}
@@ -314,7 +368,14 @@ function Amount({
       <ThemedText type="small" themeColor="textSecondary">
         {label}
       </ThemedText>
-      <ThemedText type="smallBold" themeColor={tone}>
+      <ThemedText
+        type="smallBold"
+        themeColor={tone}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.75}
+        style={styles.money}
+      >
         {value}
       </ThemedText>
     </View>
@@ -336,8 +397,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.one,
+    paddingVertical: Spacing.two,
+    minWidth: 0,
     borderRadius: Spacing.two,
   },
+  segmentLabel: { textAlign: 'center', flexShrink: 1 },
   centered: {
     flex: 1,
     alignItems: 'center',
@@ -352,15 +416,23 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   emptyListContent: { flexGrow: 1 },
-  summaryRow: { flexDirection: 'row', gap: Spacing.two, marginBottom: Spacing.two },
+  summaryRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
+    marginBottom: Spacing.two,
+  },
   summaryBlock: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: 140,
     minWidth: 0,
     padding: Spacing.three,
     borderRadius: Spacing.three,
     gap: Spacing.one,
   },
-  summaryAmount: { fontSize: 20, lineHeight: 26 },
+  netBlock: { flexBasis: '100%' },
+  summaryAmount: { fontSize: 20, lineHeight: 26, width: '100%', fontVariant: ['tabular-nums'] },
+  money: { width: '100%', fontVariant: ['tabular-nums'] },
   sectionTitle: { marginTop: Spacing.two, marginBottom: Spacing.one },
   expenseRow: { borderRadius: Spacing.three, overflow: 'hidden', ...CardShadow },
   expensePressed: { opacity: 0.76 },
@@ -371,14 +443,19 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     padding: Spacing.three,
   },
+  expenseHeaderCompact: { flexDirection: 'column', alignItems: 'stretch' },
   expenseIdentity: { flex: 1, minWidth: 0, gap: Spacing.half },
   expenseTitle: { fontWeight: '600' },
   totalGroup: {
+    flexShrink: 1,
+    minWidth: 0,
+    maxWidth: '55%',
     alignItems: 'flex-end',
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.one,
     borderRadius: Spacing.two,
   },
+  totalGroupCompact: { maxWidth: '100%', alignSelf: 'stretch' },
   amountRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -386,6 +463,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingBottom: Spacing.three,
   },
+  amountRowCompact: { flexDirection: 'column', alignItems: 'stretch' },
   amountGroup: {
     flex: 1,
     minWidth: 0,

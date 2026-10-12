@@ -10,6 +10,152 @@ export type Database = {
   };
   public: {
     Tables: {
+      tasks: {
+        Row: {
+          completed_at: string | null;
+          completed_by: string | null;
+          created_at: string;
+          created_by: string;
+          description: string;
+          due_date: string | null;
+          household_id: string;
+          id: string;
+          priority: string;
+          status: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          completed_by?: string | null;
+          created_at?: string;
+          created_by: string;
+          description?: string;
+          due_date?: string | null;
+          household_id: string;
+          id?: string;
+          priority?: string;
+          status?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          completed_by?: string | null;
+          created_at?: string;
+          created_by?: string;
+          description?: string;
+          due_date?: string | null;
+          household_id?: string;
+          id?: string;
+          priority?: string;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'tasks_completed_by_household_id_fkey';
+            columns: ['completed_by', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'tasks_created_by_household_id_fkey';
+            columns: ['created_by', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'tasks_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      task_assignees: {
+        Row: {
+          household_id: string;
+          member_id: string;
+          task_id: string;
+        };
+        Insert: {
+          household_id: string;
+          member_id: string;
+          task_id: string;
+        };
+        Update: {
+          household_id?: string;
+          member_id?: string;
+          task_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_assignees_member_id_household_id_fkey';
+            columns: ['member_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'task_assignees_task_id_household_id_fkey';
+            columns: ['task_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id', 'household_id'];
+          },
+        ];
+      };
+      task_comments: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          household_id: string;
+          id: string;
+          task_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          household_id: string;
+          id?: string;
+          task_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          household_id?: string;
+          id?: string;
+          task_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_comments_author_id_household_id_fkey';
+            columns: ['author_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'task_comments_task_id_household_id_fkey';
+            columns: ['task_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id', 'household_id'];
+          },
+        ];
+      };
+
       categories: {
         Row: {
           created_at: string;
@@ -293,18 +439,21 @@ export type Database = {
           id: string;
           invite_code: string;
           name: string;
+          rent_day: number | null;
         };
         Insert: {
           created_at?: string;
           id?: string;
           invite_code: string;
           name: string;
+          rent_day?: number | null;
         };
         Update: {
           created_at?: string;
           id?: string;
           invite_code?: string;
           name?: string;
+          rent_day?: number | null;
         };
         Relationships: [];
       };
@@ -457,6 +606,19 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      save_task: {
+        Args: {
+          p_assignee_ids?: string[];
+          p_description?: string;
+          p_due_date?: string;
+          p_priority?: string;
+          p_status?: string;
+          p_task_id?: string;
+          p_title: string;
+        };
+        Returns: string;
+      };
+
       add_unclaimed_member: {
         Args: { member_name: string };
         Returns: {

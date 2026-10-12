@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 
 import * as householdApi from '@/lib/api/household';
 import { queryKeys } from '@/lib/query-keys';
@@ -21,12 +21,16 @@ export function useMembersQuery(householdId: string | undefined) {
 // immediately (CLAUDE.md: realtime sync is a hard requirement).
 export function useHouseholdRealtime(householdId: string | undefined) {
   const queryClient = useQueryClient();
+  // supabase.channel() returns an existing channel for a reused topic, and adding
+  // listeners to an already-subscribed channel throws. Several mounted tabs use
+  // this hook, so each instance needs its own topic.
+  const instanceId = useId();
 
   useEffect(() => {
     if (!householdId) return;
 
     const channel = supabase
-      .channel(`household-members-${householdId}`)
+      .channel(`household-members-${householdId}-${instanceId}`)
       .on(
         'postgres_changes',
         {
@@ -42,7 +46,7 @@ export function useHouseholdRealtime(householdId: string | undefined) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [householdId, queryClient]);
+  }, [householdId, instanceId, queryClient]);
 }
 
 export function useCreateHouseholdMutation() {
@@ -107,5 +111,13 @@ export function useAddUnclaimedMemberMutation(householdId: string | undefined) {
   return useMutation({
     mutationFn: householdApi.addUnclaimedMember,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.members(householdId) }),
+  });
+}
+
+export function useUpdateRentDayMutation(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (rentDay: number | null) => householdApi.updateRentDay(householdId!, rentDay),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.household }),
   });
 }

@@ -15,6 +15,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useHouseholdQuery } from '@/hooks/use-household';
 import { usePushRegistration } from '@/hooks/use-push-registration';
+import { useRentReminders } from '@/hooks/use-rent-reminders';
 import { SessionProvider, useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import { queryClient } from '@/lib/query-client';
@@ -43,6 +44,7 @@ function RootNavigator() {
   const householdQuery = useHouseholdQuery(!!session);
   const { data: household, isLoading: isHouseholdLoading } = householdQuery;
   usePushRegistration(!!session && !!household);
+  useRentReminders(session ? household?.id : undefined);
   const isReady = session !== undefined && (!session || !isHouseholdLoading);
 
   // Keep the native logo splash visible while persisted auth and household

@@ -1,10 +1,20 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2';
+import nodemailer from 'npm:nodemailer@6.9.16';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const EXPO_BATCH_SIZE = 100;
+// Gmail caps personal accounts at roughly 500 emails a day, so a nudge per task is
+// rate limited.
+const NUDGE_COOLDOWN_MS = 60 * 60 * 1000;
 
-type Kind = 'expense_added' | 'expense_edited' | 'item_added' | 'item_purchased' | 'debt_settled';
+type Kind =
+  | 'expense_added'
+  | 'expense_edited'
+  | 'item_added'
+  | 'item_purchased'
+  | 'debt_settled'
+  | 'task_nudge';
 
 // The body is composed here, not sent by the client: otherwise any caller could
 // push arbitrary text to their housemates. It also can't reuse the app's i18n
@@ -19,6 +29,7 @@ const STRINGS = {
     item_added: (actor: string, subject: string) => `${actor} listeye ekledi: ${subject}`,
     item_purchased: (actor: string, subject: string) => `${actor} aldı: ${subject}`,
     debt_settled: (actor: string, subject: string) => `${actor}, ${subject} ile hesabı kapattı`,
+    task_nudge: (actor: string, subject: string) => `${actor} hatırlatıyor: ${subject}`,
   },
   en: {
     expense_added: (actor: string, subject: string, amount: string) =>
@@ -28,8 +39,11 @@ const STRINGS = {
     item_added: (actor: string, subject: string) => `${actor} added to the list: ${subject}`,
     item_purchased: (actor: string, subject: string) => `${actor} bought: ${subject}`,
     debt_settled: (actor: string, subject: string) => `${actor} settled up with ${subject}`,
+    task_nudge: (actor: string, subject: string) => `${actor} is reminding you: ${subject}`,
   },
 } as const;
+
+const EMAIL_SUBJECT = { tr: 'Roomly hatırlatması', en: 'Roomly reminder' } as const;
 
 function json(body: unknown, status: number) {
   return new Response(JSON.stringify(body), {
@@ -101,6 +115,19 @@ Deno.serve(async (req: Request) => {
         ...(data.expense_payments ?? []).map((row: { member_id: string }) => row.member_id),
       ]),
     );
+  } else if (kind === 'task_nudge') {
+    const { data } = await asCaller
+      .from('tasks')
+      .select('title, status, task_assignees(member_id)')
+      .eq('id', payload.entityId ?? '')
+      .eq('household_id', actor.household_id)
+      .maybeSingle();
+    if (!data) return json({ error: 'entity_not_found' }, 404);
+    if (data.status === 'done') return json({ error: 'task_done' }, 409);
+    subject = data.title;
+    involvedMemberIds = (data.task_assignees ?? []).map(
+      (row: { member_id: string }) => row.member_id,
+    );
   } else if (kind === 'item_added' || kind === 'item_purchased') {
     const { data } = await asCaller
       .from('shopping_items')
@@ -127,6 +154,18 @@ Deno.serve(async (req: Request) => {
   // any signed-in user, including this caller.
   const asService = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 
+  if (kind === 'task_nudge') {
+    const { data: last } = await asService
+      .from('task_nudges')
+      .select('nudged_at')
+      .eq('task_id', payload.entityId!)
+      .maybeSingle();
+    const elapsed = last ? Date.now() - new Date(last.nudged_at).getTime() : Infinity;
+    if (elapsed < NUDGE_COOLDOWN_MS) {
+      return json({ error: 'cooldown', retryAfterMs: NUDGE_COOLDOWN_MS - elapsed }, 429);
+    }
+  }
+
   let housemateQuery = asService
     .from('household_members')
     .select('user_id')
@@ -144,12 +183,21 @@ Deno.serve(async (req: Request) => {
   const recipientIds = (housemates ?? []).map((m) => m.user_id).filter(Boolean);
   if (recipientIds.length === 0) return json({ sent: 0 }, 200);
 
-  const { data: tokens } = await asService
+  const { data: tokenRows } = await asService
     .from('push_tokens')
-    .select('token, locale')
+    .select('token, locale, user_id')
     .in('user_id', recipientIds);
+  const tokens = tokenRows ?? [];
 
-  if (!tokens || tokens.length === 0) return json({ sent: 0 }, 200);
+  let emailed = 0;
+  if (kind === 'task_nudge') {
+    emailed = await emailNudge(asService, recipientIds, tokens, actor.name, subject);
+  }
+
+  if (tokens.length === 0) {
+    if (emailed > 0) await recordNudge(asService, payload.entityId!);
+    return json({ sent: 0, emailed }, 200);
+  }
 
   const messages = tokens.map((row) => {
     const strings = STRINGS[row.locale === 'en' ? 'en' : 'tr'];
@@ -189,5 +237,58 @@ Deno.serve(async (req: Request) => {
     await asService.from('push_tokens').delete().in('token', stale);
   }
 
-  return json({ sent, removed: stale.length }, 200);
+  // Only a nudge that reached someone starts the cooldown, so the sender can retry
+  // right after an assignee turns notifications on.
+  if (kind === 'task_nudge' && sent + emailed > 0) await recordNudge(asService, payload.entityId!);
+
+  return json({ sent, emailed, removed: stale.length }, 200);
 });
+
+async function recordNudge(asService: SupabaseClient, taskId: string) {
+  await asService
+    .from('task_nudges')
+    .upsert({ task_id: taskId, nudged_at: new Date().toISOString() });
+}
+
+// Optional: without Gmail credentials the nudge still goes out as a push. Members
+// already have an email from sign-up, so it is read from Auth, never from the client.
+// Supabase Edge Functions block outbound ports 25 and 587, hence implicit TLS on 465.
+async function emailNudge(
+  asService: SupabaseClient,
+  userIds: string[],
+  tokens: { user_id: string; locale: string | null }[],
+  actorName: string,
+  subject: string,
+): Promise<number> {
+  const user = Deno.env.get('GMAIL_USER');
+  const pass = Deno.env.get('GMAIL_APP_PASSWORD');
+  if (!user || !pass) return 0;
+
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: { user, pass },
+  });
+
+  let emailed = 0;
+  for (const userId of userIds) {
+    const { data } = await asService.auth.admin.getUserById(userId);
+    const email = data.user?.email;
+    if (!email) continue;
+    const locale = tokens.find((row) => row.user_id === userId)?.locale === 'en' ? 'en' : 'tr';
+    try {
+      await transporter.sendMail({
+        from: `Roomly <${user}>`,
+        to: email,
+        subject: EMAIL_SUBJECT[locale],
+        text: STRINGS[locale].task_nudge(actorName, subject),
+      });
+      emailed += 1;
+    } catch (error) {
+      console.error('nudge email failed', error instanceof Error ? error.message : error);
+    }
+  }
+  transporter.close();
+  return emailed;
+}

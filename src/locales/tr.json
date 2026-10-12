@@ -1,7 +1,6 @@
 {
   "auth": {
     "title": "Roomly'e Hoş Geldin",
-    "subtitle": "Devam etmek için giriş yap veya hesap oluştur",
     "signIn": "Giriş Yap",
     "signUp": "Kayıt Ol",
     "emailLabel": "E-posta",
@@ -25,7 +24,6 @@
   },
   "onboarding": {
     "title": "Ev Kur",
-    "subtitle": "Ev arkadaşlarınla harcamaları ve ihtiyaç listesini paylaş",
     "createHousehold": "Ev Oluştur",
     "joinHousehold": "Ev'e Katıl",
     "yourNameLabel": "Adın",
@@ -49,12 +47,12 @@
   "tabs": {
     "expenses": "Harcamalar",
     "list": "Liste",
-    "people": "Kişiler"
+    "people": "Kişiler",
+    "tasks": "Görevler"
   },
   "expenses": {
     "title": "Harcamalar",
     "empty": "Henüz harcama eklenmedi",
-    "emptyHint": "Sağ üstteki artıya dokunarak ilk harcamayı ekle",
     "addButton": "Harcama Ekle",
     "addTitle": "Harcama Ekle",
     "titleLabel": "Açıklama",
@@ -86,7 +84,6 @@
     "attachments": "İçerik ve fiş",
     "optional": "İsteğe bağlı",
     "itemsLabel": "İçerik listesi",
-    "itemsHint": "Her satıra bir içerik yazın (en fazla 50 satır).",
     "itemsPlaceholder": "Ekmek\nSüt\nTemizlik malzemeleri",
     "receipt": "Fiş fotoğrafı",
     "choosePhoto": "Fotoğraf seç",
@@ -108,12 +105,14 @@
     "editButton": "Düzenle",
     "editSettledError": "Bu harcamanın borcu ödendi olarak işaretlenmiş, artık düzenlenemez. Değiştirmek için silip yeniden ekle.",
     "receiptLocked": "Fiş fotoğrafı düzenlemede değiştirilemez.",
-    "daySectionAccessibility": "{{date}}, {{count}} harcama. Aç veya kapat."
+    "daySectionAccessibility": "{{date}}, {{count}} harcama. Aç veya kapat.",
+    "searchPlaceholder": "Harcamalarda ara",
+    "searchResults": "{{count}} sonuç",
+    "searchEmpty": "Eşleşen harcama bulunamadı"
   },
   "list": {
     "title": "İhtiyaç Listesi",
     "empty": "Liste şu an boş",
-    "emptyHint": "Eve gereken bir şeyi eklemek için artıya dokun",
     "addButton": "Ekle",
     "addItemTitle": "Ne alınacak?",
     "itemNameLabel": "Ne alınacak",
@@ -124,11 +123,9 @@
     "toBuySection": "Alınacak",
     "purchasedSection": "Alındı",
     "deleteItemConfirm": "Bu öğeyi silmek istiyor musun?",
-    "multiHint": "Her satıra bir tane yaz ya da virgülle ayır — hepsi ayrı madde olarak eklenir.",
     "addCount": "{{count}} madde ekle",
     "itemsInvalid": "En fazla 50 madde ekleyebilirsin; her madde en fazla 200 karakter olabilir.",
     "editItemTitle": "Öğeyi Düzenle",
-    "editItemHint": "Düzenlemek için bir öğeye uzun bas",
     "shared": "Ortak",
     "myList": "Benim listem — {{name}}",
     "personalListName": "{{name}} listesi",
@@ -136,7 +133,6 @@
     "forWhom": "Kimin için?",
     "scopeLockedHint": "Listenin sahibi düzenleme sırasında değiştirilemez.",
     "personalEmpty": "Bu kişisel liste boş",
-    "personalEmptyHint": "Bu kullanıcı kendi listesinden ürün eklediğinde burada görünür.",
     "addedBy": "{{name}} ekledi"
   },
   "statistics": {
@@ -152,7 +148,6 @@
   },
   "personalSpending": {
     "open": "Param nereye gitti?",
-    "openHint": "Kişisel paylarını ve yaptığın ödemeleri gör",
     "title": "Param nereye gitti?",
     "period": {
       "thisMonth": "Bu Ay",
@@ -169,7 +164,6 @@
     "loading": "Harcama dökümü yükleniyor…",
     "error": "Harcama dökümü yüklenemedi. Bağlantını kontrol edip tekrar dene.",
     "empty": "Bu dönemde kişisel harcama yok",
-    "emptyHint": "Payının olduğu veya ödeme yaptığın harcamalar burada görünür.",
     "openExpense": "{{title}} harcamasının detayını aç",
     "expenseAccessibilityLabel": "{{title}}, {{date}}. Toplam {{total}}. Benim payım {{share}}. Benim ödediğim {{paid}}. Detayı aç."
   },
@@ -198,7 +192,13 @@
     "signOut": "Çıkış yap",
     "addMember": "Eve kişi ekle",
     "unclaimed": "Henüz katılmadı",
-    "addMemberHint": "Uygulamaya katılmadan önce adına harcama ve ödeme kaydedebilirsiniz. Geldiğinde bu kişiyi seçerek geçmiş kayıtlarını devralır."
+    "rentDay": "Kira günü",
+    "rentDayOff": "Kapalı",
+    "rentDayValue": "Her ayın {{day}}. günü",
+    "rentDayHint": "O gün saat 10:00'da herkese kira ve güncel borç hatırlatması gider.",
+    "rentDayTitle": "Kira günü seç",
+    "rentDayClear": "Hatırlatmayı kapat",
+    "rentDayError": "Kira günü kaydedilemedi."
   },
   "common": {
     "cancel": "Vazgeç",
@@ -210,6 +210,78 @@
     "today": "Bugün",
     "yesterday": "Dün",
     "refresh": "Yenile",
-    "retry": "Tekrar dene"
+    "retry": "Tekrar dene",
+    "search": "Ara",
+    "closeSearch": "Aramayı kapat",
+    "collapseAll": "Tümünü daralt",
+    "expandAll": "Tümünü genişlet"
+  },
+  "tasks": {
+    "title": "Görevler",
+    "add": "Görev ekle",
+    "edit": "Görevi düzenle",
+    "titleLabel": "Ne yapılacak?",
+    "titlePlaceholder": "Örn. Mutfak dolaplarını temizle",
+    "description": "Açıklama",
+    "descriptionPlaceholder": "Detaylar, notlar veya gerekli malzemeler…",
+    "assignees": "Kim yapacak?",
+    "unassigned": "Atanmadı",
+    "dueDate": "Son tarih",
+    "noDate": "Tarih yok",
+    "pickDate": "Tarih seç",
+    "clearDate": "Tarihi kaldır",
+    "today": "Bugün",
+    "tomorrow": "Yarın",
+    "nextWeek": "Bir hafta sonra",
+    "priority": "Öncelik",
+    "priorities": {
+      "low": "Düşük",
+      "normal": "Normal",
+      "high": "Yüksek"
+    },
+    "status": "Durum",
+    "statuses": {
+      "todo": "Yapılacak",
+      "in_progress": "Devam ediyor",
+      "done": "Tamamlandı"
+    },
+    "filters": {
+      "open": "Açık",
+      "mine": "Bana",
+      "overdue": "Geciken",
+      "done": "Biten",
+      "all": "Tümü"
+    },
+    "search": "Görevlerde ara",
+    "empty": "Henüz görev yok",
+    "noResults": "Bu görünümde görev yok",
+    "overdue": "Gecikti",
+    "complete": "Tamamlandı işaretle",
+    "reopen": "Yeniden aç",
+    "commentPlaceholder": "Yorum yaz…",
+    "sendComment": "Yorumu gönder",
+    "editComment": "Yorumu düzenle",
+    "deleteComment": "Yorumu sil",
+    "edited": "düzenlendi",
+    "deleteTitle": "Görev silinsin mi?",
+    "deleteHint": "Görev ve tüm yorumları silinecek.",
+    "deleteCommentTitle": "Yorum silinsin mi?",
+    "saveError": "Görev kaydedilemedi. Bilgilerin burada duruyor, tekrar dene.",
+    "actionError": "İşlem yapılamadı. Tekrar dene.",
+    "loadError": "Görevler yüklenemedi. Bağlantını kontrol edip tekrar dene.",
+    "commentsError": "Yorumlar yüklenemedi.",
+    "saving": "Kaydediliyor…",
+    "createdBy": "Ekleyen: {{name}}",
+    "completedBy": "Tamamlayan: {{name}}",
+    "progress": "{{done}} / {{total}} görev tamamlandı",
+    "deleted": "Bu görev artık mevcut değil.",
+    "calendarPrevious": "Önceki ay",
+    "calendarNext": "Sonraki ay",
+    "weekdays": ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"],
+    "nudge": "Uyar",
+    "nudging": "Gönderiliyor…",
+    "nudgeSent": "Hatırlatma gönderildi.",
+    "nudgeUnreachable": "Atanan kişilere ulaşılamadı: bildirimleri kapalı olabilir.",
+    "nudgeCooldown": "Bu görev için kısa süre önce hatırlatma gönderildi. Bir saat sonra tekrar deneyebilirsin."
   }
 }

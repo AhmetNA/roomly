@@ -77,9 +77,6 @@ export function OnboardingScreen() {
               <ThemedText type="title" style={styles.title}>
                 {t('onboarding.title')}
               </ThemedText>
-              <ThemedText type="default" themeColor="textSecondary" style={styles.subtitle}>
-                {t('onboarding.subtitle')}
-              </ThemedText>
             </ThemedView>
 
             <ThemedView style={styles.form}>
@@ -216,9 +213,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     lineHeight: 38,
-  },
-  subtitle: {
-    lineHeight: 22,
   },
   form: {
     gap: Spacing.three,

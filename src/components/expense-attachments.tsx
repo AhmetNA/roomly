@@ -119,9 +119,6 @@ export function ExpenseAttachments({
             editable={!disabled}
             maxLength={10050}
           />
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('expenses.itemsHint')}
-          </ThemedText>
           {!allowPhoto && (
             <ThemedText type="small" themeColor="textSecondary">
               {t('expenses.receiptLocked')}

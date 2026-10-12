@@ -63,6 +63,14 @@
 - Listeye yeni ihtiyaç eklendiğinde push bildirim.
 - Borç hatırlatması **yok** — kapsam dışı.
 
+## 8. Paylaşımlı Görevler
+
+- Ev içinde yapılacak işler, açıklama ve isteğe bağlı son tarihle kaydedilir. Bir veya birden fazla kişi seçilebilir, görev atanmayabilir.
+- Öncelik ve yapılacak/devam ediyor/tamamlandı durumu; tamamlama ve yeniden açma.
+- Bana atanan, açık, geciken ve tamamlanan filtreleri, arama ve tamamlanma özeti.
+- Görev altında yorumlar; kendi yorumunu düzenleme/silme. Ev üyeleri tüm görevleri yönetebilir.
+- Görevler, atamalar ve yorumlar yalnızca aynı eve görünür; anlık senkronizasyon vardır.
+
 ## Kapsam Dışı (şimdilik)
 
 - Gerçek para transferi / ödeme entegrasyonu (Papara, IBAN üzerinden otomatik transfer vb.) — uygulama sadece IBAN'ı gösterir ve kaydı tutar, gerçek ödeme kullanıcıların kendi bankacılık uygulaması üzerinden yapılır.

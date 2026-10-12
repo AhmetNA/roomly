@@ -66,3 +66,11 @@ export async function addUnclaimedMember(memberName: string) {
   if (error) throw error;
   return data;
 }
+
+export async function updateRentDay(householdId: string, rentDay: number | null) {
+  const { error } = await supabase
+    .from('households')
+    .update({ rent_day: rentDay })
+    .eq('id', householdId);
+  if (error) throw error;
+}

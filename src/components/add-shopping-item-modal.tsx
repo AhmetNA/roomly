@@ -126,11 +126,6 @@ export function AddShoppingItemModal({
               textAlignVertical="top"
               style={editing ? undefined : styles.input}
             />
-            {!editing && (
-              <ThemedText type="small" themeColor="textSecondary">
-                {t('list.multiHint')}
-              </ThemedText>
-            )}
 
             <ThemedText type="small" themeColor="textSecondary">
               {t('list.forWhom')}

@@ -128,6 +128,9 @@ Not: `supabase/` klasörü artık yerelde mevcut (migration'lar, `notify` fonksi
 - **Harcama düzenleme/silme yetkisi**: herkes düzenleyebilir/silebilir (tek ev, güven bazlı roommate modeli).
 - **Kategori silme davranışı**: bağlı kayıtlar kategorisiz kalır, otomatik başka kategoriye taşınmaz.
 - **Push notification**: Expo Notifications yeterli, ayrı servis alınmadı. Gönderim `notify` Edge Function'ı üzerinden `https://exp.host/--/api/v2/push/send`'e yapılır; Android için ayrı `roomly-notifications` Firebase projesinin FCM V1 servis hesabı EAS'e yüklenir (kurulum adımları README "Android bildirim kurulumu").
+- **Görev uyarısı e-postası**: `notify` fonksiyonundaki `task_nudge`, push'a ek olarak Gmail SMTP (465, nodemailer) ile mail atar. Alan adı gerektirmediği için Resend yerine seçildi. `GMAIL_USER` ve `GMAIL_APP_PASSWORD` (Google uygulama şifresi) Supabase secret'ı olarak tanımlı değilse yalnızca push gider. Görev başına saatte bir uyarı sınırı `task_nudges` tablosunda tutulur (yalnızca servis rolü erişir).
+- **Görev son tarih hatırlatmaları**: `pg_cron` saat başı `task-reminders` Edge Function'ını çağırır (`x-cron-secret` başlığı Vault'taki `task_reminders_cron` sırrından okunur; fonksiyon `verify_jwt` kapalı ama sırrı `verify_task_reminders_secret` RPC'si ile doğrular). `due_date` saatsiz olduğu için son an gün sonu kabul edilir: bir gün önce 18:00'de push + e-posta, son gün 18:00'de (6 saat kala) push gider; yalnızca atanan kişilere. Ev saat dilimi şimdilik sabit `Europe/Istanbul`. Her hatırlatma `task_reminders` tablosuyla bir kez gönderilir; tarih değişirse yeniden kurulur.
+- **Kira günü hatırlatması**: aynı `task-reminders` fonksiyonu, `households.rent_day` gününde (kısa aylarda ayın son günü) saat 10:00'da evdeki her hesaplı üyeye push gönderir; mesaj, borç özeti ekranıyla aynı sadeleştirilmiş borç hesabıyla (`src/lib/debt.ts` ile fonksiyondaki `simplifyDebts` birlikte değiştirilmeli) kime ne ödeyeceğini ve kimden ne alacağını içerir. `rent_reminders` tablosu ev başına ayda bir gönderimi garanti eder. Cihazda yerel kira bildirimi kurulmaz.
 - **E-posta doğrulama (Supabase Auth "Confirm email")**: bu ayar dashboard'dan kontrol edilmeli — MCP araçlarıyla okunamıyor/değiştirilemiyor. Açıksa kayıt olan kullanıcı session almadan önce e-postasını onaylamalı; MVP test hızını artırmak isteniyorsa dashboard'dan kapatılabilir.
 
 ## 2026-09-09 güncellemesi: kişiler ve harcama ekleri
@@ -148,3 +151,12 @@ Yukarıdaki eski yapı notlarının yerine şu sözleşmeler geçerlidir:
 - **Şema baseline'ı yok.** Mevcut migration'ların hiçbiri `create table` içermiyor; `push_tokens` dahil tüm tablolar uzak projede elle/MCP ile oluşturulmuş. Şema repodan sıfır veritabanına yeniden üretilemez. Bu, CLAUDE.md'deki "elle dashboard değişikliği yapma" kuralıyla çelişiyor.
 - **`notify` fonksiyonu yalnızca deploy edilmişti.** Kaynağı `npx supabase@latest functions download notify` ile indirilip `supabase/functions/notify/index.ts` altına alındı; dosya sunucudaki ACTIVE sürümle birebir aynı, yeniden deploy edilmedi.
 - **`notify` Expo bilet hatalarını yutuyor.** Fonksiyon yalnızca `status === 'ok'` sayıyor ve `DeviceNotRegistered` dışındaki hataları (ör. FCM kimlik bilgisi eksikse gelen `MismatchSenderId`) sessizce atlıyor. Sonuç her durumda `{sent: 0}` olduğu için "FCM anahtarı yüklenmemiş", "hiç token kaydolmamış" ve "ev arkadaşı yok" durumları dışarıdan ayırt edilemiyor — teşhis için fonksiyon logları okunmalı (bkz. README "Android bildirim kurulumu").
+
+## 2026-10-12 güncellemesi: paylaşımlı görevler
+
+- Sekme sırası: Harcamalar → Liste → Görevler → Kişiler. `src/app/tasks.tsx` yeni görev ekranıdır.
+- `tasks`: başlık, açıklama, status (`todo`/`in_progress`/`done`), priority (`low`/`normal`/`high`), nullable `due_date` (yerel takvim günü), ekleyen/tamamlayan üye ve zaman damgaları.
+- `task_assignees`: bir göreve birden fazla ev üyesi atanabilir; hesap bağlantısı olmayan üyeler de seçilebilir. `task_comments`: evdeki herkes okur/ekler, yalnızca yazan kendi yorumunu düzenler/siler.
+- Üç tabloda household RLS ve çapraz ev ilişkilerini engelleyen bileşik foreign key vardır. Tüm ev üyeleri görevleri düzenleyip silebilir. Ekleyen kişi sabittir, tamamlayan kişi/zaman sunucuda hesaplanır.
+- `save_task` SECURITY INVOKER RPC'si görev ve sorumlu değişikliklerini atomik kaydeder. Üç tablo Realtime yayınına eklenmiştir.
+- Migration: `supabase/migrations/20261012084612_household_tasks.sql`; rollback ile entegrasyon testi: `supabase/tests/household_tasks.sql`.

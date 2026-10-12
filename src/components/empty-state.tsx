@@ -9,10 +9,9 @@ import { useTheme } from '@/hooks/use-theme';
 type EmptyStateProps = {
   icon: AppSymbolName;
   title: string;
-  hint: string;
 };
 
-export function EmptyState({ icon, title, hint }: EmptyStateProps) {
+export function EmptyState({ icon, title }: EmptyStateProps) {
   const theme = useTheme();
 
   return (
@@ -20,9 +19,6 @@ export function EmptyState({ icon, title, hint }: EmptyStateProps) {
       <AppSymbol name={icon} size={44} tintColor={theme.textSecondary} />
       <ThemedText type="default" style={styles.title}>
         {title}
-      </ThemedText>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
-        {hint}
       </ThemedText>
     </Animated.View>
   );
@@ -39,8 +35,5 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontWeight: '600',
-  },
-  hint: {
-    textAlign: 'center',
   },
 });

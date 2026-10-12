@@ -31,6 +31,11 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="tasks">
+        <NativeTabs.Trigger.Label>{t('tabs.tasks')}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="checklist" md="checklist" />
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="people">
         <NativeTabs.Trigger.Label>{t('tabs.people')}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

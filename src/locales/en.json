@@ -1,7 +1,6 @@
 {
   "auth": {
     "title": "Welcome to Roomly",
-    "subtitle": "Sign in or create an account to continue",
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "emailLabel": "Email",
@@ -25,7 +24,6 @@
   },
   "onboarding": {
     "title": "Set Up Household",
-    "subtitle": "Share expenses and a shopping list with your roommates",
     "createHousehold": "Create a Household",
     "joinHousehold": "Join a Household",
     "yourNameLabel": "Your name",
@@ -49,12 +47,12 @@
   "tabs": {
     "expenses": "Expenses",
     "list": "List",
-    "people": "People"
+    "people": "People",
+    "tasks": "Tasks"
   },
   "expenses": {
     "title": "Expenses",
     "empty": "No expenses yet",
-    "emptyHint": "Tap the plus button to add the first one",
     "addButton": "Add Expense",
     "addTitle": "Add Expense",
     "titleLabel": "Description",
@@ -86,7 +84,6 @@
     "attachments": "Contents and receipt",
     "optional": "Optional",
     "itemsLabel": "Contents list",
-    "itemsHint": "Write one item per line (up to 50 lines).",
     "itemsPlaceholder": "Bread\nMilk\nCleaning supplies",
     "receipt": "Receipt photo",
     "choosePhoto": "Choose photo",
@@ -108,12 +105,15 @@
     "editButton": "Edit",
     "editSettledError": "This expense has been settled, so it can no longer be edited. Delete it and add it again to change it.",
     "receiptLocked": "The receipt photo cannot be changed while editing.",
-    "daySectionAccessibility": "{{date}}, {{count}} expenses. Expand or collapse."
+    "daySectionAccessibility": "{{date}}, {{count}} expenses. Expand or collapse.",
+    "searchPlaceholder": "Search expenses",
+    "searchEmpty": "No matching expenses",
+    "searchResults_one": "{{count}} result",
+    "searchResults_other": "{{count}} results"
   },
   "list": {
     "title": "Shopping List",
     "empty": "The list is empty",
-    "emptyHint": "Tap the plus button to add something the household needs",
     "addButton": "Add",
     "addItemTitle": "What's needed?",
     "itemNameLabel": "What's needed",
@@ -124,11 +124,9 @@
     "toBuySection": "To buy",
     "purchasedSection": "Purchased",
     "deleteItemConfirm": "Delete this item?",
-    "multiHint": "One per line, or separated by commas — each becomes its own item.",
     "addCount": "Add {{count}} items",
     "itemsInvalid": "You can add at most 50 items, and each can be at most 200 characters.",
     "editItemTitle": "Edit Item",
-    "editItemHint": "Long-press an item to edit it",
     "shared": "Shared",
     "myList": "My list — {{name}}",
     "personalListName": "{{name}}'s list",
@@ -136,7 +134,6 @@
     "forWhom": "Who is it for?",
     "scopeLockedHint": "The list owner cannot be changed while editing.",
     "personalEmpty": "This personal list is empty",
-    "personalEmptyHint": "Items this user adds to their own list will appear here.",
     "addedBy": "Added by {{name}}"
   },
   "statistics": {
@@ -152,7 +149,6 @@
   },
   "personalSpending": {
     "open": "Where did my money go?",
-    "openHint": "See your shares and the payments you made",
     "title": "Where did my money go?",
     "period": {
       "thisMonth": "This Month",
@@ -169,7 +165,6 @@
     "loading": "Loading your expense breakdown…",
     "error": "Your expense breakdown could not be loaded. Check your connection and try again.",
     "empty": "No personal expenses in this period",
-    "emptyHint": "Expenses you shared or paid for will appear here.",
     "openExpense": "Open details for {{title}}",
     "expenseAccessibilityLabel": "{{title}}, {{date}}. Total {{total}}. My share {{share}}. I paid {{paid}}. Open details."
   },
@@ -198,7 +193,13 @@
     "signOut": "Sign out",
     "addMember": "Add person to household",
     "unclaimed": "Not joined yet",
-    "addMemberHint": "Record expenses and payments before they join the app. They can select this person when joining to keep their history."
+    "rentDay": "Rent day",
+    "rentDayOff": "Off",
+    "rentDayValue": "Day {{day}} of every month",
+    "rentDayHint": "At 10:00 that day, everyone gets a rent reminder with their current debts.",
+    "rentDayTitle": "Choose rent day",
+    "rentDayClear": "Turn off reminder",
+    "rentDayError": "Couldn't save the rent day."
   },
   "common": {
     "cancel": "Cancel",
@@ -210,6 +211,78 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "refresh": "Refresh",
-    "retry": "Try again"
+    "retry": "Try again",
+    "search": "Search",
+    "closeSearch": "Close search",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "add": "Add task",
+    "edit": "Edit task",
+    "titleLabel": "What needs doing?",
+    "titlePlaceholder": "E.g. Clean the kitchen cupboards",
+    "description": "Description",
+    "descriptionPlaceholder": "Details, notes or supplies needed…",
+    "assignees": "Who will do it?",
+    "unassigned": "Unassigned",
+    "dueDate": "Due date",
+    "noDate": "No date",
+    "pickDate": "Choose a date",
+    "clearDate": "Clear date",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "nextWeek": "In one week",
+    "priority": "Priority",
+    "priorities": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High"
+    },
+    "status": "Status",
+    "statuses": {
+      "todo": "To do",
+      "in_progress": "In progress",
+      "done": "Done"
+    },
+    "filters": {
+      "open": "Open",
+      "mine": "Mine",
+      "overdue": "Overdue",
+      "done": "Done",
+      "all": "All"
+    },
+    "search": "Search tasks",
+    "empty": "No tasks yet",
+    "noResults": "No tasks in this view",
+    "overdue": "Overdue",
+    "complete": "Mark complete",
+    "reopen": "Reopen",
+    "commentPlaceholder": "Write a comment…",
+    "sendComment": "Send comment",
+    "editComment": "Edit comment",
+    "deleteComment": "Delete comment",
+    "edited": "edited",
+    "deleteTitle": "Delete task?",
+    "deleteHint": "The task and all its comments will be deleted.",
+    "deleteCommentTitle": "Delete comment?",
+    "saveError": "Could not save the task. Your changes are still here; try again.",
+    "actionError": "Could not complete the action. Try again.",
+    "loadError": "Could not load tasks. Check your connection and try again.",
+    "commentsError": "Could not load comments.",
+    "saving": "Saving…",
+    "createdBy": "Added by {{name}}",
+    "completedBy": "Completed by {{name}}",
+    "progress": "{{done}} of {{total}} tasks completed",
+    "deleted": "This task is no longer available.",
+    "calendarPrevious": "Previous month",
+    "calendarNext": "Next month",
+    "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "nudge": "Nudge",
+    "nudging": "Sending…",
+    "nudgeSent": "Reminder sent.",
+    "nudgeUnreachable": "Couldn't reach the assignees: their notifications may be off.",
+    "nudgeCooldown": "A reminder for this task was sent recently. You can try again in an hour."
   }
 }

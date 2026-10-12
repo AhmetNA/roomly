@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppSymbol } from '@/components/app-symbol';
 import { PrimaryButton } from '@/components/primary-button';
+import { RentDayModal } from '@/components/rent-day-modal';
 import { ScreenHeader } from '@/components/screen-header';
 import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
@@ -56,6 +57,7 @@ export default function PeopleScreen() {
 
   const currentUserId = session?.user.id;
   const [editingMember, setEditingMember] = useState<MemberRow | null>(null);
+  const [rentDayVisible, setRentDayVisible] = useState(false);
 
   async function copyToClipboard(value: string, message: string) {
     await Clipboard.setStringAsync(value);
@@ -175,6 +177,30 @@ export default function PeopleScreen() {
                     tintColor={theme.textSecondary}
                   />
                 </Pressable>
+                <Pressable
+                  onPress={() => setRentDayVisible(true)}
+                  accessibilityRole="button"
+                  style={styles.rentRow}
+                >
+                  <AppSymbol
+                    name={{ ios: 'calendar', android: 'calendar_month' }}
+                    size={18}
+                    tintColor={theme.accent}
+                  />
+                  <ThemedText type="small" style={styles.rentLabel}>
+                    {t('people.rentDay')}
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {household.rent_day
+                      ? t('people.rentDayValue', { day: household.rent_day })
+                      : t('people.rentDayOff')}
+                  </ThemedText>
+                  <AppSymbol
+                    name={{ ios: 'chevron.right', android: 'chevron_right' }}
+                    size={14}
+                    tintColor={theme.textSecondary}
+                  />
+                </Pressable>
                 <Pressable onPress={handleLeaveHousehold} style={styles.leaveButton}>
                   <ThemedText type="small" themeColor="danger">
                     {t('people.leaveHousehold')}
@@ -190,6 +216,14 @@ export default function PeopleScreen() {
           }
         />
       </SafeAreaView>
+
+      {rentDayVisible && household && (
+        <RentDayModal
+          householdId={household.id}
+          rentDay={household.rent_day}
+          onClose={() => setRentDayVisible(false)}
+        />
+      )}
 
       <Modal
         visible={addingMember}
@@ -208,9 +242,6 @@ export default function PeopleScreen() {
               }}
             />
             <View style={styles.modalForm}>
-              <ThemedText type="small" themeColor="textSecondary">
-                {t('people.addMemberHint')}
-              </ThemedText>
               <TextField
                 label={t('people.nameLabel')}
                 value={newMemberName}
@@ -366,6 +397,13 @@ const styles = StyleSheet.create({
   householdName: {
     fontWeight: '600',
   },
+  rentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    minHeight: 44,
+  },
+  rentLabel: { flex: 1 },
   leaveButton: {
     marginTop: Spacing.two,
   },

@@ -209,9 +209,6 @@ function PersonalSpendingEntry({ onPress }: { onPress: () => void }) {
           <ThemedText type="default" style={styles.personalSpendingTitle}>
             {t('personalSpending.open')}
           </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('personalSpending.openHint')}
-          </ThemedText>
         </View>
         <AppSymbol
           name={{ ios: 'chevron.right', android: 'chevron_right' }}

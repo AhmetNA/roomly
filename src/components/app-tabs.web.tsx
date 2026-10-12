@@ -35,6 +35,11 @@ export default function AppTabs() {
               {t('tabs.list')}
             </TabButton>
           </TabTrigger>
+          <TabTrigger name="tasks" href="/tasks" asChild>
+            <TabButton icon="checklist" materialIcon="checklist">
+              {t('tabs.tasks')}
+            </TabButton>
+          </TabTrigger>
           <TabTrigger name="people" href="/people" asChild>
             <TabButton icon="person.2" materialIcon="people">
               {t('tabs.people')}
@@ -52,7 +57,7 @@ export function TabButton({ children, isFocused, icon, materialIcon, ...props }:
   const theme = useTheme();
 
   return (
-    <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
+    <Pressable {...props} style={({ pressed }) => [styles.tabButton, pressed && styles.pressed]}>
       <ThemedView
         type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
         style={styles.tabButtonView}
@@ -102,16 +107,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.two,
     maxWidth: MaxContentWidth,
+    width: '100%',
   },
+  tabButton: { flex: 1, minWidth: 0 },
   pressed: {
     opacity: 0.7,
   },
   tabButtonView: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     gap: Spacing.one,
     paddingVertical: Spacing.one,
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: Spacing.one,
     borderRadius: Spacing.three,
   },
 });

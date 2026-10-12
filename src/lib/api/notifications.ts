@@ -30,16 +30,19 @@ if (PUSH_SUPPORTED) {
   });
 }
 
+export async function ensureNotificationChannel() {
+  if (Platform.OS !== 'android') return;
+  await Notifications.setNotificationChannelAsync('default', {
+    name: 'default',
+    importance: Notifications.AndroidImportance.DEFAULT,
+  });
+}
+
 export async function registerPushToken(language: string) {
   // Push tokens are only issued to real hardware; simulators would fail here.
   if (!PUSH_SUPPORTED || !Device.isDevice) return;
 
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.DEFAULT,
-    });
-  }
+  await ensureNotificationChannel();
 
   const existing = await Notifications.getPermissionsAsync();
   const granted = existing.granted || (await Notifications.requestPermissionsAsync()).granted;

@@ -15,6 +15,7 @@ import { AddShoppingItemModal } from '@/components/add-shopping-item-modal';
 import { AppSymbol, type AppSymbolName } from '@/components/app-symbol';
 import { EmptyState } from '@/components/empty-state';
 import { FloatingActionButton } from '@/components/floating-action-button';
+import { CollapseAllButton } from '@/components/header-search';
 import { ScreenHeader } from '@/components/screen-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -39,6 +40,11 @@ import type { ShoppingItemRow } from '@/lib/api/shopping-items';
 const UNCATEGORIZED_KEY = 'uncategorized';
 const PURCHASED_KEY = 'purchased';
 const SHARED_SCOPE = 'shared';
+
+// Purchased items are history, so that section starts collapsed until opened.
+function isSectionCollapsed(collapsed: Record<string, boolean>, key: string): boolean {
+  return collapsed[key] ?? key === PURCHASED_KEY;
+}
 
 type ListSection = {
   key: string;
@@ -166,9 +172,15 @@ export default function ShoppingListScreen() {
     ];
   }, [filteredItems, categoryById, t, i18n.language]);
 
+  const allCollapsed =
+    sections.length > 0 && sections.every((section) => isSectionCollapsed(collapsed, section.key));
+
   // Collapsing only empties a section's data so its header stays visible.
   const visibleSections = useMemo(
-    () => sections.map((section) => (collapsed[section.key] ? { ...section, data: [] } : section)),
+    () =>
+      sections.map((section) =>
+        isSectionCollapsed(collapsed, section.key) ? { ...section, data: [] } : section,
+      ),
     [sections, collapsed],
   );
 
@@ -206,7 +218,23 @@ export default function ShoppingListScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <ScreenHeader title={t('list.title')} refreshing={refreshing} onRefresh={onRefresh} />
+        <ScreenHeader
+          title={t('list.title')}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          actions={
+            sections.length > 1 ? (
+              <CollapseAllButton
+                collapsed={allCollapsed}
+                onPress={() =>
+                  setCollapsed(
+                    Object.fromEntries(sections.map((section) => [section.key, !allCollapsed])),
+                  )
+                }
+              />
+            ) : null
+          }
+        />
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -254,18 +282,15 @@ export default function ShoppingListScreen() {
             <EmptyState
               icon={{ ios: 'cart', android: 'shopping_cart' }}
               title={t(selectedScope === SHARED_SCOPE ? 'list.empty' : 'list.personalEmpty')}
-              hint={t(selectedScope === SHARED_SCOPE ? 'list.emptyHint' : 'list.personalEmptyHint')}
             />
           }
           renderSectionHeader={({ section }) => {
-            const isCollapsed = collapsed[section.key] === true;
+            const isCollapsed = isSectionCollapsed(collapsed, section.key);
             return (
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ expanded: !isCollapsed }}
-                onPress={() =>
-                  setCollapsed((prev) => ({ ...prev, [section.key]: !prev[section.key] }))
-                }
+                onPress={() => setCollapsed((prev) => ({ ...prev, [section.key]: !isCollapsed }))}
                 style={[styles.sectionHeader, { backgroundColor: theme.background }]}
               >
                 {section.icon && (

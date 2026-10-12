@@ -57,12 +57,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: Spacing.three,
   },
   title: {
+    flex: 1,
+    minWidth: 0,
     fontSize: 22,
     lineHeight: 28,
   },
   closeButton: {
+    flexShrink: 0,
     width: 30,
     height: 30,
     borderRadius: 15,

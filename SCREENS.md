@@ -4,7 +4,7 @@ Bu dosya, uygulamadaki her ekranı ve o ekranda bulunması gereken özellikleri 
 
 ## Navigasyon (taslak)
 
-Alt tab bar: **Harcamalar | Liste | Kişiler**
+Alt tab bar: **Harcamalar | Liste | Görevler | Kişiler**
 
 Uygulama açılışta doğrudan **Harcamalar** sekmesine düşer (ayrı bir Ana Sayfa / özet ekranı yok).
 
@@ -24,6 +24,11 @@ Harcamalar (Tab, başlangıç ekranı)
 Liste (Tab)
   ├─ İhtiyaç Listesi
   └─ Kategori Yönetimi (ortak, hem listede hem harcamada erişilebilir)
+
+Görevler (Tab)
+  ├─ Açık / Bana atanan / Geciken / Tamamlanan / Tümü + arama
+  ├─ Görev Ekle / Düzenle (kişiler, son tarih, öncelik, durum)
+  └─ Görev Detayı ve Yorumlar
 
 Kişiler (Tab)
   └─ Kişiler (liste + kendi profilin + ev ayarları)
@@ -140,3 +145,13 @@ Profil ekranı ayrı değil — kullanıcının kendi bilgileri de bu ekranda, k
 - Kişiler ekranında “Eve kişi ekle”; sahipsiz kişilerde “Henüz katılmadı” etiketi.
 - Harcama formunda açılır/kapanır “İçerik ve fiş”: satır bazlı içerik listesi, galeri/kamera, fotoğraf kaldırma. İçerik ve fotoğraf bağımsız ve isteğe bağlıdır.
 - Harcama detayında kaydedilen içerik sırası ve özel fiş fotoğrafı görüntülenir.
+
+## 12. Görevler
+
+- Liste sekmesinin hemen sağında yer alır. Tüm ev üyeleri görev ekleyebilir, düzenleyebilir, silebilir ve tamamlayabilir.
+- Başlık, açıklama, birden fazla sorumlu kişi (hesabı olmayan kişiler dahil), isteğe bağlı son tarih, düşük/normal/yüksek öncelik ve yapılacak/devam ediyor/tamamlandı durumu.
+- Takvimden tarih seçimi ve Bugün/Yarın/Bir hafta sonra kısayolları; tarihi kaldırma. Son tarih gün bazlıdır.
+- Satırdaki onay işaretiyle tamamlama/yeniden açma; detayda tamamlayan kişi ve tarih.
+- Açık, bana atanan açık görevler, geciken, tamamlanan ve tümü filtreleri; başlık/açıklama araması, son tarih ve önceliğe göre sıralama.
+- Görev detayında yorum ekleme; kendi yorumunu düzenleme/silme. Diğer üyelerin yorumları okunabilir.
+- Görev ve yorum değişiklikleri realtime ile senkronize edilir; silme onay ister, kayıt hatasında formdaki bilgiler korunur.
