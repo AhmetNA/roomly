@@ -1,161 +1,29 @@
-// Generated from the live Supabase schema. Nullable category RPC arguments are
-// annotated explicitly because the generator does not infer argument nullability.
+// Generated from live Supabase; nullable category RPC arguments are annotated.
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.5';
+    PostgrestVersion: '14.17';
   };
   public: {
     Tables: {
-      tasks: {
+      account_deletions: {
         Row: {
-          completed_at: string | null;
-          completed_by: string | null;
-          created_at: string;
-          created_by: string;
-          description: string;
-          due_date: string | null;
-          household_id: string;
-          id: string;
-          priority: string;
-          status: string;
-          title: string;
-          updated_at: string;
+          requested_at: string;
+          user_id: string;
         };
         Insert: {
-          completed_at?: string | null;
-          completed_by?: string | null;
-          created_at?: string;
-          created_by: string;
-          description?: string;
-          due_date?: string | null;
-          household_id: string;
-          id?: string;
-          priority?: string;
-          status?: string;
-          title: string;
-          updated_at?: string;
+          requested_at?: string;
+          user_id: string;
         };
         Update: {
-          completed_at?: string | null;
-          completed_by?: string | null;
-          created_at?: string;
-          created_by?: string;
-          description?: string;
-          due_date?: string | null;
-          household_id?: string;
-          id?: string;
-          priority?: string;
-          status?: string;
-          title?: string;
-          updated_at?: string;
+          requested_at?: string;
+          user_id?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: 'tasks_completed_by_household_id_fkey';
-            columns: ['completed_by', 'household_id'];
-            isOneToOne: false;
-            referencedRelation: 'household_members';
-            referencedColumns: ['id', 'household_id'];
-          },
-          {
-            foreignKeyName: 'tasks_created_by_household_id_fkey';
-            columns: ['created_by', 'household_id'];
-            isOneToOne: false;
-            referencedRelation: 'household_members';
-            referencedColumns: ['id', 'household_id'];
-          },
-          {
-            foreignKeyName: 'tasks_household_id_fkey';
-            columns: ['household_id'];
-            isOneToOne: false;
-            referencedRelation: 'households';
-            referencedColumns: ['id'];
-          },
-        ];
+        Relationships: [];
       };
-      task_assignees: {
-        Row: {
-          household_id: string;
-          member_id: string;
-          task_id: string;
-        };
-        Insert: {
-          household_id: string;
-          member_id: string;
-          task_id: string;
-        };
-        Update: {
-          household_id?: string;
-          member_id?: string;
-          task_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'task_assignees_member_id_household_id_fkey';
-            columns: ['member_id', 'household_id'];
-            isOneToOne: false;
-            referencedRelation: 'household_members';
-            referencedColumns: ['id', 'household_id'];
-          },
-          {
-            foreignKeyName: 'task_assignees_task_id_household_id_fkey';
-            columns: ['task_id', 'household_id'];
-            isOneToOne: false;
-            referencedRelation: 'tasks';
-            referencedColumns: ['id', 'household_id'];
-          },
-        ];
-      };
-      task_comments: {
-        Row: {
-          author_id: string;
-          body: string;
-          created_at: string;
-          household_id: string;
-          id: string;
-          task_id: string;
-          updated_at: string;
-        };
-        Insert: {
-          author_id: string;
-          body: string;
-          created_at?: string;
-          household_id: string;
-          id?: string;
-          task_id: string;
-          updated_at?: string;
-        };
-        Update: {
-          author_id?: string;
-          body?: string;
-          created_at?: string;
-          household_id?: string;
-          id?: string;
-          task_id?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'task_comments_author_id_household_id_fkey';
-            columns: ['author_id', 'household_id'];
-            isOneToOne: false;
-            referencedRelation: 'household_members';
-            referencedColumns: ['id', 'household_id'];
-          },
-          {
-            foreignKeyName: 'task_comments_task_id_household_id_fkey';
-            columns: ['task_id', 'household_id'];
-            isOneToOne: false;
-            referencedRelation: 'tasks';
-            referencedColumns: ['id', 'household_id'];
-          },
-        ];
-      };
-
       categories: {
         Row: {
           created_at: string;
@@ -184,6 +52,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'categories_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      content_reports: {
+        Row: {
+          created_at: string;
+          household_id: string;
+          id: string;
+          reason: string;
+          reporter_user_id: string;
+          status: string;
+          target_id: string;
+          target_kind: string;
+        };
+        Insert: {
+          created_at?: string;
+          household_id: string;
+          id?: string;
+          reason: string;
+          reporter_user_id: string;
+          status?: string;
+          target_id: string;
+          target_kind: string;
+        };
+        Update: {
+          created_at?: string;
+          household_id?: string;
+          id?: string;
+          reason?: string;
+          reporter_user_id?: string;
+          status?: string;
+          target_id?: string;
+          target_kind?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'content_reports_household_id_fkey';
             columns: ['household_id'];
             isOneToOne: false;
             referencedRelation: 'households';
@@ -400,6 +309,8 @@ export type Database = {
       };
       household_members: {
         Row: {
+          account_deleted_at: string | null;
+          account_owner_id: string | null;
           created_at: string;
           household_id: string;
           iban: string | null;
@@ -408,6 +319,8 @@ export type Database = {
           user_id: string | null;
         };
         Insert: {
+          account_deleted_at?: string | null;
+          account_owner_id?: string | null;
           created_at?: string;
           household_id: string;
           iban?: string | null;
@@ -416,6 +329,8 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          account_deleted_at?: string | null;
+          account_owner_id?: string | null;
           created_at?: string;
           household_id?: string;
           iban?: string | null;
@@ -456,6 +371,56 @@ export type Database = {
           rent_day?: number | null;
         };
         Relationships: [];
+      };
+      push_tokens: {
+        Row: {
+          created_at: string;
+          locale: string;
+          token: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          locale?: string;
+          token: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          locale?: string;
+          token?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      rent_reminders: {
+        Row: {
+          household_id: string;
+          rent_date: string;
+          sent_at: string;
+        };
+        Insert: {
+          household_id: string;
+          rent_date: string;
+          sent_at?: string;
+        };
+        Update: {
+          household_id?: string;
+          rent_date?: string;
+          sent_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'rent_reminders_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       settlements: {
         Row: {
@@ -508,30 +473,6 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
-      };
-      push_tokens: {
-        Row: {
-          created_at: string;
-          locale: string;
-          token: string;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          locale?: string;
-          token: string;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          locale?: string;
-          token?: string;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
       };
       shopping_items: {
         Row: {
@@ -601,27 +542,256 @@ export type Database = {
           },
         ];
       };
+      task_assignees: {
+        Row: {
+          household_id: string;
+          member_id: string;
+          task_id: string;
+        };
+        Insert: {
+          household_id: string;
+          member_id: string;
+          task_id: string;
+        };
+        Update: {
+          household_id?: string;
+          member_id?: string;
+          task_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_assignees_member_id_household_id_fkey';
+            columns: ['member_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'task_assignees_task_id_household_id_fkey';
+            columns: ['task_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id', 'household_id'];
+          },
+        ];
+      };
+      task_comments: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          household_id: string;
+          id: string;
+          task_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          household_id: string;
+          id?: string;
+          task_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          household_id?: string;
+          id?: string;
+          task_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_comments_author_id_household_id_fkey';
+            columns: ['author_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'task_comments_task_id_household_id_fkey';
+            columns: ['task_id', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id', 'household_id'];
+          },
+        ];
+      };
+      task_nudges: {
+        Row: {
+          nudged_at: string;
+          task_id: string;
+        };
+        Insert: {
+          nudged_at?: string;
+          task_id: string;
+        };
+        Update: {
+          nudged_at?: string;
+          task_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_nudges_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: true;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      task_reminders: {
+        Row: {
+          due_date: string;
+          kind: string;
+          sent_at: string;
+          task_id: string;
+        };
+        Insert: {
+          due_date: string;
+          kind: string;
+          sent_at?: string;
+          task_id: string;
+        };
+        Update: {
+          due_date?: string;
+          kind?: string;
+          sent_at?: string;
+          task_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_reminders_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      tasks: {
+        Row: {
+          completed_at: string | null;
+          completed_by: string | null;
+          created_at: string;
+          created_by: string;
+          description: string;
+          due_date: string | null;
+          household_id: string;
+          id: string;
+          priority: string;
+          status: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          completed_by?: string | null;
+          created_at?: string;
+          created_by: string;
+          description?: string;
+          due_date?: string | null;
+          household_id: string;
+          id?: string;
+          priority?: string;
+          status?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          completed_by?: string | null;
+          created_at?: string;
+          created_by?: string;
+          description?: string;
+          due_date?: string | null;
+          household_id?: string;
+          id?: string;
+          priority?: string;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'tasks_completed_by_household_id_fkey';
+            columns: ['completed_by', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'tasks_created_by_household_id_fkey';
+            columns: ['created_by', 'household_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_members';
+            referencedColumns: ['id', 'household_id'];
+          },
+          {
+            foreignKeyName: 'tasks_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      terms_acceptances: {
+        Row: {
+          accepted_at: string;
+          user_id: string;
+          version: string;
+        };
+        Insert: {
+          accepted_at?: string;
+          user_id: string;
+          version: string;
+        };
+        Update: {
+          accepted_at?: string;
+          user_id?: string;
+          version?: string;
+        };
+        Relationships: [];
+      };
+      user_blocks: {
+        Row: {
+          blocked_user_id: string;
+          blocker_user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          blocked_user_id: string;
+          blocker_user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_user_id?: string;
+          blocker_user_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      save_task: {
-        Args: {
-          p_assignee_ids?: string[];
-          p_description?: string;
-          p_due_date?: string;
-          p_priority?: string;
-          p_status?: string;
-          p_task_id?: string;
-          p_title: string;
-        };
-        Returns: string;
+      accept_current_terms: { Args: never; Returns: undefined };
+      account_deletion_receipts: {
+        Args: { target_user_id: string };
+        Returns: {
+          name: string;
+        }[];
       };
-
       add_unclaimed_member: {
         Args: { member_name: string };
         Returns: {
+          account_deleted_at: string | null;
+          account_owner_id: string | null;
           created_at: string;
           household_id: string;
           iban: string | null;
@@ -636,41 +806,15 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      allowed_notification_recipients: {
+        Args: { actor_user_id: string; candidate_user_ids: string[] };
+        Returns: string[];
+      };
       create_expense: {
         Args: {
           p_category_id: string | null;
           p_household_id: string;
           p_payments: Json;
-          p_split_type: string;
-          p_splits: Json;
-          p_title: string;
-          p_total_amount: number;
-        };
-        Returns: {
-          category_id: string | null;
-          created_at: string;
-          household_id: string;
-          id: string;
-          receipt_photo_url: string | null;
-          split_type: string;
-          title: string;
-          total_amount: number;
-        };
-        SetofOptions: {
-          from: '*';
-          to: 'expenses';
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
-      };
-      create_expense_with_details: {
-        Args: {
-          p_category_id: string | null;
-          p_currency_code: string;
-          p_household_id: string;
-          p_items?: Json;
-          p_payments: Json;
-          p_receipt_path?: string;
           p_split_type: string;
           p_splits: Json;
           p_title: string;
@@ -694,6 +838,68 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      create_expense_with_details:
+        | {
+            Args: {
+              p_category_id: string | null;
+              p_currency_code: string;
+              p_household_id: string;
+              p_items?: Json;
+              p_payments: Json;
+              p_receipt_path?: string;
+              p_split_type: string;
+              p_splits: Json;
+              p_title: string;
+              p_total_amount: number;
+            };
+            Returns: {
+              category_id: string | null;
+              created_at: string;
+              currency_code: string;
+              household_id: string;
+              id: string;
+              receipt_photo_url: string | null;
+              split_type: string;
+              title: string;
+              total_amount: number;
+            };
+            SetofOptions: {
+              from: '*';
+              to: 'expenses';
+              isOneToOne: true;
+              isSetofReturn: false;
+            };
+          }
+        | {
+            Args: {
+              p_category_id: string | null;
+              p_household_id: string;
+              p_items?: Json;
+              p_payments: Json;
+              p_receipt_path?: string;
+              p_split_type: string;
+              p_splits: Json;
+              p_title: string;
+              p_total_amount: number;
+            };
+            Returns: {
+              category_id: string | null;
+              created_at: string;
+              currency_code: string;
+              household_id: string;
+              id: string;
+              receipt_photo_url: string | null;
+              split_type: string;
+              title: string;
+              total_amount: number;
+            };
+            SetofOptions: {
+              from: '*';
+              to: 'expenses';
+              isOneToOne: true;
+              isSetofReturn: false;
+            };
+          };
       create_household: {
         Args: { household_name: string; my_name: string };
         Returns: {
@@ -701,6 +907,7 @@ export type Database = {
           id: string;
           invite_code: string;
           name: string;
+          rent_day: number | null;
         };
         SetofOptions: {
           from: '*';
@@ -708,6 +915,10 @@ export type Database = {
           isOneToOne: true;
           isSetofReturn: false;
         };
+      };
+      finish_account_deletion: {
+        Args: { target_user_id: string };
+        Returns: undefined;
       };
       get_my_household_id: { Args: never; Returns: string };
       join_household: {
@@ -717,6 +928,7 @@ export type Database = {
           id: string;
           invite_code: string;
           name: string;
+          rent_day: number | null;
         };
         SetofOptions: {
           from: '*';
@@ -732,6 +944,7 @@ export type Database = {
           id: string;
           invite_code: string;
           name: string;
+          rent_day: number | null;
         };
         SetofOptions: {
           from: '*';
@@ -741,6 +954,10 @@ export type Database = {
         };
       };
       leave_household: { Args: never; Returns: undefined };
+      prepare_account_deletion: {
+        Args: { target_user_id: string };
+        Returns: undefined;
+      };
       preview_household_members: {
         Args: { code: string };
         Returns: {
@@ -748,58 +965,135 @@ export type Database = {
           name: string;
         }[];
       };
-      update_expense_with_details: {
-        Args: {
-          p_category_id: string | null;
-          p_currency_code: string;
-          p_expense_id: string;
-          p_items?: Json;
-          p_payments: Json;
-          p_split_type: string;
-          p_splits: Json;
-          p_title: string;
-          p_total_amount: number;
-        };
-        Returns: {
-          category_id: string | null;
-          created_at: string;
-          currency_code: string;
-          household_id: string;
-          id: string;
-          receipt_photo_url: string | null;
-          split_type: string;
-          title: string;
-          total_amount: number;
-        };
-        SetofOptions: {
-          from: '*';
-          to: 'expenses';
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
+      record_settlement:
+        | {
+            Args: {
+              p_amount: number;
+              p_from_member_id: string;
+              p_to_member_id: string;
+            };
+            Returns: {
+              amount: number;
+              created_at: string;
+              currency_code: string;
+              from_member_id: string;
+              household_id: string;
+              id: string;
+              to_member_id: string;
+            };
+            SetofOptions: {
+              from: '*';
+              to: 'settlements';
+              isOneToOne: true;
+              isSetofReturn: false;
+            };
+          }
+        | {
+            Args: {
+              p_amount: number;
+              p_currency_code: string;
+              p_from_member_id: string;
+              p_to_member_id: string;
+            };
+            Returns: {
+              amount: number;
+              created_at: string;
+              currency_code: string;
+              from_member_id: string;
+              household_id: string;
+              id: string;
+              to_member_id: string;
+            };
+            SetofOptions: {
+              from: '*';
+              to: 'settlements';
+              isOneToOne: true;
+              isSetofReturn: false;
+            };
+          };
+      report_content: {
+        Args: { p_kind: string; p_reason: string; p_target_id: string };
+        Returns: string;
       };
-      record_settlement: {
+      save_task: {
         Args: {
-          p_amount: number;
-          p_currency_code?: string;
-          p_from_member_id: string;
-          p_to_member_id: string;
+          p_assignee_ids?: string[];
+          p_description?: string;
+          p_due_date?: string;
+          p_priority?: string;
+          p_status?: string;
+          p_task_id?: string;
+          p_title: string;
         };
-        Returns: {
-          amount: number;
-          created_at: string;
-          currency_code: string;
-          from_member_id: string;
-          household_id: string;
-          id: string;
-          to_member_id: string;
-        };
-        SetofOptions: {
-          from: '*';
-          to: 'settlements';
-          isOneToOne: true;
-          isSetofReturn: false;
-        };
+        Returns: string;
+      };
+      set_user_block: {
+        Args: { p_blocked: boolean; p_user_id: string };
+        Returns: undefined;
+      };
+      update_expense_with_details:
+        | {
+            Args: {
+              p_category_id: string | null;
+              p_currency_code: string;
+              p_expense_id: string;
+              p_items?: Json;
+              p_payments: Json;
+              p_split_type: string;
+              p_splits: Json;
+              p_title: string;
+              p_total_amount: number;
+            };
+            Returns: {
+              category_id: string | null;
+              created_at: string;
+              currency_code: string;
+              household_id: string;
+              id: string;
+              receipt_photo_url: string | null;
+              split_type: string;
+              title: string;
+              total_amount: number;
+            };
+            SetofOptions: {
+              from: '*';
+              to: 'expenses';
+              isOneToOne: true;
+              isSetofReturn: false;
+            };
+          }
+        | {
+            Args: {
+              p_category_id: string | null;
+              p_expense_id: string;
+              p_items?: Json;
+              p_payments: Json;
+              p_split_type: string;
+              p_splits: Json;
+              p_title: string;
+              p_total_amount: number;
+            };
+            Returns: {
+              category_id: string | null;
+              created_at: string;
+              currency_code: string;
+              household_id: string;
+              id: string;
+              receipt_photo_url: string | null;
+              split_type: string;
+              title: string;
+              total_amount: number;
+            };
+            SetofOptions: {
+              from: '*';
+              to: 'expenses';
+              isOneToOne: true;
+              isSetofReturn: false;
+            };
+          };
+      verify_task_reminders_secret: {
+        Args: { p_secret: string };
+        Returns: boolean;
       };
     };
     Enums: {

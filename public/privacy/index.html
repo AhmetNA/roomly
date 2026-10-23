@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Gizlilik ve kişisel veriler — Roomly</title>
+    <style>
+      body {
+        margin: 0;
+        font:
+          17px/1.7 system-ui,
+          sans-serif;
+        color: #173348;
+        background: #f7fafc;
+      }
+      main {
+        max-width: 740px;
+        margin: auto;
+        padding: 48px 22px;
+      }
+      h1 {
+        font-size: 34px;
+        line-height: 1.2;
+      }
+      h2 {
+        font-size: 22px;
+        margin-top: 32px;
+      }
+      a {
+        color: #0966b4;
+        text-underline-offset: 3px;
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        font-size: 15px;
+      }
+      footer {
+        margin-top: 40px;
+        font-size: 14px;
+      }
+      li {
+        margin: 8px 0;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 15px;
+      }
+      td,
+      th {
+        border-bottom: 1px solid #cddce6;
+        text-align: left;
+        vertical-align: top;
+        padding: 12px 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav aria-label="Bilgi sayfaları">
+        <a href="/roomly/">Roomly</a><a href="/roomly/privacy/">Gizlilik</a
+        ><a href="/roomly/terms/">Koşullar</a><a href="/roomly/delete-account/">Hesap silme</a
+        ><a href="/roomly/support/">Destek</a>
+      </nav>
+      <p>Roomly · Ahmet Aydemir</p>
+      <h1>Gizlilik ve kişisel veriler</h1>
+      <p>
+        Uygulama sorumlusu: <strong>Ahmet Aydemir</strong>. Başvurular:
+        <a href="mailto:caludebabaq@gmail.com">caludebabaq@gmail.com</a>.
+      </p>
+      <p>
+        Bu sayfa Roomly’nin mevcut geliştirme/test sürümündeki veri işlemlerini açıklar. Google Play
+        üretim yayını henüz yapılmamıştır. Sağlayıcı sözleşmeleri ve yurt dışı aktarım mekanizmasına
+        ilişkin değerlendirme tamamlanmış değildir.
+      </p>
+      <h2>Toplanan bilgiler ve kullanım amaçları</h2>
+      <ul>
+        <li>
+          E-posta, hesap kimliği ve seçilen giriş sağlayıcısının paylaştığı profil: giriş ve hesap
+          yönetimi.
+        </li>
+        <li>
+          Ev/üye adları, davet kodu, isteğe bağlı IBAN: ev üyeliği ve ortak hesap takibi. Hesabı
+          olmayan kişilerin adları da üyelerce eklenebilir.
+        </li>
+        <li>
+          Harcama, bölüşüm, borç/ödeme kayıtları, liste, görev ve yorumlar: evin ortak kayıtlarını
+          paylaşma ve hesaplama.
+        </li>
+        <li>
+          İsteğe bağlı fiş fotoğrafı: harcama ekini ev üyeleriyle paylaşma. Sistem seçicisi veya
+          kamera kullanılır; gereksiz kişisel bilgileri fotoğraftan çıkar.
+        </li>
+        <li>Bildirim token’ı ve dil: push/e-posta uyarılarının teslimi.</li>
+        <li>
+          Koşul sürümü/kabul zamanı, engelleme ve şikâyet kayıtları: içerik güvenliği, kullanıcı
+          tercihleri ve başvuru incelemesi.
+        </li>
+        <li>
+          Bağlantı ve güvenlik logları: altyapı çalışması, hata ve güvenlik incelemesi. Sağlayıcılar
+          IP ve işlem bilgileri işleyebilir.
+        </li>
+      </ul>
+      <p>
+        Veriler uygulama formları, dosya seçimi, giriş sağlayıcısı ve hizmet bağlantıları yoluyla
+        elektronik olarak elde edilir. Roomly’de reklam SDK’sı veya uygulama içi ödeme yoktur.
+      </p>
+      <h2>Kimler görebilir?</h2>
+      <p>
+        Aynı evin üyeleri ortak kayıtları, kişisel listeleri, IBAN ve fişleri görebilir ve ilgili
+        kayıtları yönetebilir. Fişler özel depolamada tutulur; yetkili üyeler süreli görüntüleme
+        bağlantısı alabilir. Şikâyet nedeni ve engelleme tercihi diğer ev üyelerine açılmaz;
+        şikâyetleri uygulama sorumlusu inceler.
+      </p>
+      <h2>Altyapı ve yurt dışı</h2>
+      <p>
+        Supabase hesap, veritabanı, dosya ve eşitleme; Expo güncelleme/push; Google giriş ve FCM;
+        yapılandırılmış Gmail SMTP e-posta; GitHub Pages kamuya açık bilgi sayfaları için
+        kullanılır. Supabase projesi eu-central-1 bölgesindedir. Bu servisler Türkiye dışındadır
+        veya Türkiye dışında işlem yapabilir. Hesap silmek geçmiş aktarımı ortadan kaldırmaz;
+        sağlayıcı sözleşmeleri ve uygulanabilir yurt dışı aktarım mekanizmasının ayrıca tamamlanması
+        gerekir.
+      </p>
+      <h2>Saklama ve silme</h2>
+      <p>
+        Hesap aktifken veriler özelliklerin çalışması için saklanır. Hesap silme başlatıldığında
+        kişisel veriler için ayrıca bir bekletme süresi uygulanmaz: ilişkilendirilebilen üye
+        adı/IBAN, yorumlar, liste kayıtları, görev metinleri, fişler, bildirim token’ları ve Auth
+        hesabı silme işlemi sırasında kaldırılır. Ağ veya dosya temizliği hatası olursa işlem
+        yeniden denenerek tamamlanır.
+      </p>
+      <p>
+        Diğer ev üyelerinin bakiyelerini değiştirmemek için finansal üye kimliği, harcama, bölüşüm,
+        borç ve ödeme satırları “Silinen hesap” etiketiyle kalır. Bu üye yeniden sahiplenilemez.
+        Ortak metinler ve eski sürümlerde bağlantısı kaybolmuş üye kayıtları için destekten kayıt
+        bazında inceleme iste. Bu işlem bütün ortak kayıtların tam anonimleştirildiği anlamına
+        gelmez.
+      </p>
+      <p>
+        Sağlayıcı logları/yedekleri, daha önce teslim edilmiş e-postalar veya diğer kişilerin
+        indirdiği kopyalar uygulamadaki silmeyle aynı anda geriye dönük yok edilemez. Bu kayıtların
+        kapsam ve saklama süreleri sağlayıcı ayarlarına bağlıdır; Roomly bu kopyalar için “anında
+        silme” taahhüt etmez.
+      </p>
+      <h2>Başvuru ve haklar</h2>
+      <p>
+        Verilerinin işlenip işlenmediğini öğrenme, bilgi isteme, düzeltme, silme ve kanunda tanınan
+        diğer haklara ilişkin taleplerini destek adresine iletebilirsin. Başvuru sahipliği uygun
+        şekilde doğrulanır; gereksiz kimlik belgesi veya şifre istenmez.
+        <a href="/roomly/delete-account/">Uygulamayı kurmadan hesap silme başlat.</a>
+      </p>
+      <h2>Üretim öncesi durum</h2>
+      <p>
+        Bu metin, doğrulanmamış bir hukuki uygunluk veya standart sözleşme imzalandığı beyanı
+        değildir. Amaç bazında hukuki sebepler, korunan finans kayıtlarının gerekçeli süresi ve yurt
+        dışı aktarım mekanizması nihai üretim yayını öncesinde tamamlanacaktır.
+      </p>
+      <footer>
+        İletişim: <a href="mailto:caludebabaq@gmail.com">caludebabaq@gmail.com</a> · 23 Ekim 2026
+      </footer>
+    </main>
+  </body>
+</html>

@@ -12,9 +12,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { DeleteAccountPanel } from '@/components/delete-account-panel';
 import { AppSymbol } from '@/components/app-symbol';
 import { PrimaryButton } from '@/components/primary-button';
 import { RentDayModal } from '@/components/rent-day-modal';
+import { SafetyCenterButton } from '@/components/safety-center';
+import { PolicyLinks } from '@/components/policy-links';
 import { ScreenHeader } from '@/components/screen-header';
 import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
@@ -139,7 +142,13 @@ export default function PeopleScreen() {
                     </Pressable>
                   ) : (
                     <ThemedText type="small" themeColor="textSecondary">
-                      {t(item.user_id === null ? 'people.unclaimed' : 'people.ibanMissing')}
+                      {t(
+                        item.account_deleted_at
+                          ? 'accountDeletion.archivedMember'
+                          : item.user_id === null
+                            ? 'people.unclaimed'
+                            : 'people.ibanMissing',
+                      )}
                     </ThemedText>
                   )}
                 </View>
@@ -211,6 +220,9 @@ export default function PeopleScreen() {
                     {t('people.signOut')}
                   </ThemedText>
                 </Pressable>
+                <SafetyCenterButton householdId={household.id} />
+                <PolicyLinks />
+                <DeleteAccountPanel />
               </ThemedView>
             ) : null
           }

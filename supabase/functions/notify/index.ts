@@ -180,7 +180,14 @@ Deno.serve(async (req: Request) => {
 
   const { data: housemates } = await housemateQuery;
 
-  const recipientIds = (housemates ?? []).map((m) => m.user_id).filter(Boolean);
+  const candidateIds = (housemates ?? []).map((m) => m.user_id).filter(Boolean);
+  const { data: allowedIds, error: blockError } = await asService.rpc('allowed_notification_recipients', {
+    actor_user_id: userData.user.id,
+    candidate_user_ids: candidateIds,
+  });
+  // Fail closed: a block lookup failure must never send a blocked person's alert.
+  if (blockError) return json({ error: 'recipient_filter_failed' }, 503);
+  const recipientIds = allowedIds ?? [];
   if (recipientIds.length === 0) return json({ sent: 0 }, 200);
 
   const { data: tokenRows } = await asService

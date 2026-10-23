@@ -160,3 +160,19 @@ Yukarıdaki eski yapı notlarının yerine şu sözleşmeler geçerlidir:
 - Üç tabloda household RLS ve çapraz ev ilişkilerini engelleyen bileşik foreign key vardır. Tüm ev üyeleri görevleri düzenleyip silebilir. Ekleyen kişi sabittir, tamamlayan kişi/zaman sunucuda hesaplanır.
 - `save_task` SECURITY INVOKER RPC'si görev ve sorumlu değişikliklerini atomik kaydeder. Üç tablo Realtime yayınına eklenmiştir.
 - Migration: `supabase/migrations/20261012084612_household_tasks.sql`; rollback ile entegrasyon testi: `supabase/tests/household_tasks.sql`.
+
+## 2026-10-23 güncellemesi: hesap silme
+
+- `household_members.account_deleted_at`: kalıcı arşiv; yeniden sahiplenilemez. `account_owner_id` evden ayrıldıktan sonraki silme atfını korur, Auth silinince null olur. Eski bağlantısız üyeler otomatik kişiye mal edilemez.
+- Bakiyeler korunur; üye silinmez. Client doğrudan üye DELETE yapamaz. Yeni harcama/görev seçimleri arşiv üyeleri dışlar; geçmiş finans kayıtları üyeyi göstermeye devam eder.
+- `account_deletions` RLS ile kullanıcıya yalnız kendi işlem durumunu okutur. Prepare/receipt/finish RPC’leri yalnız service_role’a açıktır.
+- `delete-account` Edge Function kimliği `auth.getUser` ile doğrular; kullanıcı hedef ID gönderemez. Prepare → Storage API temizliği → Auth silme sırası zorunlu, tekrar deneme desteklenir. Storage metadata doğrudan silinmez.
+- Kaynak/test ve açık sınırlar: `docs/account-deletion-verification.md`. Hesap silme, tam anonimleştirme veya log/yedeklerin anında temizlenmesi iddiası değildir.
+
+## 2026-10-23 güncellemesi: yayın güvenliği
+
+- Şifre kurtarma kullanıcı isteğiyle mevcut yayın kapsamı dışında; Google Play genel şartı olarak varsayılmaz.
+- Koşul sürümü `2026-10-23`, `terms_acceptances` tablosunda kullanıcı hesabıyla saklanır. Yeni istemci içerik üretmeden önce kabul ekranını gösterir; eski binary’ler için geriye dönük zorunlu kabul iddiası yoktur.
+- `content_reports`: yalnız raporlayan kullanıcı kendi kayıtlarını okur, `report_content` RPC’si hedefi aynı evle sınırlar. `status` yalnız operatör/servis tarafından değişir.
+- `user_blocks`: kullanıcı yalnız kendi tercihlerini okur; set_user_block aynı evin kullanıcısını engeller. Yorum SELECT RLS’i engellenen kişiyi gizler. `notify` alıcı filtresi engellenen kişinin başlattığı tüm push/e-postayı keser; sistem cron hatırlatmaları ve finansal kayıtlar korunur.
+- Operatör prosedürü: docs/moderation-operations.md. Kamuya açık sayfalar public/{privacy,terms,support,delete-account}/.

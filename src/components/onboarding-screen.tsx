@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { DeleteAccountPanel } from '@/components/delete-account-panel';
 import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
@@ -187,6 +188,7 @@ export function OnboardingScreen() {
                 onPress={handleSubmit}
               />
             </ThemedView>
+            <DeleteAccountPanel />
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>

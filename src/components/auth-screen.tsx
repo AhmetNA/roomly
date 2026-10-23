@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PolicyLinks } from '@/components/policy-links';
 import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
@@ -134,6 +135,7 @@ export function AuthScreen() {
                 />
               </>
             )}
+            <PolicyLinks />
           </ThemedView>
         </KeyboardAvoidingView>
       </SafeAreaView>

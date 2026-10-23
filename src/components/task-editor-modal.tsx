@@ -91,7 +91,9 @@ export function TaskEditorModal({
         </ThemedText>
         <TaskOptions
           multiple
-          options={members.map((m) => ({ value: m.id, label: m.name }))}
+          options={members
+            .filter((m) => !m.account_deleted_at)
+            .map((m) => ({ value: m.id, label: m.name }))}
           selected={assigneeIds}
           disabled={busy}
           onSelect={(id) =>

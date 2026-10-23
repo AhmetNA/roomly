@@ -284,5 +284,49 @@
     "nudgeSent": "Reminder sent.",
     "nudgeUnreachable": "Couldn't reach the assignees: their notifications may be off.",
     "nudgeCooldown": "A reminder for this task was sent recently. You can try again in an hour."
+  },
+  "accountDeletion": {
+    "delete": "Delete my account",
+    "deleting": "Deleting account…",
+    "confirmTitle": "Permanently delete your account?",
+    "confirmBody": "Your account, name, IBAN, comments and uploaded receipts will be removed. Shared debts and payments remain under “Deleted account”; this member cannot be claimed again. Contact support before deleting if shared descriptions contain your personal information. This cannot be undone.",
+    "pendingTitle": "Account deletion in progress",
+    "retryBody": "Once deletion starts, household access is removed. Retry to finish cleaning up files. If the problem continues, contact caludebabaq@gmail.com.",
+    "retry": "Finish deletion",
+    "errorTitle": "Deletion could not finish",
+    "archivedMember": "Account deleted; cannot be claimed"
+  },
+  "safety": {
+    "title": "Safety and support",
+    "report": "Report content or a user",
+    "selectTarget": "Choose the record to report (latest 100 records).",
+    "loading": "Loading…",
+    "noTargets": "No records of this type.",
+    "reason": "Reason for reporting",
+    "send": "Send report",
+    "reportSent": "Your report is queued for review",
+    "reportHint": "Only the app operator reviews your report. Support: caludebabaq@gmail.com.",
+    "blockTitle": "Block users",
+    "blockHint": "Blocking hides their comments and stops push/email alerts initiated by that person. Shared debts, tasks and system reminders remain visible.",
+    "block": "Block",
+    "unblock": "Unblock",
+    "formerMember": "Former housemate",
+    "error": "The action could not finish. Please retry.",
+    "privacy": "Privacy",
+    "terms": "Terms of use",
+    "support": "Support",
+    "accept": "Accept terms and continue",
+    "termsTitle": "Before you begin",
+    "termsBody": "Roomly tracks shared expenses, lists and tasks; it does not transfer money. Household members can view and manage shared records, including personal lists. Only share content you have the right to share. Harassment, threats, hate speech, sexual content, fraud, spam and unauthorized disclosure of private information are prohibited. Report content or users and block users under People → Safety and support. Account deletion removes linked personal data while preserving shared balances. Read the full terms using the link below. Version: October 23, 2026.",
+    "privacyNotice": "Accepting the terms is not blanket consent to all data processing. See Privacy for data handling and deletion details.",
+    "kinds": {
+      "member": "Person",
+      "expense": "Expense / receipt",
+      "shopping_item": "List item",
+      "task": "Task",
+      "comment": "Comment",
+      "category": "Category",
+      "household": "Household name"
+    }
   }
 }

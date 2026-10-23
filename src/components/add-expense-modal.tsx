@@ -32,7 +32,7 @@ type SplitType = 'equal' | 'shares' | 'fixed';
 export function AddExpenseModal({
   visible,
   householdId,
-  members,
+  members: allMembers,
   currentMemberId,
   editingExpense,
   onClose,
@@ -44,6 +44,10 @@ export function AddExpenseModal({
   editingExpense: ExpenseWithSplits | null;
   onClose: () => void;
 }) {
+  const members = useMemo(
+    () => (editingExpense ? allMembers : allMembers.filter((member) => !member.account_deleted_at)),
+    [allMembers, editingExpense],
+  );
   const { t } = useTranslation();
   const theme = useTheme();
   const { data: categories = [] } = useCategoriesQuery(householdId);

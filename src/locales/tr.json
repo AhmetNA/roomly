@@ -283,5 +283,49 @@
     "nudgeSent": "Hatırlatma gönderildi.",
     "nudgeUnreachable": "Atanan kişilere ulaşılamadı: bildirimleri kapalı olabilir.",
     "nudgeCooldown": "Bu görev için kısa süre önce hatırlatma gönderildi. Bir saat sonra tekrar deneyebilirsin."
+  },
+  "accountDeletion": {
+    "delete": "Hesabımı sil",
+    "deleting": "Hesap siliniyor…",
+    "confirmTitle": "Hesabın kalıcı olarak silinsin mi?",
+    "confirmBody": "Hesabın, adın, IBAN’ın, yorumların ve yüklediğin fişler kaldırılır. Ortak borç ve ödeme kayıtları “Silinen hesap” adıyla korunur; bu kişi yeniden sahiplenilemez. Ortak açıklamalarda sana ait bilgiler varsa silmeden önce destekle iletişime geç. Bu işlem geri alınamaz.",
+    "pendingTitle": "Hesap silme işlemi sürüyor",
+    "retryBody": "Silme başladıysa eve erişimin kapanır. Dosya temizliğini tamamlamak için yeniden dene. Sorun sürerse caludebabaq@gmail.com adresine yaz.",
+    "retry": "Silmeyi tamamla",
+    "errorTitle": "Silme tamamlanamadı",
+    "archivedMember": "Hesap silindi; yeniden sahiplenilemez"
+  },
+  "safety": {
+    "title": "Güvenlik ve destek",
+    "report": "İçerik veya kullanıcı bildir",
+    "selectTarget": "Bildirmek istediğin kaydı seç (en son 100 kayıt).",
+    "loading": "Yükleniyor…",
+    "noTargets": "Bu türde kayıt bulunamadı.",
+    "reason": "Bildirim nedeni",
+    "send": "Bildirimi gönder",
+    "reportSent": "Bildirimin inceleme kuyruğuna alındı",
+    "reportHint": "Bildirimin yalnız uygulama sorumlusu tarafından incelenir. Acil destek: caludebabaq@gmail.com.",
+    "blockTitle": "Kullanıcı engelleme",
+    "blockHint": "Engellediğin kişinin yorumları gizlenir; bu kişinin başlattığı push ve e-posta uyarıları sana gönderilmez. Ortak borçlar, görevler ve sistem hatırlatmaları görünmeye devam eder.",
+    "block": "Engelle",
+    "unblock": "Engeli kaldır",
+    "formerMember": "Eski ev üyesi",
+    "error": "İşlem tamamlanamadı. Lütfen tekrar dene.",
+    "privacy": "Gizlilik",
+    "terms": "Kullanım koşulları",
+    "support": "Destek",
+    "accept": "Koşulları kabul et ve devam et",
+    "termsTitle": "Başlamadan önce",
+    "termsBody": "Roomly ortak harcama, liste ve görev takibi içindir; para transferi yapmaz. Ev üyeleri ortak kayıtları görebilir ve düzenleyebilir; kişisel listeler de eve görünür. Yalnız paylaşma hakkın olan içerikleri ekle. Taciz, tehdit, nefret söylemi, cinsel içerik, dolandırıcılık, spam ve başkalarının özel bilgilerini izinsiz paylaşmak yasaktır. Uygunsuz içeriği veya kullanıcıyı Kişiler → Güvenlik ve destek bölümünden bildirebilir ve kullanıcıları engelleyebilirsin. Silinen hesabın kişisel verileri kaldırılır; ortak borç bakiyeleri korunur. Tam kullanım koşullarını aşağıdaki bağlantıdan okuyabilirsin. Sürüm: 23 Ekim 2026.",
+    "privacyNotice": "Koşulları kabul etmek, tüm veri işlemleri için genel açık rıza vermek değildir. Veri işleme ve silme ayrıntıları Gizlilik sayfasındadır.",
+    "kinds": {
+      "member": "Kişi",
+      "expense": "Harcama / fiş",
+      "shopping_item": "Liste öğesi",
+      "task": "Görev",
+      "comment": "Yorum",
+      "category": "Kategori",
+      "household": "Ev adı"
+    }
   }
 }

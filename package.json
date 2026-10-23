@@ -56,7 +56,9 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "node --experimental-strip-types supabase/tests/task-filters.cjs",
+    "check": "npm run typecheck && npm run lint && npm test"
   },
   "private": true
 }
