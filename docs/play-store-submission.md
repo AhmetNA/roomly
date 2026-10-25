@@ -1,6 +1,6 @@
 # Google Play — hazır girdiler ve kalan adımlar
 
-23 Ekim 2026. Bu dosya beyan taslağıdır; Console’a gönderilmedi. Sahte testçi, yapılmamış cihaz testi veya tamamlanmamış hukuki uyum beyan edilmez.
+25 Ekim 2026. Kurulum formlarının 10/11 adımı Console’da kaydedildi; mağaza görselleri eksik. Google incelemesine veya üretime gönderim yapılmadı. Sahte testçi, yapılmamış cihaz testi veya tamamlanmamış hukuki uyum beyan edilmez.
 
 ## Hazır girdiler
 
@@ -34,7 +34,7 @@ Veri toplama “evet”; “veri satılmıyor” ile “hiç paylaşım yok” e
 
 - Kaynak değişiklikleri, URL’ler ve Pages dağıtımı; metin ve görsel dosyaları.
 - Şema/izin ve uygulama testleri; örnek hesap/evle sunucu akışlarını doğrulama.
-- Keystore ve doğru upload-key erişimi doğrulandığında imzalı AAB’yi hazırlama. Cihaz testi ertelendiği için henüz yayın adayı/AAB kabul testi yapılmadı; debug imzalı yerel release gönderilmez.
+- İmzalı AAB 24 Ekim’de mevcut EAS anahtarıyla üretildi; imza/manifest/16 KB yapısal kontrolleri geçti. Cihaz testi ve Google Play kabulü henüz yapılmadı. Tarayıcıdan yükleme için servis hesabı gerekmez.
 - Console’a erişim sağlandığında taslak form doldurma ve yüklemeye yardım; son beyanlar gerçek bilgilerle doğrulanır.
 
 ## Ahmet’in katılımını gerektirenler
@@ -51,3 +51,5 @@ Veri toplama “evet”; “veri satılmıyor” ile “hiç paylaşım yok” e
 Şifre sıfırlama için incelenen Play politikalarında genel açık zorunluluk bulunmadı; kullanıcı isteğiyle bu sürüme eklenmedi. UGC politikasında kapalı gruplar için içerik/kullanıcı bildirimi, kişiye özel etkileşim için engelleme ve içerik üretmeden önce koşul kabulü açıkça istendiğinden bu akışlar eklendi.
 
 Kaynaklar: [UGC](https://support.google.com/googleplay/android-developer/answer/9876937), [hesap silme](https://support.google.com/googleplay/android-developer/answer/13327111), [kişisel hesap testi](https://support.google.com/googleplay/android-developer/answer/14151465), [Data safety](https://support.google.com/googleplay/android-developer/answer/10787469).
+
+25 Ekim: Roomly kaydı mevcut. IARC ve veri güvenliği dahil on kurulum adımı tamamlandı. İnceleme hesabı hazır; giriş bilgileri kamuya açık repoda tutulmaz. [Veri güvenliği incelemesi](data-safety-audit.md), [kullanıcı adımları](ahmet-yapilacaklar.md).

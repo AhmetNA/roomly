@@ -1,6 +1,6 @@
 # Android yayın hazırlığı — güncel durum
 
-23 Ekim 2026, Europe/Istanbul. Kaynak plan: [android-launch-plan.md](android-launch-plan.md).
+25 Ekim 2026, Europe/Istanbul. Kaynak plan: [android-launch-plan.md](android-launch-plan.md).
 
 ## Kullanıcı kararları
 
@@ -28,11 +28,15 @@
 
 ## Üretim için açık olanlar
 
-1. Kullanıcının ertelediği cihaz testi, gerçek Android ekran görüntüleri; imzalı final AAB, upload key/Play App Signing, 64-bit ve 16 KB/Play ön kontrolü.
+1. İmzalı AAB 24 Ekim’de üretildi (1.0.0 / code 2); imza, API 36, 50 adet 64-bit ELF ve türetilen APK ZIP 16 KB kontrolleri geçti. Cihaz testi, ekran görüntüleri, Google Play kabulü ve Play App Signing eşlemesi açık.
 2. Kişisel Play hesabındaki kimlik/iletişim/cihaz doğrulaması ve Console formları. Hesaba uygulanıyorsa gerçek 12 testçinin 14 gün kesintisiz kapalı teste katılması.
-3. İnceleme hesabı, Data safety, IARC ve finansal özellik beyanının gerçek release/Console seçenekleriyle son kontrolü.
+3. İnceleme hesabı, Data safety, IARC, finans ve reklam kimliği beyanları tamamlandı. Form kaydı Google inceleme onayı değildir. Mağaza görselleri eksik.
 4. Amaç bazında hukuki sebepler, korunan finans kayıtlarının gerekçeli süresi ve sağlayıcı yurt dışı aktarım mekanizması. Kişisel verileri hemen silmek geçmiş aktarımı veya sağlayıcı log/yedeklerini ortadan kaldırmaz.
 5. Operatörün destek kutusu ve content_reports kuyruğunu gerçekten takip etmesi; moderasyon/silme taleplerini sonuçlandırması. Otomatik yönetici e-postası yoktur.
 6. Ayrı ev erişim kontrollerinin tüm eski RPC/Storage uçlarını kapsaması, cron/gerçek push teslimatı, tam şema baseline’ı ve izole geri yükleme.
 
 Şu an “Play üretim yayını hazır/onaylandı” sonucu yoktur. Hazır girdiler ve kimin hangi adımı yapabileceği: [play-store-submission.md](play-store-submission.md). Silme kanıtı: [account-deletion-verification.md](account-deletion-verification.md). Moderasyon: [moderation-operations.md](moderation-operations.md).
+
+25 Ekim Console ilerlemesi: Roomly kaydı oluşturuldu; 11 kurulum görevinin 10'u tamamlandı. Gizlilik, inceleme hesabı, reklam, hedef yaş, resmi kurum, finans, sağlık ve kategori/iletişim kaydedildi. Mağaza metinleri taslak; veri güvenliği kaynak/SDK kontrolü sonrasında kaydedildi. IARC ücretsiz olduğu resmi kaynaktan doğrulanıp kullanıcı onayıyla tamamlandı (25 Ekim 13:43). PEGI ebeveyn rehberliği, IARC Generic 12+; hedef kitle 18+ korunur. Görsel/AAB yükleme için Chrome dosya izni bekleniyor. Henüz test sürümü veya üretim yayını yok. Güncel kullanıcı adımları: [ahmet-yapilacaklar.md](ahmet-yapilacaklar.md).
+
+Dahili test taslağı: `1.0.0 (2) - İlk dahili test`; Türkçe sürüm notları kaydedildi. Paket yüklenmediği için önizlemede üç paket hatası ve testçi eksikliği görüldü. Ek reklam kimliği beyanı “Hayır” kaydedildi; Uygulama içeriği ekranı “Tamamlanmayı bekleyen beyan yok” gösterdi. Dahili test, 12/14 gün şartının yerine geçmez. Kapalı test kurulumu mağaza eksikliği yüzünden panelde kilitli.

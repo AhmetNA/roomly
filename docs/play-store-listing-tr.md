@@ -1,6 +1,6 @@
 # Google Play mağaza taslağı — Türkçe
 
-Durum: Yerel taslak. Console’a girilmedi; ekran görüntüleri eklenmedi.
+Durum: 25 Ekim 2026, Türkçe metinler Play Console’da taslak olarak kaydedildi. Görseller ve ekran görüntüleri henüz yüklenmedi.
 
 ## Uygulama adı
 
