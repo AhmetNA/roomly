@@ -8,9 +8,9 @@ Güncelleme: 25 Ekim 2026. Amaç, senin yapman gerekenlerle benim bilgisayardan 
 - Kaydedildi: gizlilik URL'si, inceleme erişimi, reklamsız beyanı, 18+ hedef kitle, resmi kurum değil, sağlık özelliği yok, finans için diğer (yalnız ortak harcama/borç kaydı), Verimlilik kategorisi ve destek iletişimi.
 - Ayrı inceleme hesabı normal Supabase kayıt API'siyle oluşturuldu. Giriş doğrulandı; yalnız kendi örnek evine erişti. İki örnek üye, bir harcama, iki liste ürünü ve bir görev hazır. Kimlik bilgileri yalnız gitignore kapsamındaki `.secrets/` altında ve Play inceleme erişiminde; kamuya açık dosyalarda bulunmaz.
 - Google/güvenilir iş ortağı cihazlarında ek test için varsayılan açık seçenek kapatılıp kaydedildi; gerekli inceleme erişimi korunur.
-- Türkçe mağaza açıklamaları taslak kaydedildi. İkon, özellik grafiği ve gerçek Android ekran görüntüleri henüz yüklenmedi.
+- Türkçe mağaza açıklamaları taslak kaydedildi. İkon ve özellik grafiği yüklendi ve kayıtları doğrulandı; gerçek Android ekran görüntüleri henüz yüklenmedi.
 - Veri güvenliği formu kaynak/SDK ve resmi sağlayıcı belgeleriyle kontrol edilip kaydedildi. Expo kurulum kimliği ve hata teşhisi eklendi. İnceleme: [data-safety-audit.md](data-safety-audit.md).
-- İmzalı AAB hazır; henüz Play'e yüklenmedi. Servis hesabı/JSON zorunlu değil.
+- İmzalı AAB Play'e yüklendi, işlendi ve dahili test taslağına kaydedildi; dağıtım başlatılmadı. Servis hesabı/JSON zorunlu değil.
 - Kimlik/telefon/cihaz doğrulamaları için yalnız Console görev gösterirse işlem gerekir.
 
 ## 1. Dosya yükleme izni ve hazır durum
@@ -116,3 +116,13 @@ Hukuki onay, yeni güvenlik yetkisi veya kullanıcıya ait hassas belge aktarım
 - Dahili test taslağı ve sürüm notları kaydedildi; AAB yükleme dosya iznine takılıyor. Tekrarlanan dosya yükleme denemesi izin henüz kapalıyken yine reddedildi.
 - Görsel yükleme izni açıldığında ikon, özellik grafiği ve AAB'yi ben yükleyebilirim. En az iki gerçek Android ekran görüntüsü ayrıca gerekiyor. Bunları mevcut release'ten örnek ev kullanarak hazırlamalıyız; web ekranını Android ekranı gibi sunmayacağız.
 - Sonrasında testçilerin Google hesap e-postaları özel testçi listesine eklenecek. Kapalı testin katılım bağlantısı henüz oluşmadı; sürüm dağıtılmadan 14 günlük süre başlamaz.
+
+## En son durum — yükleme engeli kapandı
+
+İkon, tanıtım görseli ve AAB yüklemeleri tamamlandı. Artık dosya izni açman veya dosyaları kendin yüklemen gerekmiyor. ChatGPT uzantısındaki geçici “Dosya URL'lerine erişime izin ver” seçeneğini kapatabilirsin; ayar sayfasına otomasyon erişimi engellendiği için kapatmayı kendin yapmalısın.
+
+Kalan somut girdiler: en az iki gerçek Android ekran görüntüsü, özel testçi listesine eklenecek gerçek katılımcıların Google hesap adresleri, gerçek cihaz denemesi ve önceki hukuki aktarım/saklama düzenlemesi. Console hâlen 10/11: kalan adım mağaza ekran görüntüleridir. Bu maddelerin yapıldığı genel ifadeden varsayılmadı; görüntüler veya testçi adresleri henüz mevcut dosyalarda/Console'da görülmedi.
+
+## Son kapsam kararı
+
+Testçi listesi kullanıcı isteğiyle en sona bırakıldı. Şu an ekran görüntüleri için güncel APK hazırlanıyor. Hukuki metinleri kullanıcıdan yazması istenmiyor; paket hazırlanmış durumda: [hukuki hazırlık](legal/README.md). Yalnız gerçek sorumlu/imza bilgileri, sağlayıcı sözleşmesinin fiilen kurulması ve uygulanacak yeni saklama tercihleri operatör katılımı gerektirir.

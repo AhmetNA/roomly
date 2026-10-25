@@ -40,3 +40,17 @@
 25 Ekim Console ilerlemesi: Roomly kaydı oluşturuldu; 11 kurulum görevinin 10'u tamamlandı. Gizlilik, inceleme hesabı, reklam, hedef yaş, resmi kurum, finans, sağlık ve kategori/iletişim kaydedildi. Mağaza metinleri taslak; veri güvenliği kaynak/SDK kontrolü sonrasında kaydedildi. IARC ücretsiz olduğu resmi kaynaktan doğrulanıp kullanıcı onayıyla tamamlandı (25 Ekim 13:43). PEGI ebeveyn rehberliği, IARC Generic 12+; hedef kitle 18+ korunur. Görsel/AAB yükleme için Chrome dosya izni bekleniyor. Henüz test sürümü veya üretim yayını yok. Güncel kullanıcı adımları: [ahmet-yapilacaklar.md](ahmet-yapilacaklar.md).
 
 Dahili test taslağı: `1.0.0 (2) - İlk dahili test`; Türkçe sürüm notları kaydedildi. Paket yüklenmediği için önizlemede üç paket hatası ve testçi eksikliği görüldü. Ek reklam kimliği beyanı “Hayır” kaydedildi; Uygulama içeriği ekranı “Tamamlanmayı bekleyen beyan yok” gösterdi. Dahili test, 12/14 gün şartının yerine geçmez. Kapalı test kurulumu mağaza eksikliği yüzünden panelde kilitli.
+
+## 25 Ekim — dosya yükleme tamamlandı
+
+Kullanıcı Chrome dosya URL iznini açtı. İkon (512×512) ve özellik grafiği (1024×500) mağaza taslağına yüklendi; ayrı sekmede tekrar açılıp kayıtlı oldukları doğrulandı. Telefon ekran görüntüleri hâlâ yok.
+
+`roomly-production-20261024.aab` Google tarafından işlendi ve dahili test taslağına kaydedildi. Console 2 (1.0.0), API24+, target36, dört ABI gösterdi. Önizlemede engelleyici hata yok; iki uyarı: testçi listesi boş ve isteğe bağlı deobfuscation dosyası yok. Yerel Gradle varsayılanında minify kapalı; bu uyarı bir paket ret hatası değildir. Google indirme tahmini 30.5 MB. Henüz “Kaydet ve yayınla” uygulanmadı, dolayısıyla dağıtım/katılım süresi başlamadı.
+
+Chrome dosya URL izni önceki onaya göre geçici kullanılmalıdır. Otomasyon güvenlik politikası uzantı ayarları sayfasına erişimi engellediğinden kullanıcı yükleme sonrası izni kapatmalıdır.
+
+## 25 Ekim — APK ve hukuki paket
+
+Kullanıcı güncel yerel APK istedi; testçi listesi en sona bırakıldı. Hukuki hazırlık paketi `docs/legal/README.md` altında sekiz dosya olarak hazırlandı: aydınlatma, koşullar, saklama/imha, aktarım matrisi, standart sözleşme ek hazırlığı, sağlayıcı yazışma taslakları ve başvuru prosedürü. Bunlar inceleme nüshasıdır; sağlayıcı imzası/bildirim veya yeni saklama cron'u tamamlanmış sayılmaz. Yayımdaki sayfalar bu yeni taslaklarla değiştirilmedi.
+
+APK için native proje app.json'dan yenilendi (güncel Roomly ikonu ve izinler). Yalnız yerel/ignore kapsamındaki Android projede `roomlyFeatureTestBuild` ile `.featuretest` paket eki uygulanır; mağazadaki `com.anonymous.roomly` paketi değiştirilmez. Firebase servis hesabı veya özel anahtar eklenmedi. APK raporu derleme sonrasında ayrı teslim edilir; gerçek cihaz kullanımı kullanıcı tarafından yapılacak.
