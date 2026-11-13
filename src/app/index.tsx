@@ -21,6 +21,7 @@ import { FloatingActionButton } from '@/components/floating-action-button';
 import { CollapseAllButton, SearchBar, SearchButton } from '@/components/header-search';
 import { PersonalSpendingModal } from '@/components/personal-spending-modal';
 import { RefreshAction } from '@/components/refresh-action';
+import { SettlementEditModal } from '@/components/settlement-edit-modal';
 import { StatisticsModal } from '@/components/statistics-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -33,15 +34,26 @@ import {
   useRemoveExpenseMutation,
 } from '@/hooks/use-expenses';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
-import { useSettlementsRealtime } from '@/hooks/use-settlements';
+import { useSettlementsQuery, useSettlementsRealtime } from '@/hooks/use-settlements';
 import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 import { showAlert } from '@/lib/alert';
 import type { ExpenseWithSplits } from '@/lib/api/expenses';
+import type { SettlementRow } from '@/lib/api/settlements';
 import { buildExpenseSearchIndex, searchExpenses } from '@/lib/expense-search';
 import { groupByDateSection, type DateSectionKind } from '@/lib/date-sections';
 import { isExpenseFullySettled } from '@/lib/debt';
 import { formatMoney, normalizeCurrencyCode } from '@/lib/currency';
+
+// Payments live in their own ledger and are merged in only for display, so
+// statistics, search and personal spending keep seeing expenses alone.
+type FeedItem =
+  | { kind: 'expense'; id: string; createdAt: string; expense: ExpenseWithSplits }
+  | { kind: 'payment'; id: string; createdAt: string; settlement: SettlementRow };
+
+function toExpenseItem(expense: ExpenseWithSplits): FeedItem {
+  return { kind: 'expense', id: expense.id, createdAt: expense.created_at, expense };
+}
 
 // Only explicit toggles are stored; past months start collapsed, days start open.
 function isCollapsed(
@@ -68,6 +80,8 @@ export default function ExpensesScreen() {
   const expensesQuery = useExpensesQuery(householdId);
   const { data: expenses = [], isLoading } = expensesQuery;
   useExpensesRealtime(householdId);
+  const settlementsQuery = useSettlementsQuery(householdId);
+  const settlements = useMemo(() => settlementsQuery.data ?? [], [settlementsQuery.data]);
   useSettlementsRealtime(householdId);
   const removeExpense = useRemoveExpenseMutation(householdId);
 
@@ -76,6 +90,7 @@ export default function ExpensesScreen() {
     membersQuery.refetch,
     categoriesQuery.refetch,
     expensesQuery.refetch,
+    settlementsQuery.refetch,
   ]);
 
   const currentMemberId = members.find((m) => m.user_id === session?.user.id)?.id;
@@ -96,17 +111,33 @@ export default function ExpensesScreen() {
     [expenses, nameById, categoryNameById],
   );
   const searchResults = useMemo(
-    () => searchExpenses(searchIndex, searchQuery),
+    () => searchExpenses(searchIndex, searchQuery).map(toExpenseItem),
     [searchIndex, searchQuery],
+  );
+
+  const feed = useMemo<FeedItem[]>(
+    () =>
+      [
+        ...expenses.map(toExpenseItem),
+        ...settlements.map(
+          (settlement): FeedItem => ({
+            kind: 'payment',
+            id: settlement.id,
+            createdAt: settlement.created_at,
+            settlement,
+          }),
+        ),
+      ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [expenses, settlements],
   );
 
   const sections = useMemo(
     () =>
-      groupByDateSection(expenses, (expense) => expense.created_at, i18n.language, {
+      groupByDateSection(feed, (item) => item.createdAt, i18n.language, {
         today: t('common.today'),
         yesterday: t('common.yesterday'),
       }),
-    [expenses, i18n.language, t],
+    [feed, i18n.language, t],
   );
   const [collapseOverrides, setCollapseOverrides] = useState<Record<string, boolean>>({});
   const allDaysCollapsed =
@@ -145,6 +176,7 @@ export default function ExpensesScreen() {
   const [reopenPersonalAfterDetailDismiss, setReopenPersonalAfterDetailDismiss] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<ExpenseWithSplits | null>(null);
   const [editingExpense, setEditingExpense] = useState<ExpenseWithSplits | null>(null);
+  const [editingSettlement, setEditingSettlement] = useState<SettlementRow | null>(null);
 
   function handleDelete(expense: ExpenseWithSplits) {
     showAlert(t('expenses.deleteConfirm'), undefined, [
@@ -225,10 +257,10 @@ export default function ExpensesScreen() {
           sections={visibleSections}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          keyExtractor={(expense) => expense.id}
+          keyExtractor={(item) => `${item.kind}-${item.id}`}
           contentContainerStyle={[
             styles.listContent,
-            (searching ? searchResults.length === 0 : expenses.length === 0) &&
+            (searching ? searchResults.length === 0 : feed.length === 0) &&
               styles.listContentEmpty,
           ]}
           refreshControl={
@@ -291,14 +323,7 @@ export default function ExpensesScreen() {
               </Pressable>
             )
           }
-          renderItem={({ item, section }) => {
-            const isSettled = isExpenseFullySettled(item);
-            const money = formatMoney(
-              item.total_amount,
-              normalizeCurrencyCode(item.currency_code),
-              i18n.language,
-            );
-            const stacked = compact || money.length > 14;
+          renderItem={({ item: feedItem, section }) => {
             const time = new Intl.DateTimeFormat(
               i18n.language,
               searching
@@ -306,7 +331,68 @@ export default function ExpensesScreen() {
                 : section.kind === 'month'
                   ? { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }
                   : { timeStyle: 'short' },
-            ).format(new Date(item.created_at));
+            ).format(new Date(feedItem.createdAt));
+
+            if (feedItem.kind === 'payment') {
+              const payment = feedItem.settlement;
+              const from = nameById.get(payment.from_member_id) ?? '—';
+              const to = nameById.get(payment.to_member_id) ?? '—';
+              const paymentMoney = formatMoney(
+                payment.amount,
+                normalizeCurrencyCode(payment.currency_code),
+                i18n.language,
+              );
+              const paymentStacked = compact || paymentMoney.length > 14;
+              return (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('expenses.paymentRowAccessibility', {
+                    from,
+                    to,
+                    amount: paymentMoney,
+                  })}
+                  onPress={() => setEditingSettlement(payment)}
+                >
+                  <ThemedView
+                    type="backgroundElement"
+                    style={[styles.row, paymentStacked && styles.rowCompact]}
+                  >
+                    <AppSymbol
+                      name={{ ios: 'arrow.left.arrow.right.circle.fill', android: 'swap_horiz' }}
+                      size={20}
+                      tintColor={theme.success}
+                    />
+                    <View style={styles.rowInfo}>
+                      <ThemedText type="default" style={styles.rowTitle}>
+                        {t('expenses.paymentRowTitle', { from, to })}
+                      </ThemedText>
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {t('expenses.paymentRowLabel')} · {time}
+                      </ThemedText>
+                    </View>
+                    <ThemedText
+                      type="smallBold"
+                      themeColor="success"
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                      style={[styles.rowAmount, paymentStacked && styles.rowAmountCompact]}
+                    >
+                      {paymentMoney}
+                    </ThemedText>
+                  </ThemedView>
+                </Pressable>
+              );
+            }
+
+            const item = feedItem.expense;
+            const isSettled = isExpenseFullySettled(item);
+            const money = formatMoney(
+              item.total_amount,
+              normalizeCurrencyCode(item.currency_code),
+              i18n.language,
+            );
+            const stacked = compact || money.length > 14;
             return (
               <Pressable
                 onPress={() => {
@@ -417,6 +503,15 @@ export default function ExpensesScreen() {
         members={members}
         categories={categories}
         onClose={() => setStatsVisible(false)}
+      />
+      <SettlementEditModal
+        settlement={editingSettlement}
+        householdId={householdId}
+        fromName={
+          editingSettlement ? (nameById.get(editingSettlement.from_member_id) ?? '—') : ''
+        }
+        toName={editingSettlement ? (nameById.get(editingSettlement.to_member_id) ?? '—') : ''}
+        onClose={() => setEditingSettlement(null)}
       />
       <ExpenseDetailModal
         expense={selectedExpense}

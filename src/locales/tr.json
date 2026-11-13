@@ -78,7 +78,7 @@
     "debtSummaryTitle": "Borç Özeti",
     "noDebts": "Kapanmamış borç yok 🎉",
     "owesArrow": "→",
-    "settleButton": "Ödendi işaretle",
+    "settleButton": "Ödeme kaydet",
     "settleConfirm": "Bu borç ödendi olarak işaretlensin mi?",
     "statisticsButton": "İstatistikler",
     "attachments": "İçerik ve fiş",
@@ -108,7 +108,18 @@
     "daySectionAccessibility": "{{date}}, {{count}} harcama. Aç veya kapat.",
     "searchPlaceholder": "Harcamalarda ara",
     "searchResults": "{{count}} sonuç",
-    "searchEmpty": "Eşleşen harcama bulunamadı"
+    "searchEmpty": "Eşleşen harcama bulunamadı",
+    "settleAmountLabel": "Ödenen tutar",
+    "settleFullAmount": "Tamamı",
+    "settleRemaining": "Kalan borç: {{amount}}",
+    "settleAmountInvalid": "Tutar 0'dan büyük ve borçtan fazla olmamalı.",
+    "paymentRowTitle": "{{from}} → {{to}}",
+    "paymentRowLabel": "Borç ödemesi",
+    "paymentDetailTitle": "Ödemeyi düzenle",
+    "paymentAmountInvalid": "0'dan büyük bir tutar gir.",
+    "paymentDeleteConfirm": "Bu ödeme silinsin mi?",
+    "paymentDeleteMessage": "Silinen tutar tekrar borç olarak görünür.",
+    "paymentRowAccessibility": "{{from}}, {{to}} kişisine {{amount}} ödedi. Düzenle."
   },
   "list": {
     "title": "İhtiyaç Listesi",

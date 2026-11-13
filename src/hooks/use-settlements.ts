@@ -32,6 +32,11 @@ export function useSettlementsRealtime(householdId: string | undefined) {
         },
         () => queryClient.invalidateQueries({ queryKey: queryKeys.settlements(householdId) }),
       )
+      // DELETE payloads only carry the primary key (default replica identity), so
+      // a household_id filter never matches them; listen unfiltered and refetch.
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'settlements' }, () =>
+        queryClient.invalidateQueries({ queryKey: queryKeys.settlements(householdId) }),
+      )
       .subscribe();
 
     return () => {
@@ -58,5 +63,22 @@ export function useRecordSettlementMutation(householdId: string | undefined) {
       queryClient.invalidateQueries({ queryKey: queryKeys.settlements(householdId) });
       notifyHousehold({ kind: 'debt_settled', memberId: variables.toMemberId });
     },
+  });
+}
+
+export function useUpdateSettlementMutation(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ settlementId, amount }: { settlementId: string; amount: number }) =>
+      settlementsApi.updateSettlementRemote(settlementId, amount),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.settlements(householdId) }),
+  });
+}
+
+export function useDeleteSettlementMutation(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (settlementId: string) => settlementsApi.deleteSettlementRemote(settlementId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.settlements(householdId) }),
   });
 }

@@ -916,6 +916,10 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      delete_settlement: {
+        Args: { p_settlement_id: string };
+        Returns: undefined;
+      };
       finish_account_deletion: {
         Args: { target_user_id: string };
         Returns: undefined;
@@ -1030,6 +1034,18 @@ export type Database = {
       set_user_block: {
         Args: { p_blocked: boolean; p_user_id: string };
         Returns: undefined;
+      };
+      update_settlement: {
+        Args: { p_amount: number; p_settlement_id: string };
+        Returns: {
+          amount: number;
+          created_at: string;
+          currency_code: string;
+          from_member_id: string;
+          household_id: string;
+          id: string;
+          to_member_id: string;
+        };
       };
       update_expense_with_details:
         | {

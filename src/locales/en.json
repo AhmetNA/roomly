@@ -78,7 +78,7 @@
     "debtSummaryTitle": "Debt Summary",
     "noDebts": "No open debts 🎉",
     "owesArrow": "→",
-    "settleButton": "Mark as settled",
+    "settleButton": "Record payment",
     "settleConfirm": "Mark this debt as settled?",
     "statisticsButton": "Statistics",
     "attachments": "Contents and receipt",
@@ -109,7 +109,18 @@
     "searchPlaceholder": "Search expenses",
     "searchEmpty": "No matching expenses",
     "searchResults_one": "{{count}} result",
-    "searchResults_other": "{{count}} results"
+    "searchResults_other": "{{count}} results",
+    "settleAmountLabel": "Amount paid",
+    "settleFullAmount": "Full amount",
+    "settleRemaining": "Remaining debt: {{amount}}",
+    "settleAmountInvalid": "Amount must be above 0 and no more than the debt.",
+    "paymentRowTitle": "{{from}} → {{to}}",
+    "paymentRowLabel": "Debt payment",
+    "paymentDetailTitle": "Edit payment",
+    "paymentAmountInvalid": "Enter an amount above 0.",
+    "paymentDeleteConfirm": "Delete this payment?",
+    "paymentDeleteMessage": "The deleted amount will show up as debt again.",
+    "paymentRowAccessibility": "{{from}} paid {{to}} {{amount}}. Edit."
   },
   "list": {
     "title": "Shopping List",

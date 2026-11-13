@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppSymbol } from '@/components/app-symbol';
 import { PrimaryButton } from '@/components/primary-button';
 import { SheetHeader } from '@/components/sheet-header';
+import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { CardShadow, PopupShadow, Spacing, type ThemeColor } from '@/constants/theme';
@@ -241,6 +242,19 @@ function SettleConfirmModal({
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const recordSettlement = useRecordSettlementMutation(householdId);
+  const [amountText, setAmountText] = useState('');
+
+  // Reset the field whenever a different row opens (render-time sync, not an effect).
+  const [prefilledFor, setPrefilledFor] = useState(balance);
+  if (balance !== prefilledFor) {
+    setPrefilledFor(balance);
+    if (balance) setAmountText(String(balance.amount));
+  }
+
+  const amount = Math.round(Number(amountText.replace(',', '.')) * 100) / 100;
+  // Paying more than owed would flip who owes whom; that's a new debt, not a payment.
+  const isAmountValid =
+    Number.isFinite(amount) && amount > 0 && balance !== null && amount <= balance.amount;
 
   async function copyIban() {
     if (!toMember?.iban) return;
@@ -249,11 +263,11 @@ function SettleConfirmModal({
   }
 
   function handleConfirm() {
-    if (!balance) return;
+    if (!balance || !isAmountValid) return;
     recordSettlement.mutate({
       fromMemberId: balance.fromMemberId,
       toMemberId: balance.toMemberId,
-      amount: balance.amount,
+      amount,
       currencyCode: balance.currencyCode,
     });
     onClose();
@@ -270,6 +284,43 @@ function SettleConfirmModal({
             <ThemedText type="title" themeColor="danger" style={styles.cardAmount}>
               {formatMoney(balance.amount, balance.currencyCode, i18n.language)}
             </ThemedText>
+
+            <View style={styles.amountRow}>
+              <View style={styles.amountInput}>
+                <TextField
+                  label={t('expenses.settleAmountLabel')}
+                  value={amountText}
+                  onChangeText={setAmountText}
+                  keyboardType="decimal-pad"
+                  placeholder={t('expenses.amountPlaceholder')}
+                  selectTextOnFocus
+                />
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setAmountText(String(balance.amount))}
+                style={[styles.fullAmountChip, { backgroundColor: theme.backgroundElement }]}
+              >
+                <ThemedText type="small" themeColor="accent">
+                  {t('expenses.settleFullAmount')}
+                </ThemedText>
+              </Pressable>
+            </View>
+            {!isAmountValid && amountText.trim().length > 0 ? (
+              <ThemedText type="small" themeColor="danger">
+                {t('expenses.settleAmountInvalid')}
+              </ThemedText>
+            ) : isAmountValid && amount < balance.amount ? (
+              <ThemedText type="small" themeColor="textSecondary">
+                {t('expenses.settleRemaining', {
+                  amount: formatMoney(
+                    Math.round((balance.amount - amount) * 100) / 100,
+                    balance.currencyCode,
+                    i18n.language,
+                  ),
+                })}
+              </ThemedText>
+            ) : null}
 
             {toMember?.iban ? (
               <Pressable onPress={copyIban}>
@@ -300,6 +351,7 @@ function SettleConfirmModal({
                 label={t('expenses.settleButton')}
                 icon={{ ios: 'checkmark', android: 'check' }}
                 onPress={handleConfirm}
+                disabled={!isAmountValid}
               />
               <PrimaryButton
                 label={t('common.cancel')}
@@ -420,6 +472,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: Spacing.three,
     borderRadius: Spacing.three,
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: Spacing.two,
+  },
+  amountInput: { flex: 1 },
+  fullAmountChip: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    borderRadius: Spacing.three,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   ibanTextGroup: {
     gap: Spacing.half,
