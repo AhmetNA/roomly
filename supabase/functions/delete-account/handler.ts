@@ -1,5 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.115.0";
 
+import { appleConfig, revokeAppleAuthorization } from "./apple.ts";
+
 const headers = {
   "Content-Type": "application/json",
   "Access-Control-Allow-Origin": "*",
@@ -28,8 +30,20 @@ export async function handleDeleteAccount(req: Request): Promise<Response> {
   // Reject target IDs rather than silently accepting an apparent delete-other-user request.
   if (
     !body || typeof body !== "object" || Array.isArray(body) ||
-    Object.keys(body).length !== 1 || !("confirmation" in body) ||
-    body.confirmation !== "DELETE"
+    !("confirmation" in body) || body.confirmation !== "DELETE" ||
+    Object.keys(body).some((key) =>
+      key !== "confirmation" && key !== "appleAuthorizationCode"
+    )
+  ) {
+    return json({ error: "invalid_confirmation" }, 400);
+  }
+  const appleCode = "appleAuthorizationCode" in body
+    ? body.appleAuthorizationCode
+    : undefined;
+  if (
+    appleCode !== undefined &&
+    (typeof appleCode !== "string" || appleCode.length === 0 ||
+      appleCode.length > 2048)
   ) {
     return json({ error: "invalid_confirmation" }, 400);
   }
@@ -42,6 +56,21 @@ export async function handleDeleteAccount(req: Request): Promise<Response> {
   const { data, error } = await admin.auth.getUser(authorization.slice(7));
   if (error || !data.user) return json({ error: "not_authenticated" }, 401);
   const target_user_id = data.user.id;
+  // Revoke before anything is deleted, so a failure leaves the account intact
+  // and the user can simply retry.
+  if (appleCode !== undefined) {
+    const config = appleConfig();
+    if (!config) return json({ error: "apple_revoke_unavailable" }, 503);
+    let revoked = false;
+    try {
+      revoked = await revokeAppleAuthorization(appleCode, config);
+    } catch {
+      revoked = false;
+    }
+    if (!revoked) {
+      return json({ error: "apple_revoke_failed", retryable: true }, 503);
+    }
+  }
   try {
     const { error: prepareError } = await admin.rpc(
       "prepare_account_deletion",

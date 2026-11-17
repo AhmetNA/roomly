@@ -6,7 +6,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { showAlert } from '@/lib/alert';
-import { deleteMyAccount } from '@/lib/api/account-deletion';
+import { AppleReauthCanceledError, deleteMyAccount } from '@/lib/api/account-deletion';
 
 export function DeleteAccountPanel({ pending = false }: { pending?: boolean }) {
   const { t } = useTranslation();
@@ -17,7 +17,11 @@ export function DeleteAccountPanel({ pending = false }: { pending?: boolean }) {
     try {
       const deleted = await deleteMyAccount();
       if (!deleted) showAlert(t('accountDeletion.pendingTitle'), t('accountDeletion.retryBody'));
-    } catch {
+    } catch (error) {
+      if (error instanceof AppleReauthCanceledError) {
+        showAlert(t('accountDeletion.appleReauthTitle'), t('accountDeletion.appleReauthBody'));
+        return;
+      }
       showAlert(t('accountDeletion.errorTitle'), t('accountDeletion.retryBody'));
     } finally {
       setSubmitting(false);

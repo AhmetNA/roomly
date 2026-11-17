@@ -16,7 +16,8 @@
       "emailInUse": "This email is already registered",
       "weakPassword": "Password must be at least 6 characters",
       "alreadyInHousehold": "You're already in a household",
-      "generic": "Something went wrong, please try again"
+      "generic": "Something went wrong, please try again",
+      "appleUnavailable": "Sign in with Apple isn't available right now. Make sure you're signed in to your Apple Account in Settings."
     }
   },
   "household": {
@@ -309,7 +310,9 @@
     "retryBody": "Once deletion starts, household access is removed. Retry to finish cleaning up files. If the problem continues, contact caludebabaq@gmail.com.",
     "retry": "Finish deletion",
     "errorTitle": "Deletion could not finish",
-    "archivedMember": "Account deleted; cannot be claimed"
+    "archivedMember": "Account deleted; cannot be claimed",
+    "appleReauthTitle": "Apple confirmation needed",
+    "appleReauthBody": "Because you signed in with Apple, Apple needs to remove its connection to Roomly before your account is deleted. Start the deletion again and confirm with Apple."
   },
   "safety": {
     "title": "Safety and support",

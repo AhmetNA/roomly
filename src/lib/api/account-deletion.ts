@@ -1,3 +1,6 @@
+import { Platform } from 'react-native';
+
+import { getAppleAuthorizationCode } from '@/lib/api/auth';
 import { queryClient } from '@/lib/query-client';
 import { supabase } from '@/lib/supabase';
 
@@ -14,9 +17,27 @@ export async function isAccountDeletionPending(userId: string) {
   return data !== null;
 }
 
+async function appleCodeIfNeeded(): Promise<string | null | undefined> {
+  if (Platform.OS !== 'ios') return undefined;
+  const { data } = await supabase.auth.getUser();
+  const providers: unknown = data.user?.app_metadata.providers;
+  const usesApple = Array.isArray(providers) && providers.includes('apple');
+  return usesApple ? getAppleAuthorizationCode() : undefined;
+}
+
+export class AppleReauthCanceledError extends Error {
+  constructor() {
+    super('apple_reauth_canceled');
+  }
+}
+
 export async function deleteMyAccount(): Promise<boolean> {
+  const appleAuthorizationCode = await appleCodeIfNeeded();
+  if (appleAuthorizationCode === null) throw new AppleReauthCanceledError();
   const { data, error } = await supabase.functions.invoke('delete-account', {
-    body: { confirmation: 'DELETE' },
+    body: appleAuthorizationCode
+      ? { confirmation: 'DELETE', appleAuthorizationCode }
+      : { confirmation: 'DELETE' },
   });
   if (error || data?.deleted !== true) {
     // Preparation may already have removed membership before a storage failure.

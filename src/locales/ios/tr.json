@@ -1,0 +1,5 @@
+{
+  "CFBundleDisplayName": "Roomly",
+  "NSCameraUsageDescription": "Roomly, bir harcamaya fiş eklemen için fişin fotoğrafını çekebilmek üzere kameraya erişir.",
+  "NSPhotoLibraryUsageDescription": "Roomly, bir harcamaya fiş görseli eklemen için fotoğraflarına erişir."
+}

@@ -11,6 +11,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useCreateHouseholdMutation, useJoinHouseholdMutation } from '@/hooks/use-household';
+import { useSession } from '@/hooks/use-session';
 import { showAlert } from '@/lib/alert';
 import { getAuthErrorMessageKey } from '@/lib/api/auth';
 import { previewHouseholdMembers } from '@/lib/api/household';
@@ -23,12 +24,18 @@ export function OnboardingScreen() {
   const joinHousehold = useJoinHouseholdMutation();
 
   const [mode, setMode] = useState<Mode>('create');
-  const [yourName, setYourName] = useState('');
+  const [typedName, setYourName] = useState<string | null>(null);
   const [householdName, setHouseholdName] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [checkedCode, setCheckedCode] = useState<string | null>(null);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const preview = useMutation({ mutationFn: previewHouseholdMembers });
+  const session = useSession();
+  const metadataName: unknown = session?.user.user_metadata.full_name;
+  // Sign in with Apple hands over the name only once (saved to metadata in
+  // signInWithApple); App Review rejects asking for it again, so prefill it
+  // until the user types their own.
+  const yourName = typedName ?? (typeof metadataName === 'string' ? metadataName : '');
 
   const submitting = createHousehold.isPending || joinHousehold.isPending || preview.isPending;
   const canSubmitCreate = yourName.trim().length > 0 && householdName.trim().length > 0;

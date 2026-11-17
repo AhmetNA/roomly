@@ -2,7 +2,7 @@
   "expo": {
     "name": "Roomly",
     "slug": "roomly",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "roomly",
@@ -15,7 +15,15 @@
     },
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.anonymous.roomly"
+      "bundleIdentifier": "com.ahmetaydemir.roomly",
+      "supportsTablet": false,
+      "usesAppleSignIn": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
     },
     "android": {
       "package": "com.anonymous.roomly",
@@ -55,12 +63,22 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Roomly to select receipt photos.",
-          "cameraPermission": "Allow Roomly to photograph receipts.",
+          "photosPermission": "Roomly needs photo access so you can attach a receipt image to an expense.",
+          "cameraPermission": "Roomly needs camera access so you can photograph a receipt for an expense.",
           "microphonePermission": false
         }
       ],
-      "./plugins/with-receipt-permissions.js"
+      "./plugins/with-receipt-permissions.js",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          }
+        }
+      ],
+      "expo-image",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -72,6 +90,10 @@
       "eas": {
         "projectId": "4287ec94-5a1f-430a-a130-07279e1a1dab"
       }
+    },
+    "locales": {
+      "tr": "./src/locales/ios/tr.json",
+      "en": "./src/locales/ios/en.json"
     }
   }
 }

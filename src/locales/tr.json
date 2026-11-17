@@ -16,7 +16,8 @@
       "emailInUse": "Bu e-posta zaten kayıtlı",
       "weakPassword": "Şifre en az 6 karakter olmalı",
       "alreadyInHousehold": "Zaten bir eve bağlısın",
-      "generic": "Bir şeyler ters gitti, tekrar dene"
+      "generic": "Bir şeyler ters gitti, tekrar dene",
+      "appleUnavailable": "Apple ile giriş şu an kullanılamıyor. Cihazında Ayarlar'dan Apple hesabına giriş yaptığından emin ol."
     }
   },
   "household": {
@@ -308,7 +309,9 @@
     "retryBody": "Silme başladıysa eve erişimin kapanır. Dosya temizliğini tamamlamak için yeniden dene. Sorun sürerse caludebabaq@gmail.com adresine yaz.",
     "retry": "Silmeyi tamamla",
     "errorTitle": "Silme tamamlanamadı",
-    "archivedMember": "Hesap silindi; yeniden sahiplenilemez"
+    "archivedMember": "Hesap silindi; yeniden sahiplenilemez",
+    "appleReauthTitle": "Apple onayı gerekli",
+    "appleReauthBody": "Apple ile giriş yaptığın için hesabını silmeden önce Apple'ın bağlantıyı kaldırmasına izin vermen gerekiyor. Silmeyi tekrar başlatıp Apple onayını tamamla."
   },
   "safety": {
     "title": "Güvenlik ve destek",

@@ -110,3 +110,103 @@ Deno.test("uses validated account ID, cleans Storage before finalization, suppor
     else Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", oldKey);
   }
 });
+
+Deno.test("revokes the Apple authorization before deleting, and stops if it fails", async () => {
+  const originalFetch = globalThis.fetch;
+  const saved = new Map<string, string | undefined>();
+  const keyPair = await crypto.subtle.generateKey(
+    { name: "ECDSA", namedCurve: "P-256" },
+    true,
+    ["sign", "verify"],
+  );
+  const pkcs8 = new Uint8Array(
+    await crypto.subtle.exportKey("pkcs8", keyPair.privateKey),
+  );
+  const pem = `-----BEGIN PRIVATE KEY-----\n${
+    btoa(String.fromCharCode(...pkcs8))
+  }\n-----END PRIVATE KEY-----`;
+  const env: Record<string, string> = {
+    SUPABASE_URL: "https://fixture.invalid",
+    SUPABASE_SERVICE_ROLE_KEY: "fixture-server-only-key",
+    APPLE_TEAM_ID: "FIXTURETEAM",
+    APPLE_KEY_ID: "FIXTUREKEY",
+    APPLE_PRIVATE_KEY: pem,
+    APPLE_CLIENT_ID: "com.example.fixture",
+  };
+  for (const [name, value] of Object.entries(env)) {
+    saved.set(name, Deno.env.get(name));
+    Deno.env.set(name, value);
+  }
+  const userId = "00000000-0000-4000-8000-000000000902";
+  const calls: string[] = [];
+  let revokeOk = false;
+  globalThis.fetch = async (input, init) => {
+    const req = new Request(input, init);
+    const url = new URL(req.url);
+    calls.push(url.pathname);
+    const response = (body: unknown, status = 200) =>
+      new Response(JSON.stringify(body), {
+        status,
+        headers: { "Content-Type": "application/json" },
+      });
+    if (url.pathname === "/auth/v1/user") return response({ id: userId });
+    if (url.host === "appleid.apple.com") {
+      const form = new URLSearchParams(await req.text());
+      assert(form.get("client_id") === "com.example.fixture", "client id");
+      const [header, claims, signature] = form.get("client_secret")!.split(".");
+      const decode = (part: string) =>
+        Uint8Array.from(
+          atob(part.replace(/-/g, "+").replace(/_/g, "/")),
+          (c) => c.charCodeAt(0),
+        );
+      const verified = await crypto.subtle.verify(
+        { name: "ECDSA", hash: "SHA-256" },
+        keyPair.publicKey,
+        decode(signature),
+        new TextEncoder().encode(`${header}.${claims}`),
+      );
+      assert(verified, "client secret signed with the configured key");
+      if (url.pathname === "/auth/token") {
+        assert(form.get("code") === "fixture-code", "authorization code");
+        return response({ refresh_token: "fixture-refresh" });
+      }
+      assert(form.get("token") === "fixture-refresh", "revokes refresh token");
+      return response({}, revokeOk ? 200 : 400);
+    }
+    if (url.pathname.startsWith("/rest/v1/rpc/")) {
+      if (url.pathname.endsWith("/account_deletion_receipts")) {
+        return response([]);
+      }
+      return response(null);
+    }
+    throw new Error(`Unexpected fixture request: ${url.pathname}`);
+  };
+  try {
+    const body = { confirmation: "DELETE", appleAuthorizationCode: "fixture-code" };
+    const failed = await handleDeleteAccount(request(body));
+    assert(failed.status === 503, "revoke failure blocks deletion");
+    assert(
+      !calls.some((p) => p.startsWith("/rest/v1/rpc/")),
+      "nothing deleted when revoke fails",
+    );
+    revokeOk = true;
+    const ok = await handleDeleteAccount(request(body));
+    assert(ok.status === 200 && (await ok.json()).deleted === true, "deleted");
+    assert(
+      calls.indexOf("/auth/revoke") < calls.indexOf("/rest/v1/rpc/prepare_account_deletion"),
+      "revoke happens before deletion",
+    );
+    assert(
+      (await handleDeleteAccount(
+        request({ confirmation: "DELETE", appleAuthorizationCode: 5 }),
+      )).status === 400,
+      "code must be a string",
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+    for (const [name, value] of saved) {
+      if (value === undefined) Deno.env.delete(name);
+      else Deno.env.set(name, value);
+    }
+  }
+});

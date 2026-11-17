@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,9 +10,12 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { showAlert } from '@/lib/alert';
 import {
   getAuthErrorMessageKey,
+  isAppleSignInAvailable,
+  signInWithApple,
   signInWithEmail,
   signInWithGoogle,
   signUpWithEmail,
@@ -31,6 +35,12 @@ export function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [appleAvailable, setAppleAvailable] = useState(false);
+  const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    isAppleSignInAvailable().then(setAppleAvailable);
+  }, []);
 
   const canSubmit = email.trim().length > 0 && password.length > 0 && !submitting;
 
@@ -43,6 +53,17 @@ export function AuthScreen() {
         await signUpWithEmail(email.trim(), password);
         showAlert(t('auth.checkEmailTitle'), t('auth.checkEmailBody'));
       }
+    } catch (error) {
+      showAlert(t(getAuthErrorMessageKey(error)));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleApple() {
+    setSubmitting(true);
+    try {
+      await signInWithApple();
     } catch (error) {
       showAlert(t(getAuthErrorMessageKey(error)));
     } finally {
@@ -117,7 +138,7 @@ export function AuthScreen() {
               onPress={handleSubmit}
             />
 
-            {GOOGLE_AUTH_ENABLED && (
+            {(GOOGLE_AUTH_ENABLED || appleAvailable) && (
               <>
                 <View style={styles.dividerRow}>
                   <ThemedView type="border" style={styles.dividerLine} />
@@ -127,12 +148,29 @@ export function AuthScreen() {
                   <ThemedView type="border" style={styles.dividerLine} />
                 </View>
 
-                <PrimaryButton
-                  label={t('auth.continueWithGoogle')}
-                  variant="secondary"
-                  disabled={submitting}
-                  onPress={handleGoogle}
-                />
+                {appleAvailable && (
+                  // Apple's HIG requires its own native button for Sign in with Apple.
+                  <AppleAuthentication.AppleAuthenticationButton
+                    buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+                    buttonStyle={
+                      colorScheme === 'dark'
+                        ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+                        : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+                    }
+                    cornerRadius={Spacing.three}
+                    style={styles.appleButton}
+                    onPress={submitting ? () => {} : handleApple}
+                  />
+                )}
+
+                {GOOGLE_AUTH_ENABLED && (
+                  <PrimaryButton
+                    label={t('auth.continueWithGoogle')}
+                    variant="secondary"
+                    disabled={submitting}
+                    onPress={handleGoogle}
+                  />
+                )}
               </>
             )}
             <PolicyLinks />
@@ -179,6 +217,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
+  },
+  appleButton: {
+    // Matches PrimaryButton's height (16pt padding top/bottom + one text line).
+    height: 52,
   },
   dividerLine: {
     flex: 1,

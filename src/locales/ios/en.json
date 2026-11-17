@@ -1,0 +1,5 @@
+{
+  "CFBundleDisplayName": "Roomly",
+  "NSCameraUsageDescription": "Roomly needs camera access so you can photograph a receipt for an expense.",
+  "NSPhotoLibraryUsageDescription": "Roomly needs photo access so you can attach a receipt image to an expense."
+}
