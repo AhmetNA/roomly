@@ -37,11 +37,11 @@
 - **Apple hata mesajları:** iptal sessiz; cihazda Apple hesabı yoksa (`ERR_REQUEST_UNKNOWN`) genel hata yerine "Ayarlar'dan Apple hesabına giriş yap" mesajı.
 - **Hesap silmede Apple token iptali (5.1.1(v)) yazıldı:** iOS'ta Apple ile giriş yapmış kullanıcı silmeyi başlatınca Apple onay ekranı yeniden açılır, taze `authorizationCode` `delete-account`'a gider; fonksiyon kodu refresh token'a çevirip hemen `/auth/revoke` çağırır, hiçbir Apple token'ı saklanmaz. İptal başarısızsa hiçbir şey silinmez (503, tekrar denenebilir). Kod: `supabase/functions/delete-account/apple.ts`, Deno testi imzalı client secret'ı ve sırayı doğruluyor.
 - `delete-account` v2 canlıya yüklendi (17 Kasım 2026, `verify_jwt: false` korundu); oturumsuz istek 401, geçersiz Apple kodu 400 döndü.
-- Supabase'de **Apple sağlayıcısı şu an kapalı** (`/auth/v1/settings`: yalnız e-posta ve Google).
+- Supabase Apple sağlayıcısı **açıldı** (17 Kasım 2026, Ahmet; Client ID `com.ahmetaydemir.roomly`). `/auth/v1/settings` apple: true; sahte token ile `signInWithIdToken` isteği Apple yolunda doğrulamaya girip reddedildi.
 
 **Hesap açılınca yapılacaklar:**
 1. **[Ahmet]** Apple Developer → Identifiers → `com.ahmetaydemir.roomly` App ID'sinde "Sign in with Apple" açık olsun (EAS ilk build'de oluşturur). Keys → yeni anahtar, "Sign in with Apple" işaretli → `.p8` dosyasını `.secrets/` altına koy, Key ID ve Team ID'yi söyle.
-2. **[Ahmet, panoda oturum gerekiyor]** Supabase → Authentication → Sign In / Providers → Apple → Enable; **Client IDs**: `com.ahmetaydemir.roomly`. Native akış için "Secret Key (for OAuth)" boş kalabilir.
+2. ~~Supabase Apple sağlayıcısını aç~~ — tamamlandı (17 Kasım 2026).
 3. **[Claude]** Edge Function secret'ları: `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (.p8 içeriği), `APPLE_CLIENT_ID=com.ahmetaydemir.roomly`. Secret'lar yokken Apple kullanıcısının silme isteği `apple_revoke_unavailable` ile hiçbir şey silmeden döner.
 4. TestFlight'ta gerçek Apple girişi + hesap silme uçtan uca denenmeli (iPhone gerekiyor).
 
