@@ -1,0 +1,38 @@
+{
+  "captured": "2026-10-25",
+  "source": "Android 36 ARM64 emulator; direct ADB screencap, no image editing",
+  "package": "com.anonymous.roomly.featuretest",
+  "apk_sha256": "70e290cfe53713bf6f803464ccb154e4d892255c61115c6f3f61006ef80148b3",
+  "data": "fictional data in isolated review household",
+  "device_test_claim": "emulator only; no physical device proof",
+  "screenshots": [
+    {
+      "file": "01-harcamalar.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 127738,
+      "sha256": "14ef34533cd399ea4ad3cef347ac953a44d2f616d670f022bad0ca08af19ffe3"
+    },
+    {
+      "file": "02-ihtiyac-listesi.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 108006,
+      "sha256": "40027827db91f750a003612ee1aaa971250e5dbf57d9804deef65bd94b6ea12f"
+    },
+    {
+      "file": "03-gorevler.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 139182,
+      "sha256": "e47a9e0911df148da402b969ba24c2d39776c2960eee14baae7da8f06f3428e6"
+    },
+    {
+      "file": "04-istatistikler.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 109156,
+      "sha256": "4298bb49d0cb95803437c98380b18e2737bbbe815a342f0368b527d404320f7b"
+    }
+  ]
+}

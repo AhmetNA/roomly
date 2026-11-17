@@ -126,3 +126,7 @@ Kalan somut girdiler: en az iki gerçek Android ekran görüntüsü, özel test�
 ## Son kapsam kararı
 
 Testçi listesi kullanıcı isteğiyle en sona bırakıldı. Şu an ekran görüntüleri için güncel APK hazırlanıyor. Hukuki metinleri kullanıcıdan yazması istenmiyor; paket hazırlanmış durumda: [hukuki hazırlık](legal/README.md). Yalnız gerçek sorumlu/imza bilgileri, sağlayıcı sözleşmesinin fiilen kurulması ve uygulanacak yeni saklama tercihleri operatör katılımı gerektirir.
+
+## Ekran görüntüsü işi tamamlandı
+
+Görüntüleri kullanıcının çekmesine ihtiyaç kalmadı. Android emülatöründen dört ham PNG alındı ve `Downloads/roomly-ekran-goruntuleri-20261025.zip` olarak teslim hazırlandı. Play’e yüklendi; kullanıcı onayıyla yalnız ikon ve tanıtım görseli AI olarak etiketlendi ve mağaza girişi kaydedildi. Console “İncelenmek üzere göndermeye hazır” gösteriyor. Ekran görüntüsü girdisi artık beklenmiyor; uygulama henüz yayımlanmadı. Testçi listesi son aşamada istenecek.
