@@ -71,15 +71,21 @@
         <a href="mailto:caludebabaq@gmail.com">caludebabaq@gmail.com</a>.
       </p>
       <p>
-        Bu sayfa Roomly’nin mevcut geliştirme/test sürümündeki veri işlemlerini açıklar. Google Play
-        üretim yayını henüz yapılmamıştır. Sağlayıcı sözleşmeleri ve yurt dışı aktarım mekanizmasına
-        ilişkin değerlendirme tamamlanmış değildir.
+        Bu sayfa Roomly’nin mevcut geliştirme/test sürümündeki Android ve iOS veri işlemlerini
+        açıklar. Google Play ve App Store üretim yayınları henüz yapılmamıştır. Sağlayıcı
+        sözleşmeleri ve yurt dışı aktarım mekanizmasına ilişkin değerlendirme tamamlanmış değildir.
       </p>
       <h2>Toplanan bilgiler ve kullanım amaçları</h2>
       <ul>
         <li>
           E-posta, hesap kimliği ve seçilen giriş sağlayıcısının paylaştığı profil: giriş ve hesap
           yönetimi.
+        </li>
+        <li>
+          Apple ile giriş (iOS): Apple’ın paylaştığı hesap kimliği, e-posta ve yalnız ilk girişte
+          adın. “E-postamı gizle” seçilirse Apple’ın verdiği yönlendirme adresi kullanılır; gerçek
+          e-posta Roomly’ye gelmez. Ad, ev kurulumunda ad alanını doldurmak için hesap profilinde
+          saklanır.
         </li>
         <li>
           Ev/üye adları, davet kodu, isteğe bağlı IBAN: ev üyeliği ve ortak hesap takibi. Hesabı
@@ -93,12 +99,16 @@
           İsteğe bağlı fiş fotoğrafı: harcama ekini ev üyeleriyle paylaşma. Sistem seçicisi veya
           kamera kullanılır; gereksiz kişisel bilgileri fotoğraftan çıkar.
         </li>
-        <li>Bildirim token’ı ve dil: push/e-posta uyarılarının teslimi.</li>
         <li>
-          Expo güncelleme ve Firebase bildirim servislerinin oluşturduğu kurulum kimlikleri,
-          platform/uygulama sürümü, güncelleme durumu ve oluştuğunda güncelleme açılış hatası
-          bilgileri: güncellemeleri ve bildirimleri çalıştırma, hata teşhisi ve hizmetin bakımı.
-          Kurulum kimliği, reklam kimliği değildir; yine de bir uygulama kurulumunu ayırt eder.
+          Bildirim token’ı ve dil: push/e-posta uyarılarının teslimi. Android’de Firebase Cloud
+          Messaging, iOS’ta Apple Push Notification service kullanılır.
+        </li>
+        <li>
+          Expo güncelleme ve (Android’de) Firebase bildirim servislerinin oluşturduğu kurulum
+          kimlikleri, platform/uygulama sürümü, güncelleme durumu ve oluştuğunda güncelleme açılış
+          hatası bilgileri: güncellemeleri ve bildirimleri çalıştırma, hata teşhisi ve hizmetin
+          bakımı. Kurulum kimliği, reklam kimliği değildir; yine de bir uygulama kurulumunu ayırt
+          eder.
         </li>
         <li>
           Koşul sürümü/kabul zamanı, engelleme ve şikâyet kayıtları: içerik güvenliği, kullanıcı
@@ -123,11 +133,11 @@
       <h2>Altyapı ve yurt dışı</h2>
       <p>
         Supabase hesap, veritabanı, dosya ve eşitleme; Expo güncelleme/push; Google giriş ve FCM;
-        yapılandırılmış Gmail SMTP e-posta; GitHub Pages kamuya açık bilgi sayfaları için
-        kullanılır. Supabase projesi eu-central-1 bölgesindedir. Bu servisler Türkiye dışındadır
-        veya Türkiye dışında işlem yapabilir. Hesap silmek geçmiş aktarımı ortadan kaldırmaz;
-        sağlayıcı sözleşmeleri ve uygulanabilir yurt dışı aktarım mekanizmasının ayrıca tamamlanması
-        gerekir.
+        Apple ile giriş ve Apple Push Notification service (iOS); yapılandırılmış Gmail SMTP
+        e-posta; GitHub Pages kamuya açık bilgi sayfaları için kullanılır. Supabase projesi
+        eu-central-1 bölgesindedir. Bu servisler Türkiye dışındadır veya Türkiye dışında işlem
+        yapabilir. Hesap silmek geçmiş aktarımı ortadan kaldırmaz; sağlayıcı sözleşmeleri ve
+        uygulanabilir yurt dışı aktarım mekanizmasının ayrıca tamamlanması gerekir.
       </p>
       <h2>Saklama ve silme</h2>
       <p>
@@ -135,7 +145,9 @@
         kişisel veriler için ayrıca bir bekletme süresi uygulanmaz: ilişkilendirilebilen üye
         adı/IBAN, yorumlar, liste kayıtları, görev metinleri, fişler, bildirim token’ları ve Auth
         hesabı silme işlemi sırasında kaldırılır. Ağ veya dosya temizliği hatası olursa işlem
-        yeniden denenerek tamamlanır.
+        yeniden denenerek tamamlanır. Apple ile giriş yaptıysan silmeden önce Apple onayı istenir ve
+        Roomly’nin Apple hesabına bağlantısı Apple’da iptal edilir; iptal tamamlanmazsa silme
+        başlamaz ve yeniden denenebilir.
       </p>
       <p>
         Diğer ev üyelerinin bakiyelerini değiştirmemek için finansal üye kimliği, harcama, bölüşüm,
@@ -164,7 +176,7 @@
         dışı aktarım mekanizması nihai üretim yayını öncesinde tamamlanacaktır.
       </p>
       <footer>
-        İletişim: <a href="mailto:caludebabaq@gmail.com">caludebabaq@gmail.com</a> · 23 Ekim 2026
+        İletişim: <a href="mailto:caludebabaq@gmail.com">caludebabaq@gmail.com</a> · 17 Kasım 2026
       </footer>
     </main>
   </body>
