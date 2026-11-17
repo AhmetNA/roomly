@@ -96,3 +96,5 @@ Testers Community hoş geldin e-postası (17 Kasım): 15 testçi yakında indirm
 
 Pre-launch raporu: henüz rapor yok (Console "rapor için yapı yükleyin" diyor); 1.0.1 Alpha'ya yüklenince otomatik oluşacak. Ayarlarda test hesabı kimlik bilgisi verilmemiş; robot giriş ekranını geçemez. İnceleme hesabının bilgilerini kullanıcı Console > Lansman öncesi rapor > Ayarlar'a kendisi girebilir (ajan şifre girmez).
 Pre-launch ayarı kaydedildi (17 Kasım): test hesabı olarak Play inceleme demo hesabı (`.secrets/play-review-account.json`); kaynak kimliği alanları boş. Şifre kullanıcı tarafından girildi.
+
+1.0.1 AAB hazır (17 Kasım): EAS `e1bc32c8` FINISHED, `~/Downloads/roomly-builds/roomly-1.0.1-vc3.aab` (77 MB). İmza SHA-256 Play upload anahtarıyla aynı; manifest paketi `com.anonymous.roomly` (featuretest eki yok), versionName 1.0.1, EAS versionCode 3. Henüz Play'e yüklenmedi; plan test başlangıcından 3–4 gün sonra Alpha.
