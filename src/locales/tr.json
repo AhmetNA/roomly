@@ -182,7 +182,11 @@
     "title": "Kategoriler",
     "namePlaceholder": "Yeni kategori adı",
     "empty": "Henüz kategori yok",
-    "deleteConfirm": "Bu kategoriyi sil? İçindeki öğeler kategorisiz kalır."
+    "deleteConfirm": "Bu kategoriyi sil? İçindeki öğeler kategorisiz kalır.",
+    "changeIconAccessibility": "{{name}} kategorisinin ikonunu değiştir",
+    "renameAccessibility": "{{name}} kategorisini yeniden adlandır",
+    "deleteAccessibility": "{{name}} kategorisini sil",
+    "iconOptionAccessibility": "İkon {{index}}"
   },
   "people": {
     "title": "Kişiler",

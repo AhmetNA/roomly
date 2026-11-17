@@ -93,6 +93,11 @@ export function CategoryManagerModal({
                   <Pressable
                     onPress={() => setPickingIconFor(pickingIconFor === item.id ? null : item.id)}
                     hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('categories.changeIconAccessibility', {
+                      name: item.name,
+                    })}
+                    accessibilityState={{ expanded: pickingIconFor === item.id }}
                   >
                     <CategoryIcon iconKey={item.icon} size={20} color={theme.accent} />
                   </Pressable>
@@ -113,6 +118,8 @@ export function CategoryManagerModal({
                   ) : (
                     <Pressable
                       style={styles.rowLabel}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('categories.renameAccessibility', { name: item.name })}
                       onPress={() => {
                         setEditingId(item.id);
                         setEditingName(item.name);
@@ -121,7 +128,12 @@ export function CategoryManagerModal({
                       <ThemedText type="default">{item.name}</ThemedText>
                     </Pressable>
                   )}
-                  <Pressable onPress={() => handleDelete(item)} hitSlop={12}>
+                  <Pressable
+                    onPress={() => handleDelete(item)}
+                    hitSlop={12}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('categories.deleteAccessibility', { name: item.name })}
+                  >
                     <AppSymbol
                       name={{ ios: 'trash', android: 'delete' }}
                       size={18}
@@ -192,12 +204,16 @@ function IconGrid({
   onSelect: (icon: string) => void;
 }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconGrid}>
-      {ICON_KEYS.map((key) => (
+      {ICON_KEYS.map((key, index) => (
         <Pressable
           key={key}
           onPress={() => onSelect(key)}
+          accessibilityRole="button"
+          accessibilityLabel={t('categories.iconOptionAccessibility', { index: index + 1 })}
+          accessibilityState={{ selected: selected === key }}
           style={[
             styles.iconChip,
             { backgroundColor: selected === key ? theme.accent : theme.backgroundElement },

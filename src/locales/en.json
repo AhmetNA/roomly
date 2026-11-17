@@ -183,7 +183,11 @@
     "title": "Categories",
     "namePlaceholder": "New category name",
     "empty": "No categories yet",
-    "deleteConfirm": "Delete this category? Its items become uncategorized."
+    "deleteConfirm": "Delete this category? Its items become uncategorized.",
+    "changeIconAccessibility": "Change icon for {{name}}",
+    "renameAccessibility": "Rename {{name}}",
+    "deleteAccessibility": "Delete {{name}}",
+    "iconOptionAccessibility": "Icon {{index}}"
   },
   "people": {
     "title": "People",

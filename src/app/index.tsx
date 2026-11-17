@@ -119,14 +119,12 @@ export default function ExpensesScreen() {
     () =>
       [
         ...expenses.map(toExpenseItem),
-        ...settlements.map(
-          (settlement): FeedItem => ({
-            kind: 'payment',
-            id: settlement.id,
-            createdAt: settlement.created_at,
-            settlement,
-          }),
-        ),
+        ...settlements.map((settlement): FeedItem => ({
+          kind: 'payment',
+          id: settlement.id,
+          createdAt: settlement.created_at,
+          settlement,
+        })),
       ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     [expenses, settlements],
   );
@@ -223,7 +221,13 @@ export default function ExpensesScreen() {
               active={searchOpen}
               onPress={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
             />
-            <Pressable onPress={() => setDebtVisible(true)} hitSlop={8} style={styles.headerButton}>
+            <Pressable
+              onPress={() => setDebtVisible(true)}
+              hitSlop={8}
+              style={styles.headerButton}
+              accessibilityRole="button"
+              accessibilityLabel={t('expenses.debtSummaryTitle')}
+            >
               <AppSymbol
                 name={{ ios: 'arrow.left.arrow.right.circle', android: 'swap_horizontal_circle' }}
                 size={22}
@@ -234,6 +238,8 @@ export default function ExpensesScreen() {
               onPress={() => setStatsVisible(true)}
               hitSlop={8}
               style={styles.headerButton}
+              accessibilityRole="button"
+              accessibilityLabel={t('statistics.title')}
             >
               <AppSymbol
                 name={{ ios: 'chart.bar', android: 'bar_chart' }}
@@ -260,8 +266,7 @@ export default function ExpensesScreen() {
           keyExtractor={(item) => `${item.kind}-${item.id}`}
           contentContainerStyle={[
             styles.listContent,
-            (searching ? searchResults.length === 0 : feed.length === 0) &&
-              styles.listContentEmpty,
+            (searching ? searchResults.length === 0 : feed.length === 0) && styles.listContentEmpty,
           ]}
           refreshControl={
             <RefreshControl
@@ -507,9 +512,7 @@ export default function ExpensesScreen() {
       <SettlementEditModal
         settlement={editingSettlement}
         householdId={householdId}
-        fromName={
-          editingSettlement ? (nameById.get(editingSettlement.from_member_id) ?? '—') : ''
-        }
+        fromName={editingSettlement ? (nameById.get(editingSettlement.from_member_id) ?? '—') : ''}
         toName={editingSettlement ? (nameById.get(editingSettlement.to_member_id) ?? '—') : ''}
         onClose={() => setEditingSettlement(null)}
       />
