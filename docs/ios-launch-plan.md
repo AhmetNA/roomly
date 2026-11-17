@@ -36,6 +36,7 @@
 - **Google penceresi:** iOS'un "Roomly, vigmiiiwyliqslbwuzet.supabase.co'yu giriş için kullanmak istiyor" uyarısı `preferEphemeralSession: true` ile kaldırıldı. Bedeli: Google oturumu Safari ile paylaşılmaz, kullanıcı her girişte Google hesabını seçer. Google'ın kendi onay sayfasındaki "…supabase.co'ya devam et" yazısı ise Google Cloud OAuth onay ekranının uygulama adı/markası ile ilgilidir; Supabase alan adını tamamen gizlemek ücretli Supabase custom domain gerektirir.
 - **Apple hata mesajları:** iptal sessiz; cihazda Apple hesabı yoksa (`ERR_REQUEST_UNKNOWN`) genel hata yerine "Ayarlar'dan Apple hesabına giriş yap" mesajı.
 - **Hesap silmede Apple token iptali (5.1.1(v)) yazıldı:** iOS'ta Apple ile giriş yapmış kullanıcı silmeyi başlatınca Apple onay ekranı yeniden açılır, taze `authorizationCode` `delete-account`'a gider; fonksiyon kodu refresh token'a çevirip hemen `/auth/revoke` çağırır, hiçbir Apple token'ı saklanmaz. İptal başarısızsa hiçbir şey silinmez (503, tekrar denenebilir). Kod: `supabase/functions/delete-account/apple.ts`, Deno testi imzalı client secret'ı ve sırayı doğruluyor.
+- `delete-account` v2 canlıya yüklendi (17 Kasım 2026, `verify_jwt: false` korundu); oturumsuz istek 401, geçersiz Apple kodu 400 döndü.
 - Supabase'de **Apple sağlayıcısı şu an kapalı** (`/auth/v1/settings`: yalnız e-posta ve Google).
 
 **Hesap açılınca yapılacaklar:**
